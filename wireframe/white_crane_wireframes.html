@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>White Crane Website, Wireframes</title>
+<style>
+:root{--w:#fff;--g:#e5e8ec;--g2:#f6f7f9;--ink:#12172a;--mu:#6b7380;--acc:#2e5a87;--line:#d1d6db;--ok:#218c54;--warn:#d98c1a;--bad:#bf3333;--side:#172233;--r:6px}
+:root:not([data-theme="light"]){color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:#e9ebef}
+h1,h2,h3,h4{margin:0;font-weight:700}
+p{margin:0}
+a{color:var(--acc);font-weight:600;text-decoration:none}
+button{font:inherit}
+
+/* ---------- viewer chrome ---------- */
+#app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+#list{background:#fff;border-right:1px solid var(--line);padding:16px;position:sticky;top:0;height:100vh;overflow:auto}
+#list h1{font-size:15px;margin-bottom:4px}
+#list .sub{color:var(--mu);font-size:12px;margin-bottom:14px}
+#list h2{font-size:11px;color:var(--mu);margin:14px 0 4px;font-weight:600}
+#list button{display:block;width:100%;text-align:left;border:0;background:none;padding:6px 8px;border-radius:var(--r);cursor:pointer;color:var(--ink)}
+#list button.on{background:var(--acc);color:#fff}
+#stage{padding:24px;overflow:auto}
+#stage .frame{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12);margin:0 auto 24px;max-width:1440px;border-radius:2px;overflow:hidden}
+#stage .frame.mobile{max-width:390px}
+#stage .frame.auth{min-height:720px;background:var(--g2);display:flex;align-items:center;justify-content:center;padding:40px}
+.title{max-width:1440px;margin:0 auto 10px;font-weight:600;font-size:13px;color:var(--mu)}
+.note{max-width:1440px;margin:0 auto 24px;background:#fff9dd;border-radius:8px;padding:14px 18px;font-size:13px}
+.note li{margin:3px 0}
+
+/* ---------- primitives ---------- */
+.box{background:var(--g);border-radius:var(--r);display:flex;align-items:center;justify-content:center;color:var(--mu);font-size:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:var(--r);background:var(--acc);color:#fff;font-weight:600;border:1px solid var(--acc);cursor:pointer;white-space:nowrap}
+.btn.sec{background:#fff;color:var(--ink);border-color:var(--line)}
+.btn.bad{background:var(--bad);border-color:var(--bad)}
+.btn.full{width:100%}
+.field{display:flex;flex-direction:column;gap:6px;flex:1}
+.field label{font-size:13px;font-weight:600}
+.input{border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;background:#fff;color:var(--mu);min-height:40px}
+.input.ta{min-height:80px}
+.badge{display:inline-block;padding:3px 8px;border-radius:99px;font-size:12px;font-weight:600}
+.badge.ok{background:rgba(33,140,84,.14);color:var(--ok)}
+.badge.warn{background:rgba(217,140,26,.14);color:var(--warn)}
+.badge.bad{background:rgba(191,51,51,.14);color:var(--bad)}
+.badge.acc{background:rgba(46,90,135,.14);color:var(--acc)}
+.card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:8px}
+.card h4{font-size:16px;font-weight:600}
+.muted{color:var(--mu)}
+.row{display:flex;gap:12px;align-items:center}
+.row.top{align-items:flex-start}
+.row.between{justify-content:space-between}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.two{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start}
+.two.eq{grid-template-columns:1fr 1fr}
+.tabs{display:flex;gap:4px}
+table.t{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+table.t th{background:var(--g2);text-align:left;font-size:12px;color:var(--mu);padding:10px 16px;font-weight:600}
+table.t td{padding:12px 16px;border-top:1px solid var(--line)}
+.stack{display:flex;flex-direction:column;gap:12px}
+.stack.lg{gap:20px}
+.kv{display:grid;grid-template-columns:160px 1fr;gap:8px 16px;font-size:14px}
+.kv span:nth-child(odd){color:var(--mu);font-size:13px}
+
+/* ---------- public ---------- */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:20px 120px;border-bottom:1px solid var(--line)}
+.nav .links{display:flex;gap:28px}
+.nav .links .on{color:var(--acc);font-weight:600}
+.sec{padding:56px 120px;display:flex;flex-direction:column;gap:24px}
+.sec.alt{background:var(--g2)}
+.sec h1{font-size:36px;line-height:1.15}
+.sec h2{font-size:28px}
+.sec h3{font-size:20px;font-weight:600}
+.sec .lede{font-size:16px;color:var(--mu);max-width:640px}
+.hero{display:grid;grid-template-columns:1fr 480px;gap:48px;align-items:flex-start}
+.footer{background:var(--g2);padding:40px 120px;display:flex;flex-direction:column;gap:16px;font-size:13px}
+.footer .cols{display:flex;justify-content:space-between;align-items:flex-start}
+.training-row{display:flex;gap:24px;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:20px}
+.date{width:90px;background:var(--g2);border-radius:var(--r);padding:8px;text-align:center}
+.date b{display:block;font-size:28px}
+.date small{font-size:12px;color:var(--mu);font-weight:600}
+.center{text-align:center;align-items:center}
+.narrow{max-width:760px;width:100%;margin:0 auto}
+.resource{display:flex;gap:20px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:20px}
+.check{display:flex;gap:10px;align-items:flex-start}
+.check i{width:18px;height:18px;border:1px solid var(--line);border-radius:4px;flex:none;margin-top:2px}
+.done{width:64px;height:64px;border-radius:50%;background:rgba(33,140,84,.18)}
+
+/* ---------- auth ---------- */
+.authcard{width:440px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:32px;display:flex;flex-direction:column;gap:20px;align-items:center;text-align:center}
+.authcard h2{font-size:24px}
+.authcard .field,.authcard .btn{width:100%;text-align:left}
+
+/* ---------- dashboard ---------- */
+.dash{display:grid;grid-template-columns:240px 1fr;min-height:760px}
+.side{background:var(--side);color:#d9dee6;padding:20px;display:flex;flex-direction:column;gap:4px}
+.side .box{background:#33404f;color:#b3bcc8}
+.side .role{font-size:12px;color:#b3bcc8;margin-bottom:8px}
+.side .grp{font-size:11px;color:#8090a3;font-weight:600;margin-top:10px}
+.side a{display:block;color:#d9dee6;font-weight:400;padding:8px 10px;border-radius:var(--r)}
+.side a.on{background:var(--acc);color:#fff;font-weight:600}
+.side .acct{margin-top:auto;font-size:13px;color:#b3bcc8;padding:8px 10px}
+.main{background:var(--g2)}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:16px 32px;background:#fff;border-bottom:1px solid var(--line)}
+.topbar h2{font-size:20px}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--g);display:inline-block;vertical-align:middle;margin-left:16px}
+.content{padding:32px;display:flex;flex-direction:column;gap:20px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px}
+.stat b{display:block;font-size:28px}
+.stat small{color:var(--mu);font-size:12px}
+.stat .l{color:var(--mu);font-size:13px}
+.member{display:flex;gap:16px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:8px;padding:16px}
+
+/* ---------- mobile ---------- */
+.m .nav{padding:14px 16px}
+.m .sec{padding:32px 16px;gap:14px}
+.m .sec h1{font-size:28px}
+.m .sec h2{font-size:22px}
+.m .btn{width:100%}
+.m .footer{padding:24px 16px}
+
+/* ---------- responsive for the viewer itself ---------- */
+@media (max-width:900px){#app{grid-template-columns:1fr}#list{position:static;height:auto}
+.nav,.sec,.footer{padding-left:24px;padding-right:24px}.hero,.grid3,.grid4,.two{grid-template-columns:1fr}.dash{grid-template-columns:1fr}.side{flex-direction:row;flex-wrap:wrap}.side .acct{margin-top:0}}
+</style>
+</head>
+<body>
+<div id="app">
+  <nav id="list"></nav>
+  <main id="stage"></main>
+</div>
+
+<script>
+// ------------ shared fragments ------------
+const nav = (active) => `<div class="nav"><div class="box" style="width:140px;height:32px">Logo</div>
+<div class="links">${['Home','About','Trainings','Directory','Resources'].map(l=>`<span class="${l===active?'on':''}">${l}</span>`).join('')}</div>
+<span class="btn">Apply to Directory</span></div>`;
+
+const footer = `<div class="footer"><div class="cols">
+<div class="stack" style="width:320px;gap:8px"><div class="box" style="width:140px;height:32px">Logo</div><b>White Crane Training Collective</b><span class="muted">Short mission line. Contact email.</span></div>
+<div class="stack" style="width:360px;gap:8px"><b>Sign up for updates</b><div class="row"><div class="box" style="flex:1;height:40px">email@address</div><span class="btn">Subscribe</span></div><span class="muted" style="font-size:12px">Consent line: you agree to receive occasional updates.</span></div>
+</div><span class="muted" style="font-size:12px">Copyright 2026 White Crane Training Collective. Links: Trainings, Directory, Resources, Login.</span></div>`;
+
+const card = (t,s,cta) => `<div class="card"><h4>${t}</h4><p class="muted">${s}</p>${cta?`<div><span class="btn sec">${cta}</span></div>`:''}</div>`;
+const field = (l,ph='',ta=false) => `<div class="field"><label>${l}</label><div class="input ${ta?'ta':''}">${ph}</div></div>`;
+const table = (heads,rows) => `<table class="t"><tr>${heads.map(h=>`<th>${h}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table>`;
+const B = (t,k) => `<span class="badge ${k}">${t}</span>`;
+
+const NAV = [['Overview',['Dashboard']],['Content',['Landing content','Board members','Resources']],['Trainings',['Trainings']],['Directory',['Applications','Listings','Renewals due']],['People',['Subscribers','Users']]];
+const shell = (title,role,active,body) => `<div class="dash">
+<aside class="side"><div class="box" style="height:32px">Logo</div><div class="role">${role} view</div>
+${NAV.map(([g,items])=>`<div class="grp">${g}</div>${items.map(i=>`<a class="${i===active?'on':''}">${i}</a>`).join('')}`).join('')}
+<div class="acct">My account &nbsp;|&nbsp; Sign out</div></aside>
+<section class="main"><div class="topbar"><h2>${title}</h2><div><a>View public site</a><span class="avatar"></span></div></div>
+<div class="content">${body}</div></section></div>`;
+
+const authCard = (t,s,body) => `<div class="authcard"><div class="box" style="width:140px;height:32px">Logo</div><h2>${t}</h2><p class="muted">${s}</p>${body}</div>`;
+
+// ------------ screens ------------
+const S = {};
+
+S['Home'] = nav('Home') + `
+<div class="sec alt" style="padding-top:80px;padding-bottom:80px"><div class="hero"><div class="stack" style="gap:16px">
+<h1>Advancing DBT fidelity through training and community</h1><p class="lede">One or two sentences of mission. Public visitors land here.</p>
+<div class="row"><span class="btn">Browse Trainings</span><span class="btn sec">Find a DBT Team</span></div></div>
+<div class="box" style="height:300px">Hero image / photo</div></div></div>
+<div class="sec"><h2>Mission, Vision, Values</h2><div class="grid3">${['Mission','Vision','Values'].map(t=>card(t,'Editable text block from dashboard (Landing Content).')).join('')}</div></div>
+<div class="sec alt"><div class="row between"><h2>Upcoming Trainings</h2><a>View all trainings</a></div><div class="grid3">${[1,2,3].map(()=>card('Training title','Date and time. One-line description.','Register')).join('')}</div></div>
+<div class="sec"><div class="hero" style="grid-template-columns:1fr 400px;align-items:center"><div class="stack"><h2>DBT Clinical Directory</h2><p class="lede">Find an approved DBT team near you, or apply to have your team listed.</p><div class="row"><span class="btn">Search Directory</span><span class="btn sec">Apply as a Team</span></div></div><div class="box" style="height:200px">Map / illustration</div></div></div>` + footer;
+
+S['About'] = nav('About') + `
+<div class="sec" style="gap:16px"><h1>About White Crane</h1><p class="lede">Mission, vision and values in full. Editable from Landing Content.</p></div>
+<div class="sec alt"><h2>Board of Directors</h2><div class="grid4">${[1,2,3,4].map(()=>`<div class="card"><div class="box" style="height:160px">Photo</div><h4>Member Name</h4><span class="muted" style="font-size:13px">Role / credentials</span><span class="muted" style="font-size:13px">Short bio, two to three lines.</span></div>`).join('')}</div></div>` + footer;
+
+S['Trainings'] = nav('Trainings') + `
+<div class="sec" style="gap:16px"><div class="row between"><h1>Trainings</h1><a>See upcoming (not yet open)</a></div>
+<div class="row"><div class="box" style="width:360px;height:40px">Search trainings</div><div class="box" style="width:160px;height:40px">Month</div><div class="box" style="width:220px;height:40px">Format: Online / In person</div></div></div>
+<div class="sec" style="padding-top:0;gap:16px">${[['OCT','14'],['NOV','2'],['NOV','18']].map(([m,d])=>`<div class="training-row"><div class="date"><small>${m}</small><b>${d}</b></div><div class="stack" style="flex:1;gap:6px"><h3>Training title</h3><p class="muted">9:00 AM to 4:00 PM. Trainer name. One-line description.</p></div><div class="stack center" style="width:180px;gap:8px"><span class="btn">Register</span><a style="font-size:13px">View details</a></div></div>`).join('')}</div>` + footer;
+
+S['Training detail'] = nav('Trainings') + `
+<div class="sec"><span class="muted" style="font-size:13px">Trainings &nbsp;/&nbsp; Training title</span>
+<div class="two" style="grid-template-columns:1fr 360px;gap:48px"><div class="stack lg"><h1>Training title</h1><p class="lede">14 Oct 2026, 9:00 AM to 4:00 PM. Online. Trainer name(s).</p><div class="box" style="height:240px">Cover image (optional)</div>
+${['Description','Objectives','Agenda','Trainers'].map(h=>`<h3>${h}</h3><p class="muted">Rich text block managed from the dashboard training editor.</p>`).join('')}</div>
+<div class="card" style="background:var(--g2);border:0;padding:24px;gap:12px"><h4>Registration</h4><p class="muted">Date, time, format, cost if any, CE credits if any.</p><span class="btn full">Register on external site</span><span class="muted" style="font-size:12px">Opens the CEU manager event page in a new tab.</span></div></div></div>` + footer;
+
+S['Upcoming trainings'] = nav('Trainings') + `
+<div class="sec" style="gap:16px"><h1>Upcoming Trainings</h1><p class="lede">Planned trainings not yet open for registration. Sign up for updates to be notified.</p>
+<div class="grid3">${[1,2,3].map(()=>`<div class="card"><h4>Planned training title</h4><p class="muted">Expected: Spring 2027. Short description.</p><div>${B('Registration not open','acc')}</div></div>`).join('')}</div></div>
+<div class="sec alt" style="gap:12px"><h3>Get notified</h3><div class="row"><div class="box" style="width:360px;height:40px">email@address</div><span class="btn">Subscribe</span></div></div>` + footer;
+
+S['Directory'] = nav('Directory') + `
+<div class="sec alt" style="gap:16px"><div class="row between top"><div class="stack" style="gap:8px"><h1>DBT Clinical Directory</h1><p class="lede">Teams approved by the Directorate as meeting DBT fidelity standards.</p></div><span class="btn sec">Apply as a Team</span></div>
+<div class="row"><div class="box" style="width:400px;height:40px">Search by agency name</div><div class="box" style="width:240px;height:40px">Location / state</div><span class="btn">Search</span></div></div>
+<div class="sec" style="gap:16px"><span class="muted">24 approved teams</span><div class="grid3">${[1,2,3,4,5,6].map(()=>`<div class="card"><h4>Agency name</h4><span class="muted">City, State</span><a>website.org &nbsp;|&nbsp; contact</a><div>${B('Approved 2026','ok')}</div></div>`).join('')}</div>
+<div class="row" style="justify-content:center;gap:8px"><a>Prev</a><a>1</a><a>2</a><a>3</a><a>Next</a></div></div>` + footer;
+
+S['Apply to directory'] = nav('Directory') + `
+<div class="sec"><div class="narrow stack lg"><h1>Apply to the DBT Clinical Directory</h1><p class="lede">Applications are reviewed by the Directorate. You will receive an email when a decision is made or if more information is needed.</p>
+<div class="card" style="padding:24px;gap:16px"><h3>1. Team details</h3><div class="row top" style="gap:16px">${field('Agency / team name')}${field('Location (city, state)')}</div><div class="row top" style="gap:16px">${field('Website','https://')}${field('Public contact (email or phone)')}</div></div>
+<div class="card" style="padding:24px;gap:16px"><h3>2. Contact person (not shown publicly)</h3><div class="row top" style="gap:16px">${field('Name')}${field('Email')}</div>${field('Phone')}</div>
+<div class="card" style="padding:24px;gap:16px"><h3>3. DBT fidelity attestation</h3><div class="box" style="height:140px;background:var(--g2)">Attestation text supplied by Ronda (scrollable)</div><div class="check"><i></i><span>I attest on behalf of my team that the statements above are accurate.</span></div>${field('Typed signature (full name)')}</div>
+<div class="row between"><span class="muted" style="font-size:13px">Fields marked required must be completed.</span><span class="btn">Submit application</span></div></div></div>` + footer;
+
+S['Application submitted'] = nav('Directory') + `
+<div class="sec center" style="padding-top:120px;padding-bottom:120px;gap:16px"><div class="done"></div><h1>Application received</h1><p class="lede" style="max-width:600px">We emailed a confirmation to contact@agency.org. The Directorate reviews applications and will contact you if more information is needed.</p><div class="row"><span class="btn sec">Back to Directory</span><span class="btn sec">Browse Trainings</span></div></div>` + footer;
+
+S['Resources'] = nav('Resources') + `
+<div class="sec" style="gap:16px"><h1>Resources</h1><p class="lede">Links, information and forms curated by White Crane.</p><div class="tabs">${['All','Forms','Reading','Links','For teams'].map((t,i)=>`<span class="btn ${i?'sec':''}">${t}</span>`).join('')}</div></div>
+<div class="sec" style="padding-top:0;gap:16px">${[0,1,2,3].map(i=>`<div class="resource"><div class="box" style="width:48px;height:48px">icon</div><div class="stack" style="flex:1;gap:4px"><h4 style="font-size:16px;font-weight:600">Resource title</h4><span class="muted" style="font-size:13px">One-line description. Category. PDF, 240 KB or external link.</span></div><span class="btn sec">${i%2?'Download':'Open link'}</span></div>`).join('')}</div>
+<div class="sec alt" style="gap:12px"><h3>Stay in the loop</h3><div class="row"><div class="box" style="width:360px;height:40px">email@address</div><span class="btn">Subscribe</span></div><span class="muted" style="font-size:12px">Consent line shown under the form.</span></div>` + footer;
+
+S['Subscribed'] = nav('Home') + `
+<div class="sec center" style="padding-top:120px;padding-bottom:120px;gap:16px"><div class="done"></div><h1>You are on the list</h1><p class="lede" style="max-width:600px">A confirmation was sent to your email. You can unsubscribe from any message.</p><span class="btn sec">Back to Home</span></div>` + footer;
+
+// auth
+S['Login'] = authCard('Sign in','Board, Trainers and Directorate only. No public sign-up.', field('Email','name@whitecrane.org')+field('Password')+`<span class="btn">Sign in</span><a style="font-size:13px">Forgot your password?</a>`);
+S['Forgot password'] = authCard('Reset your password','Enter your email. If an account exists we send a reset link.', field('Email','name@whitecrane.org')+`<span class="btn">Send reset link</span><a style="font-size:13px">Back to sign in</a>`);
+S['Reset password'] = authCard('Choose a new password','Link expires in 60 minutes.', field('New password','At least 10 characters')+field('Confirm password')+`<span class="btn">Save password</span>`);
+S['Accept invite'] = authCard('Welcome to White Crane','You were invited as Directorate by Ronda. Set a password to finish.', field('Name')+field('Email (read only)','invited@agency.org')+field('Password')+`<span class="btn">Create account</span>`);
+
+// dashboard
+S['Dashboard home'] = shell('Dashboard','Board','Dashboard',`
+<span class="muted">Good morning, Ronda. Here is what needs attention.</span>
+<div class="grid4" style="gap:16px">${[['Pending applications','4','2 waiting more than 7 days'],['Listings due for renewal','3','Next 60 days'],['Upcoming trainings','2','Next 30 days'],['Subscribers','312','+18 this month']].map(([l,v,n])=>`<div class="stat"><span class="l">${l}</span><b>${v}</b><small>${n}</small></div>`).join('')}</div>
+<div class="two"><div class="card"><h4>Recent applications</h4>${table(['Agency','Submitted','Status'],[['Riverbend DBT Team','12 Sep',B('Pending','warn')],['Northside Clinic','10 Sep',B('Info requested','acc')],['Harbor Health','8 Sep',B('Pending','warn')]])}</div>
+<div class="card"><h4>Quick actions</h4>${['Add training','Edit landing content','Invite a user','Export subscribers'].map(a=>`<span class="btn sec">${a}</span>`).join('')}</div></div>`);
+
+S['Landing content'] = shell('Landing content','Board','Landing content',`
+<div class="row between"><span class="muted" style="font-size:13px">Edits publish immediately to the public site.</span><div class="row"><span class="btn sec">Preview</span><span class="btn">Save changes</span></div></div>
+<div class="two eq"><div class="card" style="padding:24px;gap:16px"><h4>Hero</h4>${field('Headline','Advancing DBT fidelity through training and community')}${field('Subheading','',true)}${field('Primary button label','Browse Trainings')}<label style="font-size:13px;font-weight:600">Hero image</label><div class="box" style="height:120px">Upload / replace image</div></div>
+<div class="card" style="padding:24px;gap:16px"><h4>Mission, Vision, Values</h4>${field('Mission','',true)}${field('Vision','',true)}${field('Values','',true)}</div></div>`);
+
+S['Board members'] = shell('Board members','Board','Board members',`
+<div class="row between"><span class="muted" style="font-size:13px">Shown on the About page in this order. Drag to reorder.</span><span class="btn">Add member</span></div>
+${[1,2,3].map(()=>`<div class="member"><b class="muted">::</b><div class="box" style="width:56px;height:56px">Photo</div><div class="stack" style="flex:1;gap:2px"><b>Member Name</b><span class="muted" style="font-size:13px">Role / credentials. First line of bio.</span></div><div class="row" style="gap:8px"><span class="btn sec">Edit</span><span class="btn sec">Remove</span></div></div>`).join('')}`);
+
+S['Trainings list'] = shell('Trainings','Trainer','Trainings',`
+<div class="row between"><div class="tabs"><span class="btn">Open (5)</span><span class="btn sec">Upcoming (2)</span><span class="btn sec">Past (14)</span></div><div class="row"><div class="box" style="width:220px;height:38px">Search</div><span class="btn">Add training</span></div></div>
+${table(['Title','Date','Trainer','Status','Registration',''],[['DBT Skills Intensive','14 Oct 2026','J. Doe',B('Open','ok'),'External link','<a>Edit</a>'],['Chain Analysis Workshop','2 Nov 2026','A. Smith',B('Open','ok'),'External link','<a>Edit</a>'],['Adolescent DBT Overview','Spring 2027','TBD',B('Upcoming','acc'),'Not yet','<a>Edit</a>']])}
+<span class="muted" style="font-size:12px">Trainer role sees only this section. Board sees everything.</span>`);
+
+S['Training editor'] = shell('Edit training','Trainer','Trainings',`
+<div class="row between"><span class="muted" style="font-size:13px">Trainings &nbsp;/&nbsp; DBT Skills Intensive</span><div class="row"><span class="btn sec">Delete</span><span class="btn sec">Save draft</span><span class="btn">Publish</span></div></div>
+<div class="two"><div class="card" style="padding:24px;gap:16px">${field('Title')}<div class="row top" style="gap:16px">${field('Date')}${field('Start time')}${field('End time')}</div>${field('Description','',true)}${field('Objectives','',true)}${field('Agenda','',true)}${field('Trainer names')}</div>
+<div class="card" style="padding:24px;gap:16px"><b>Status</b><div class="row" style="gap:8px"><span class="btn">Open</span><span class="btn sec">Upcoming</span></div>${field('Registration URL','https://ceu-manager.example/event/...')}<span class="muted" style="font-size:12px">Leave blank for Upcoming trainings. Button on public page hidden until set.</span>${field('Format','Online / In person')}${field('Slug','dbt-skills-intensive')}<label style="font-size:13px;font-weight:600">Cover image</label><div class="box" style="height:120px">Upload</div></div></div>`);
+
+S['Applications queue'] = shell('Applications','Directorate','Applications',`
+<div class="row between"><div class="tabs"><span class="btn">Pending (4)</span><span class="btn sec">Info requested (1)</span><span class="btn sec">Approved (24)</span><span class="btn sec">Declined (3)</span></div><div class="box" style="width:220px;height:38px">Search agency</div></div>
+${table(['Agency','Location','Submitted','Waiting','Status',''],[['Riverbend DBT Team','Portland, OR','12 Sep 2026','4 days',B('Pending','warn'),'<a>Review</a>'],['Harbor Health','Seattle, WA','8 Sep 2026','8 days',B('Pending','warn'),'<a>Review</a>'],['Cedar Counseling','Boise, ID','1 Sep 2026','15 days',B('Pending','warn'),'<a>Review</a>'],['Northside Clinic','Denver, CO','10 Sep 2026','waiting on applicant',B('Info requested','acc'),'<a>Review</a>']])}
+<span class="muted" style="font-size:12px">Directorate role sees only Applications, Listings, Renewals. Board sees everything.</span>`);
+
+S['Application review'] = shell('Review application','Directorate','Applications',`
+<div class="row between"><div class="row"><span class="muted" style="font-size:13px">Applications &nbsp;/&nbsp; Riverbend DBT Team</span>${B('Pending','warn')}</div><span class="muted" style="font-size:13px">Submitted 12 Sep 2026</span></div>
+<div class="two"><div class="stack" style="gap:16px">
+<div class="card" style="padding:24px"><h4>Team details (will be public if approved)</h4><div class="kv"><span>Agency</span><span>Riverbend DBT Team</span><span>Location</span><span>Portland, OR</span><span>Website</span><span>riverbend.org</span><span>Public contact</span><span>intake@riverbend.org</span></div></div>
+<div class="card" style="padding:24px"><h4>Contact person (private)</h4><div class="kv"><span>Name</span><span>Dana Lee</span><span>Email</span><span>dana@riverbend.org</span><span>Phone</span><span>(503) 555 0100</span></div></div>
+<div class="card" style="padding:24px"><h4>Attestation</h4><p class="muted">Signed by Dana Lee on 12 Sep 2026 at 10:42. Attestation version 1.0.</p></div></div>
+<div class="stack" style="gap:16px"><div class="card" style="padding:24px"><h4>Decision</h4>${field('Note to applicant (sent by email)','',true)}<span class="btn">Approve and publish listing</span><span class="btn sec">Request more information</span><span class="btn bad">Decline</span></div>
+<div class="card" style="padding:24px;gap:6px"><h4>Activity</h4><span class="muted" style="font-size:13px">12 Sep &nbsp; Submitted by applicant</span><span class="muted" style="font-size:13px">12 Sep &nbsp; Confirmation email sent</span></div></div></div>`);
+
+S['Listings'] = shell('Published listings','Directorate','Listings',`
+<div class="row between"><span class="muted" style="font-size:13px">24 teams shown on the public directory.</span><div class="row"><div class="box" style="width:220px;height:38px">Search</div><div class="box" style="width:140px;height:38px">State: All</div></div></div>
+${table(['Agency','Location','Published','Renewal due','Status',''],[['Riverbend DBT Team','Portland, OR','14 Sep 2025','14 Sep 2026',B('Due in 30 days','warn'),'<a>Manage</a>'],['Lakeside Behavioral','Madison, WI','2 Mar 2026','2 Mar 2027',B('Active','ok'),'<a>Manage</a>'],['Summit DBT','Salt Lake City, UT','20 Jan 2026','20 Jan 2027',B('Active','ok'),'<a>Manage</a>'],['Old Town Clinic','Austin, TX','1 Jun 2025','1 Jun 2026',B('Hidden (expired)','bad'),'<a>Manage</a>']])}
+<div class="card"><h4>Manage listing (drawer)</h4><p class="muted">Edit public fields, set renewal date, hide or show on directory, view original application, remove listing.</p><div class="row" style="gap:8px"><span class="btn">Save</span><span class="btn sec">Hide from directory</span><span class="btn sec">View application</span></div></div>`);
+
+S['Renewals due'] = shell('Renewals due','Directorate','Renewals due',`
+<div class="row between"><div class="tabs"><span class="btn">Next 30 days (3)</span><span class="btn sec">Next 90 days (7)</span><span class="btn sec">Overdue (1)</span></div><span class="muted" style="font-size:12px">Automated reminder emails are a future phase. Contact teams manually for now.</span></div>
+${table(['Agency','Contact','Renewal due','Days left','Action'],[['Riverbend DBT Team','dana@riverbend.org','14 Sep 2026','30','<a>Mark renewed</a>'],['Cedar Counseling','info@cedar.org','28 Sep 2026','44','<a>Mark renewed</a>'],['Harbor Health','admin@harbor.org','9 Oct 2026','55','<a>Mark renewed</a>']])}
+<span class="muted" style="font-size:13px">Mark renewed sets a new renewal date one year out. Expired listings hide automatically but are not deleted.</span>`);
+
+S['Resources admin'] = shell('Resources','Board','Resources',`
+<div class="row between"><div class="tabs">${['All (12)','Forms','Reading','Links','For teams'].map((t,i)=>`<span class="btn ${i?'sec':''}">${t}</span>`).join('')}</div><span class="btn">Add resource</span></div>
+${table(['Title','Type','Category','Updated',''],[['Team application checklist','PDF 240 KB','Forms','3 Sep 2026','<a>Edit</a>'],['DBT fidelity overview','Link','Reading','1 Aug 2026','<a>Edit</a>'],['Renewal form','PDF 120 KB','Forms','15 Jul 2026','<a>Edit</a>']])}
+<div class="card"><h4>Add / edit resource (drawer)</h4>${field('Title')}${field('Description','',true)}<div class="row" style="gap:8px"><span class="btn">Upload file</span><span class="btn sec">External link</span></div><div class="box" style="height:60px">Drop file here or paste URL</div>${field('Category','Forms')}</div>`);
+
+S['Subscribers'] = shell('Subscribers','Board','Subscribers',`
+<div class="row between"><span class="muted" style="font-size:13px">312 subscribers. Sending newsletters is a future phase; export and use your email tool.</span><div class="row"><div class="box" style="width:220px;height:38px">Search email</div><span class="btn">Export CSV</span></div></div>
+${table(['Email','Subscribed','Source','Status',''],[['a.person@gmail.com','12 Sep 2026','Home page',B('Confirmed','ok'),'<a>Remove</a>'],['b.person@agency.org','11 Sep 2026','Resources page',B('Confirmed','ok'),'<a>Remove</a>'],['c.person@clinic.org','10 Sep 2026','Upcoming trainings',B('Unconfirmed','warn'),'<a>Remove</a>']])}`);
+
+S['Users'] = shell('Users','Board','Users',`
+<div class="row between"><span class="muted" style="font-size:13px">Board only. Roles: Board (everything), Trainer (trainings), Directorate (directory).</span><span class="btn">Invite user</span></div>
+${table(['Name','Email','Role','Status','Last sign in',''],[['Ronda Oswalt Reitz','ronda@whitecrane.org',B('Board','acc'),B('Active','ok'),'Today','<a>Edit</a>'],['Trainer One','t1@whitecrane.org',B('Trainer','acc'),B('Active','ok'),'3 days ago','<a>Edit</a>'],['Reviewer One','r1@agency.org',B('Directorate','acc'),B('Invited','warn'),'Never','<a>Resend invite</a>']])}
+<div class="card"><h4>Invite user (modal)</h4><div class="row top" style="gap:16px">${field('Name')}${field('Email')}</div><label style="font-size:13px;font-weight:600">Role</label><div class="row" style="gap:8px"><span class="btn sec">Board</span><span class="btn sec">Trainer</span><span class="btn">Directorate</span></div><span class="muted" style="font-size:12px">Sends an email with a one-time link. Expires in 7 days.</span><div><span class="btn">Send invite</span></div></div>`);
+
+S['My account'] = shell('My account','Board','',`
+<div class="two eq"><div class="card" style="padding:24px;gap:16px"><h4>Profile</h4>${field('Name','Ronda Oswalt Reitz')}${field('Email','ronda@whitecrane.org')}<span class="muted" style="font-size:12px">Role: Board. Contact another Board member to change roles.</span><div><span class="btn">Save</span></div></div>
+<div class="card" style="padding:24px;gap:16px"><h4>Password</h4>${field('Current password')}${field('New password')}${field('Confirm new password')}<div><span class="btn">Update password</span></div></div></div>`);
+
+S['Home (mobile 390)'] = `<div class="m">
+<div class="nav"><div class="box" style="width:110px;height:28px">Logo</div><b>Menu</b></div>
+<div class="sec alt"><h1>Advancing DBT fidelity through training and community</h1><p class="lede">One or two sentences of mission.</p><span class="btn">Browse Trainings</span><span class="btn sec">Find a DBT Team</span><div class="box" style="height:180px">Hero image</div></div>
+<div class="sec"><h2>Mission, Vision, Values</h2>${['Mission','Vision','Values'].map(t=>card(t,'Editable text block.')).join('')}</div>
+<div class="sec alt"><h2>Upcoming Trainings</h2>${[1,2].map(()=>card('Training title','Date and time.','Register')).join('')}<a>View all trainings</a></div>
+<div class="footer"><b>Sign up for updates</b><div class="box" style="height:44px">email@address</div><span class="btn">Subscribe</span><span class="muted" style="font-size:12px">Copyright 2026 White Crane Training Collective.</span></div></div>`;
+
+// ------------ viewer ------------
+const GROUPS = {
+  'Public': ['Home','About','Trainings','Training detail','Upcoming trainings','Directory','Apply to directory','Application submitted','Resources','Subscribed','Home (mobile 390)'],
+  'Auth': ['Login','Forgot password','Reset password','Accept invite'],
+  'Dashboard': ['Dashboard home','Landing content','Board members','Trainings list','Training editor','Applications queue','Application review','Listings','Renewals due','Resources admin','Subscribers','Users','My account']
+};
+const AUTH = new Set(GROUPS['Auth']);
+const list = document.getElementById('list'), stage = document.getElementById('stage');
+list.innerHTML = `<h1>White Crane wireframes</h1><div class="sub">28 screens. Neutral grey until branding arrives.</div><button data-s="__all">Show all</button>` +
+  Object.entries(GROUPS).map(([g,items])=>`<h2>${g}</h2>${items.map(i=>`<button data-s="${i}">${i}</button>`).join('')}`).join('');
+
+const NOTE = `<div class="note"><b>Responsive rules</b><ul><li>Breakpoints: 1200 desktop, 768 tablet, 390 mobile.</li><li>Nav collapses to a Menu sheet under 1024.</li><li>Three-card rows become one column under 768.</li><li>Dashboard: sidebar becomes a top drawer under 1024. Tables scroll horizontally.</li><li>Apply form: two-column fields stack under 640.</li><li>Public content max width 1200, 24px side padding on mobile.</li></ul></div>`;
+
+function render(name){
+  const draw = n => `<div class="title">${n}</div><div class="frame ${AUTH.has(n)?'auth':''} ${n.includes('mobile')?'mobile':''}">${S[n]}</div>`;
+  stage.innerHTML = name==='__all' ? NOTE + Object.values(GROUPS).flat().map(draw).join('') : (name==='Home'?NOTE:'') + draw(name);
+  list.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.s===name));
+  try{localStorage.setItem('wc-screen',name)}catch(e){}
+  stage.scrollTop = 0; window.scrollTo(0,0);
+}
+list.addEventListener('click',e=>{const b=e.target.closest('button');if(b)render(b.dataset.s)});
+let start='Home'; try{start=localStorage.getItem('wc-screen')||'Home'}catch(e){}
+render(S[start]||start==='__all'?start:'Home');
+</script>
+</body>
+</html>

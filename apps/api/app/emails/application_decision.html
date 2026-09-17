@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block body %}
+{% if decision == "approve" %}
+<p>Good news: <strong>{{ agency_name }}</strong> has been approved and is now listed in the DBT Clinical Directory.</p>
+<p>Listings are renewed yearly. We will be in touch before your renewal date.</p>
+{% elif decision == "request-info" %}
+<p>The Directorate needs a little more information before deciding on the application for <strong>{{ agency_name }}</strong>.</p>
+{% else %}
+<p>Thank you for applying. After review, the Directorate is not able to list <strong>{{ agency_name }}</strong> at this time.</p>
+{% endif %}
+{% if note %}
+<p style="background:#f6f7f9;border-radius:6px;padding:12px 16px;white-space:pre-line">{{ note }}</p>
+{% endif %}
+<p>Reply to this email with any questions.</p>
+{% endblock %}

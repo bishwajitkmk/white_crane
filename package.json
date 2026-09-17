@@ -1,0 +1,13 @@
+{
+  "name": "white-crane",
+  "private": true,
+  "packageManager": "pnpm@10.18.0",
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "lint": "pnpm --filter web lint",
+    "typecheck": "pnpm --filter web typecheck",
+    "services:up": "docker compose -f infra/docker-compose.yml up -d",
+    "services:down": "docker compose -f infra/docker-compose.yml down"
+  }
+}
