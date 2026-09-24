@@ -61,6 +61,7 @@ export const trainingSchema = z
     objectives: z.string(),
     agenda: z.string(),
     registration_url: optionalUrl,
+    cover_image_url: z.string().nullable(),
   })
   .refine((v) => v.status !== 'open' || v.date !== '', { path: ['date'], message: 'Open trainings need a date' })
 export type TrainingValues = z.infer<typeof trainingSchema>
@@ -69,6 +70,7 @@ export const landingContentSchema = z.object({
   hero_headline: requiredText('Headline'),
   hero_subheading: z.string(),
   hero_cta_label: requiredText('Button label'),
+  hero_image_url: z.string().nullable(),
   mission: z.string(),
   vision: z.string(),
   values: z.string(),
@@ -79,6 +81,7 @@ export const boardMemberSchema = z.object({
   name: requiredText('Name'),
   role: z.string().trim(),
   bio: z.string(),
+  photo_url: z.string().nullable(),
 })
 export type BoardMemberValues = z.infer<typeof boardMemberSchema>
 

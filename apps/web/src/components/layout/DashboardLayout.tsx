@@ -71,11 +71,15 @@ export function DashboardLayout() {
       <div className="bg-sidebar text-sidebar-foreground lg:hidden">
         <div className="flex items-center justify-between px-4 py-3">
           <Logo dark />
-          <button type="button" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="flex items-center gap-1.5 font-semibold">
+          <button type="button" aria-expanded={open} aria-controls="dashboard-nav" onClick={() => setOpen((o) => !o)} className="-mr-2 flex min-h-11 items-center gap-1.5 px-2 font-semibold">
             {open ? <X className="size-5" /> : <Menu className="size-5" />} Menu
           </button>
         </div>
-        {open && <Sidebar onNavigate={() => setOpen(false)} />}
+        {open && (
+          <div id="dashboard-nav">
+            <Sidebar onNavigate={() => setOpen(false)} />
+          </div>
+        )}
       </div>
 
       <div className="min-w-0">
@@ -93,13 +97,14 @@ export function DashboardPage({ title, children }: { title: string; children: Re
   return (
     <>
       <header className="flex items-center justify-between gap-4 border-b bg-background px-4 py-4 sm:px-8">
-        <h1 className="text-xl">{title}</h1>
-        <div className="flex items-center gap-4">
-          <Link to="/" className="font-semibold text-primary">
-            View public site
+        <h1 className="min-w-0 text-xl">{title}</h1>
+        <div className="flex shrink-0 items-center gap-3 sm:gap-4">
+          <Link to="/" className="py-2 font-semibold whitespace-nowrap text-primary">
+            <span className="hidden sm:inline">View public site</span>
+            <span className="sm:hidden">Public site</span>
           </Link>
           <span
-            className="flex size-8 items-center justify-center rounded-full bg-placeholder text-xs font-semibold text-muted-foreground"
+            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-placeholder text-xs font-semibold text-muted-foreground"
             title={user?.name}
           >
             {user?.name.charAt(0)}

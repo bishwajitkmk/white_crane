@@ -116,7 +116,8 @@ CRUD /admin/board-members            POST /admin/board-members/reorder
 CRUD /admin/trainings
 GET  /admin/applications[?status=]   POST /admin/applications/{id}/approve | decline | request-info
 GET  /admin/listings[?renewal=next_30|next_90|overdue]   PATCH /admin/listings/{id}   POST /admin/listings/{id}/renew
-CRUD /admin/resources                POST /admin/uploads/presign
+CRUD /admin/resources                POST /admin/uploads/presign (Board + Trainer)
+PUT  /uploads/{key}?token=  GET /files/{key}   local dev storage only (S3_ENDPOINT empty)
 GET  /admin/subscribers              GET  /admin/subscribers/export.csv   DELETE /admin/subscribers/{id}
 GET  /admin/users                    POST /admin/users/invite   POST /admin/users/{id}/resend-invite   PATCH /admin/users/{id}
 PATCH /admin/account                 POST /admin/account/password
@@ -136,7 +137,7 @@ listings (1:1 from approved application, renewal_due_at), resources, subscribers
 
 ## Setup
 
-Prerequisites: node 20+, pnpm, python 3.12, uv, docker.
+Prerequisites: node 20+, pnpm, python 3.12, uv, and Docker for Postgres + Mailpit (or SQLite, see below).
 
 ```bash
 pnpm install                                   # web deps (workspace root)
@@ -144,14 +145,24 @@ cd apps/api && uv sync && cd ../..             # api deps
 docker compose -f infra/docker-compose.yml up -d
 
 cp apps/web/.env.example apps/web/.env
-cp apps/api/.env.example apps/api/.env
+cp apps/api/.env.example apps/api/.env         # then set JWT_SECRET
 
-# database
+# database (migrations live in apps/api/alembic/versions)
 cd apps/api
-uv run alembic revision --autogenerate -m "initial schema"   # first time only, commit the file
 uv run alembic upgrade head
-uv run python -m app.seed --email ronda@whitecrane.org --name "Ronda Oswalt Reitz"   # prints an invite link
+uv run python -m app.seed --email you@whitecrane.org --name "Your Name" --password "a-long-password"
+uv run python -m app.seed_demo                 # optional: wireframe placeholder content
 ```
+
+- `app.seed` without `--password` prints an invite link instead (the normal way to create the real first Board account).
+- `app.seed_demo` only runs on an empty database. It leaves registration URLs blank: they must be the real event pages on the client's registration platform, entered per training in the dashboard.
+- After changing models: `uv run alembic revision --autogenerate -m "..."`, review the file, commit it.
+
+No Docker? Set `DATABASE_URL=sqlite:///./dev.db` and `EMAIL_PROVIDER=console` in `apps/api/.env` (emails, including invite and reset links, are then printed in the API log). Production stays on Postgres.
+
+No uv? `python -m venv .venv`, activate it, then `pip install fastapi "uvicorn[standard]" sqlalchemy alembic "psycopg[binary]" "pydantic[email]" pydantic-settings pyjwt bcrypt boto3 jinja2 resend httpx pytest ruff` and drop the `uv run` prefix from the commands.
+
+Uploads (resource files, training covers, board photos, hero image): with `S3_ENDPOINT` empty the API stores them in `apps/api/uploads/` and serves them at `/files/`. Set the `S3_*` variables to use Cloudflare R2 in production.
 
 `infra/docker-compose.yml`
 
@@ -173,37 +184,21 @@ Mailpit inbox: http://localhost:8025
 
 ## Environment
 
-`apps/api/.env`
+`apps/api/.env`: every variable is documented in [apps/api/.env.example](apps/api/.env.example). Keep comments on their own line; an empty value followed by `# ...` is read as the comment text. Production essentials:
 
-```
-DATABASE_URL=postgresql+psycopg://wc:wc@localhost:5432/whitecrane
-JWT_SECRET=change-me                # 32+ random bytes in production
-ACCESS_TOKEN_MINUTES=15
-REFRESH_TOKEN_DAYS=14
-FRONTEND_URL=http://localhost:5173
-API_URL=http://localhost:8000
-COOKIE_SECURE=false                 # true in production (HTTPS)
-EMAIL_PROVIDER=mailpit              # resend | postmark | mailpit | console
-EMAIL_FROM=info@whitecrane.org
-RESEND_API_KEY=
-POSTMARK_TOKEN=
-SMTP_HOST=localhost
-SMTP_PORT=1025
-S3_ENDPOINT=                        # R2 endpoint
-S3_BUCKET=whitecrane
-S3_ACCESS_KEY=
-S3_SECRET_KEY=
-S3_PUBLIC_URL=
-```
+- `JWT_SECRET`: long random string.
+- `COOKIE_SECURE=true`. `COOKIE_SAMESITE=lax` when the site and API share a domain (`whitecrane.org` + `api.whitecrane.org`); `none` only if they are on different domains (e.g. `*.vercel.app` + `*.up.railway.app`).
+- `FRONTEND_URL` / `API_URL` set to the public URLs; `CORS_ORIGINS` for any extra origins (preview deploys).
+- `EMAIL_PROVIDER=resend` or `postmark` with its key; `S3_*` for R2.
 
 `apps/web/.env`
 
 ```
 VITE_API_URL=http://localhost:8000
-VITE_USE_MOCKS=true                 # false to talk to the real API
+VITE_USE_MOCKS=false                # true = in-memory demo data, no API needed
 ```
 
-With `VITE_USE_MOCKS=true` the frontend runs on in-memory data (`src/api/mock.ts`) with no API or database. Sign in with any password: `ronda@whitecrane.org` (Board), `t1@whitecrane.org` (Trainer), `reviewer@directorate.org` (Directorate).
+With `VITE_USE_MOCKS=true` the frontend runs on in-memory data (`src/api/mock.ts`) with no API or database; changes reset on reload. Sign in with any password: `ronda@whitecrane.org` (Board), `t1@whitecrane.org` (Trainer), `reviewer@directorate.org` (Directorate).
 
 ## Run
 

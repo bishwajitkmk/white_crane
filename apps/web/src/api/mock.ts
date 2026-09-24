@@ -54,17 +54,17 @@ let trainings: Training[] = [
   {
     id: 't1', slug: 'dbt-skills-intensive', title: 'DBT Skills Intensive', status: 'open', format: 'online',
     starts_at: '2026-10-14T09:00:00', ends_at: '2026-10-14T16:00:00', expected_label: '', trainers: 'J. Doe',
-    description: lorem, objectives: lorem, agenda: lorem, registration_url: 'https://ceu-manager.example/event/1001', cover_image_url: null,
+    description: lorem, objectives: lorem, agenda: lorem, registration_url: null, cover_image_url: null,
   },
   {
     id: 't2', slug: 'chain-analysis-workshop', title: 'Chain Analysis Workshop', status: 'open', format: 'in_person',
     starts_at: '2026-11-02T09:00:00', ends_at: '2026-11-02T16:00:00', expected_label: '', trainers: 'A. Smith',
-    description: lorem, objectives: lorem, agenda: lorem, registration_url: 'https://ceu-manager.example/event/1002', cover_image_url: null,
+    description: lorem, objectives: lorem, agenda: lorem, registration_url: null, cover_image_url: null,
   },
   {
     id: 't3', slug: 'dbt-team-consultation', title: 'DBT Team Consultation Basics', status: 'open', format: 'online',
     starts_at: '2026-11-18T09:00:00', ends_at: '2026-11-18T13:00:00', expected_label: '', trainers: 'J. Doe, A. Smith',
-    description: lorem, objectives: lorem, agenda: lorem, registration_url: 'https://ceu-manager.example/event/1003', cover_image_url: null,
+    description: lorem, objectives: lorem, agenda: lorem, registration_url: null, cover_image_url: null,
   },
   {
     id: 't4', slug: 'adolescent-dbt-overview', title: 'Adolescent DBT Overview', status: 'upcoming', format: 'online',

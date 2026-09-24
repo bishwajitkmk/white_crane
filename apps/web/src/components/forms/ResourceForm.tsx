@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
-import { api } from '@/api/endpoints'
+import { FILE_ACCEPT, uploadFile } from '@/lib/upload'
 import type { Resource, ResourceInput } from '@/api/types'
 import { Button } from '@/components/ui/button'
 import { Input, Select, Textarea } from '@/components/ui/input'
@@ -38,9 +38,7 @@ export function ResourceForm({ resource, onSubmit, onDelete, pending, error }: R
     setUploading(true)
     setUploadError(null)
     try {
-      const { upload_url, public_url } = await api.admin.presignUpload(file.name, file.type)
-      if (upload_url) await fetch(upload_url, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
-      setValue('url', public_url, { shouldValidate: true, shouldDirty: true })
+      setValue('url', await uploadFile(file), { shouldValidate: true, shouldDirty: true })
     } catch (e) {
       setUploadError(e)
     } finally {
@@ -68,6 +66,7 @@ export function ResourceForm({ resource, onSubmit, onDelete, pending, error }: R
         <Field label="File" error={errors.url} hint={url ? `Current: ${url}` : 'PDF, DOCX or image.'}>
           <Input
             type="file"
+            accept={FILE_ACCEPT}
             className="h-auto border-dashed py-5"
             disabled={uploading}
             onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}

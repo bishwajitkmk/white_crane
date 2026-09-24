@@ -9,7 +9,7 @@ A public website for a DBT training nonprofit plus a private, role-gated dashboa
 | Module | Public side | Dashboard side |
 |---|---|---|
 | Landing | Mission / vision / values, Board bios | Board edits text and bios |
-| Trainings | Catalogue, detail pages, "upcoming" list; registration links out to an external CEU platform | Trainers manage trainings |
+| Trainings | Catalogue, detail pages, git "upcoming" list; registration links out to an external CEU platform | Trainers manage trainings |
 | Clinical Directory | Team application form with attestation; searchable directory of approved teams | Directorate reviews, approves, declines, requests info; tracks renewals |
 | Resources + distribution list | Links / files; email sign-up | Board manages resources, exports subscribers |
 

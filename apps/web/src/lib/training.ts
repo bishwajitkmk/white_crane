@@ -21,6 +21,7 @@ export const emptyTrainingValues: TrainingValues = {
   objectives: '',
   agenda: '',
   registration_url: '',
+  cover_image_url: null,
 }
 
 export const toTrainingValues = (t: Training): TrainingValues => ({
@@ -37,6 +38,7 @@ export const toTrainingValues = (t: Training): TrainingValues => ({
   objectives: t.objectives,
   agenda: t.agenda,
   registration_url: t.registration_url ?? '',
+  cover_image_url: t.cover_image_url,
 })
 
 export const toTrainingInput = (v: TrainingValues): TrainingInput => ({
@@ -52,4 +54,5 @@ export const toTrainingInput = (v: TrainingValues): TrainingInput => ({
   objectives: v.objectives,
   agenda: v.agenda,
   registration_url: v.registration_url || null,
+  cover_image_url: v.cover_image_url,
 })

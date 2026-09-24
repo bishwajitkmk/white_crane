@@ -3,12 +3,12 @@ import { useForm, useWatch } from 'react-hook-form'
 import { Toolbar } from '@/components/layout/DashboardLayout'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Input, Label, Select, Textarea } from '@/components/ui/input'
-import { Placeholder } from '@/components/ui/placeholder'
+import { Input, Select, Textarea } from '@/components/ui/input'
 import { trainingSchema, type TrainingValues } from '@/lib/schemas'
 import { slugify } from '@/lib/training'
 import { cn } from '@/lib/utils'
 import { Field, FieldRow, FormError } from './Field'
+import { ImageUpload } from './ImageUpload'
 
 interface TrainingFormProps {
   defaultValues: TrainingValues
@@ -28,7 +28,7 @@ export function TrainingForm({ defaultValues, breadcrumb, onSubmit, onDelete, pe
     formState: { errors, dirtyFields },
   } = useForm<TrainingValues>({ resolver: zodResolver(trainingSchema), defaultValues })
 
-  const [status, slug] = useWatch({ control, name: ['status', 'slug'] })
+  const [status, slug, cover] = useWatch({ control, name: ['status', 'slug', 'cover_image_url'] })
 
   // Keep the slug in sync with the title until someone edits the slug by hand.
   const titleField = register('title', {
@@ -105,9 +105,9 @@ export function TrainingForm({ defaultValues, breadcrumb, onSubmit, onDelete, pe
           <Field
             label="Registration URL"
             error={errors.registration_url}
-            hint="Leave blank for Upcoming trainings. The Register button on the public page stays hidden until set."
+            hint="The event page on your registration platform. The public Register button opens it in a new tab and stays hidden until this is set."
           >
-            <Input type="url" placeholder="https://ceu-manager.example/event/..." {...register('registration_url')} />
+            <Input type="url" placeholder="https://..." {...register('registration_url')} />
           </Field>
           <Field
             label="Expected timing"
@@ -126,10 +126,12 @@ export function TrainingForm({ defaultValues, breadcrumb, onSubmit, onDelete, pe
           <Field label="Slug" error={errors.slug} hint={`/trainings/${slug}`}>
             <Input {...register('slug')} />
           </Field>
-          <div className="flex flex-col gap-1.5">
-            <Label>Cover image</Label>
-            <Placeholder className="h-[120px]">Upload (presigned R2 upload)</Placeholder>
-          </div>
+          <ImageUpload
+            label="Cover image"
+            value={cover}
+            onChange={(url) => setValue('cover_image_url', url, { shouldDirty: true })}
+            hint="Shown on the training page. Wide images (about 3:1) work best."
+          />
         </Card>
       </div>
     </form>

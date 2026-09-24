@@ -49,7 +49,7 @@ export interface Training {
   cover_image_url: string | null
 }
 
-export type TrainingInput = Omit<Training, 'id' | 'cover_image_url'>
+export type TrainingInput = Omit<Training, 'id'>
 
 export type ApplicationStatus = 'pending' | 'approved' | 'declined' | 'info_requested'
 

@@ -1,10 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowDown, ArrowUp } from 'lucide-react'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { api } from '@/api/endpoints'
 import type { BoardMember } from '@/api/types'
 import { Field, FormError } from '@/components/forms/Field'
+import { ImageUpload } from '@/components/forms/ImageUpload'
 import { DashboardPage, Toolbar } from '@/components/layout/DashboardLayout'
 import { EmptyState, QueryState } from '@/components/PageState'
 import { Button } from '@/components/ui/button'
@@ -90,11 +91,16 @@ function MemberForm({ member, onDone }: { member?: BoardMember; onDone: () => vo
   const {
     register,
     handleSubmit,
+    control,
+    setValue,
     formState: { errors },
   } = useForm<BoardMemberValues>({
     resolver: zodResolver(boardMemberSchema),
-    defaultValues: member ?? { name: '', role: '', bio: '' },
+    defaultValues: member
+      ? { name: member.name, role: member.role, bio: member.bio, photo_url: member.photo_url }
+      : { name: '', role: '', bio: '', photo_url: null },
   })
+  const photo = useWatch({ control, name: 'photo_url' })
   const save = useInvalidatingMutation(
     (v: BoardMemberValues) => (member ? api.admin.updateBoardMember(member.id, v) : api.admin.createBoardMember(v)),
     [keys.boardMembers],
@@ -111,7 +117,13 @@ function MemberForm({ member, onDone }: { member?: BoardMember; onDone: () => vo
       <Field label="Bio" error={errors.bio}>
         <Textarea rows={5} {...register('bio')} />
       </Field>
-      <Placeholder className="h-24">Upload photo</Placeholder>
+      <ImageUpload
+        label="Photo"
+        value={photo}
+        onChange={(url) => setValue('photo_url', url, { shouldDirty: true })}
+        previewClassName="size-32"
+        hint="Square photos work best."
+      />
       <FormError error={save.error} />
       <div>
         <Button type="submit" disabled={save.isPending}>

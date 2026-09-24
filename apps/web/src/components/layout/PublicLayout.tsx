@@ -35,7 +35,7 @@ function Nav() {
         </ButtonLink>
         <button
           type="button"
-          className="flex items-center gap-1.5 font-bold lg:hidden"
+          className="-mr-2 flex min-h-11 items-center gap-1.5 px-2 font-bold lg:hidden"
           aria-expanded={open}
           aria-controls="mobile-nav"
           onClick={() => setOpen((o) => !o)}
@@ -79,7 +79,7 @@ function Footer() {
             <SubscribeForm source="Footer" />
           </div>
         </div>
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-x-4 text-xs text-muted-foreground [&>a]:py-2 lg:[&>a]:py-0">
           <span>&copy; {new Date().getFullYear()} White Crane Training Collective.</span>
           <Link to="/trainings">Trainings</Link>
           <Link to="/directory">Directory</Link>

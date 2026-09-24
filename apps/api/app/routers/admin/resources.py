@@ -5,8 +5,7 @@ from sqlalchemy import select
 
 from app.core.deps import BOARD, DbSession, require_role
 from app.models import Resource
-from app.schemas.resource import PresignIn, PresignOut, ResourceIn, ResourceOut
-from app.services import storage
+from app.schemas.resource import ResourceIn, ResourceOut
 
 router = APIRouter(dependencies=[require_role(*BOARD)])
 
@@ -49,9 +48,3 @@ def update(resource_id: uuid.UUID, data: ResourceIn, db: DbSession):
 def delete(resource_id: uuid.UUID, db: DbSession):
     db.delete(_get(db, resource_id))
     db.commit()
-
-
-@router.post("/uploads/presign", response_model=PresignOut)
-def presign(data: PresignIn):
-    upload_url, public_url = storage.presign_upload(data.filename, data.content_type)
-    return PresignOut(upload_url=upload_url, public_url=public_url)

@@ -20,7 +20,7 @@ import type {
 } from './types'
 
 export type RenewalWindow = 'next_30' | 'next_90' | 'overdue'
-export type BoardMemberInput = Pick<BoardMember, 'name' | 'role' | 'bio'>
+export type BoardMemberInput = Pick<BoardMember, 'name' | 'role' | 'bio' | 'photo_url'>
 
 export interface InviteInfo {
   email: string

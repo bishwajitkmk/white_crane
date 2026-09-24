@@ -3,6 +3,8 @@ import os
 os.environ["DATABASE_URL"] = "sqlite://"
 os.environ["EMAIL_PROVIDER"] = "console"
 os.environ["JWT_SECRET"] = "test-secret-that-is-at-least-32-bytes-long"
+os.environ["S3_ENDPOINT"] = ""  # local storage
+os.environ["LOCAL_UPLOAD_DIR"] = os.path.join(__import__("tempfile").mkdtemp(), "uploads")
 
 from collections.abc import Iterator  # noqa: E402
 

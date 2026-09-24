@@ -13,10 +13,23 @@ from app.routers.admin import (
     subscribers,
     summary,
     trainings,
+    uploads,
     users,
 )
 
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(current_user)])
-MODULES = (summary, content, board_members, trainings, applications, listings, resources, subscribers, users, account)
+MODULES = (
+    summary,
+    content,
+    board_members,
+    trainings,
+    applications,
+    listings,
+    resources,
+    uploads,
+    subscribers,
+    users,
+    account,
+)
 for module in MODULES:
     router.include_router(module.router)

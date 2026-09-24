@@ -29,12 +29,17 @@ const buildUrl = (path: string, query?: Query) => {
 }
 
 async function send(path: string, { method = 'GET', body, query }: RequestOptions) {
-  return fetch(buildUrl(path, query), {
-    method,
-    credentials: 'include', // JWT lives in an httpOnly cookie
-    headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
+  try {
+    return await fetch(buildUrl(path, query), {
+      method,
+      credentials: 'include', // JWT lives in an httpOnly cookie
+      headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    })
+  } catch {
+    // Network error, API down, or blocked by CORS: fetch rejects with a bare "Failed to fetch".
+    throw new ApiError(0, "We couldn't reach the server. Check your connection and try again in a moment.")
+  }
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {

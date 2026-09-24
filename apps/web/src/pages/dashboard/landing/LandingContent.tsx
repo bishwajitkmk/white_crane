@@ -1,14 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { api } from '@/api/endpoints'
 import type { SiteContent } from '@/api/types'
 import { Field, FormError } from '@/components/forms/Field'
+import { ImageUpload } from '@/components/forms/ImageUpload'
 import { DashboardPage, Toolbar } from '@/components/layout/DashboardLayout'
 import { QueryState } from '@/components/PageState'
 import { Button, ButtonLink } from '@/components/ui/button'
 import { Card, CardTitle } from '@/components/ui/card'
-import { Input, Label, Textarea } from '@/components/ui/input'
-import { Placeholder } from '@/components/ui/placeholder'
+import { Input, Textarea } from '@/components/ui/input'
 import { keys, useAdminContent, useInvalidatingMutation } from '@/hooks/queries'
 import { landingContentSchema, type LandingContentValues } from '@/lib/schemas'
 
@@ -26,9 +26,12 @@ function LandingContentForm({ content }: { content: SiteContent }) {
     register,
     handleSubmit,
     reset,
+    control,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<LandingContentValues>({ resolver: zodResolver(landingContentSchema), defaultValues: content })
   const save = useInvalidatingMutation(api.admin.updateContent, [keys.content])
+  const heroImage = useWatch({ control, name: 'hero_image_url' })
 
   return (
     <form
@@ -62,10 +65,12 @@ function LandingContentForm({ content }: { content: SiteContent }) {
           <Field label="Primary button label" error={errors.hero_cta_label}>
             <Input {...register('hero_cta_label')} />
           </Field>
-          <div className="flex flex-col gap-1.5">
-            <Label>Hero image</Label>
-            <Placeholder className="h-[120px]">Upload / replace image</Placeholder>
-          </div>
+          <ImageUpload
+            label="Hero image"
+            value={heroImage}
+            onChange={(url) => setValue('hero_image_url', url, { shouldDirty: true })}
+            hint="Shown beside the headline on the home page. Click Save changes to publish it."
+          />
         </Card>
         <Card className="gap-4 p-6">
           <CardTitle>Mission, Vision, Values</CardTitle>

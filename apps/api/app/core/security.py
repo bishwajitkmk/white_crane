@@ -49,7 +49,7 @@ def decode_token(token: str, kind: TokenType) -> uuid.UUID | None:
 
 
 def set_auth_cookies(response: Response, user_id: uuid.UUID) -> None:
-    common = {"httponly": True, "secure": settings.cookie_secure, "samesite": "lax"}
+    common = {"httponly": True, "secure": settings.cookie_secure, "samesite": settings.cookie_samesite}
     response.set_cookie(
         ACCESS_COOKIE, create_token(user_id, "access"), max_age=settings.access_token_minutes * 60, path="/", **common
     )
@@ -63,8 +63,26 @@ def set_auth_cookies(response: Response, user_id: uuid.UUID) -> None:
 
 
 def clear_auth_cookies(response: Response) -> None:
-    response.delete_cookie(ACCESS_COOKIE, path="/")
-    response.delete_cookie(REFRESH_COOKIE, path="/auth")
+    # Attributes must match the ones used when setting, or browsers keep SameSite=None cookies.
+    common = {"httponly": True, "secure": settings.cookie_secure, "samesite": settings.cookie_samesite}
+    response.delete_cookie(ACCESS_COOKIE, path="/", **common)
+    response.delete_cookie(REFRESH_COOKIE, path="/auth", **common)
+
+
+def create_upload_token(key: str, content_type: str) -> str:
+    """Short-lived signature for a local-storage PUT, standing in for an S3 presigned URL."""
+    payload = {"key": key, "ct": content_type, "type": "upload", "exp": utcnow() + timedelta(minutes=15)}
+    return jwt.encode(payload, settings.jwt_secret, algorithm=ALGORITHM)
+
+
+def decode_upload_token(token: str) -> tuple[str, str] | None:
+    try:
+        payload = jwt.decode(token, settings.jwt_secret, algorithms=[ALGORITHM])
+    except jwt.PyJWTError:
+        return None
+    if payload.get("type") != "upload":
+        return None
+    return payload["key"], payload["ct"]
 
 
 def new_token() -> tuple[str, str]:
