@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Outlet } from 'react-router-dom'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+import { cn } from '@/lib/utils'
 import { Logo } from './Logo'
 
 export function AuthLayout() {
@@ -8,6 +9,21 @@ export function AuthLayout() {
     <main className="flex min-h-dvh items-center justify-center bg-surface px-4 py-10">
       <Outlet />
     </main>
+  )
+}
+
+/** Status message at the top of an auth card (password changed, session ended...). */
+export function AuthNotice({ children, tone = 'ok' }: { children: ReactNode; tone?: 'ok' | 'warn' }) {
+  return (
+    <p
+      role="status"
+      className={cn(
+        'rounded-md p-3 text-center text-[13px]',
+        tone === 'ok' ? 'bg-success/10 text-success' : 'bg-warning/15 text-warning',
+      )}
+    >
+      {children}
+    </p>
   )
 }
 

@@ -24,6 +24,7 @@ export type BoardMemberInput = Pick<BoardMember, 'name' | 'role' | 'bio' | 'phot
 
 export interface InviteInfo {
   email: string
+  name: string
   role: Role
   invited_by: string
 }

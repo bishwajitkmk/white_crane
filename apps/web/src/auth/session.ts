@@ -4,6 +4,8 @@ import type { User } from '@/api/types'
 export interface Session {
   user: User | null
   isLoading: boolean
+  /** True after the session ran out mid-use (cleared on the next sign-in); Login shows a notice. */
+  expired: boolean
   signIn: (email: string, password: string) => Promise<User>
   signOut: () => Promise<void>
   setUser: (user: User) => void

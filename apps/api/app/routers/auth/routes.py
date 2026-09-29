@@ -107,6 +107,7 @@ def invite_info(token: str, db: DbSession):
     invite = _valid_invite(db, token)
     return InviteInfoOut(
         email=invite.user.email,
+        name=invite.user.name,
         role=invite.user.role,
         invited_by=invite.invited_by.name.split(" ")[0] if invite.invited_by else "White Crane",
     )

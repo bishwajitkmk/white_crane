@@ -1,6 +1,7 @@
 import { Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
+import { useSession } from '@/auth/session'
 import { SubscribeForm } from '@/components/forms/SubscribeForm'
 import { ButtonLink } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -13,6 +14,17 @@ const LINKS = [
   { to: '/directory', label: 'Directory' },
   { to: '/resources', label: 'Resources' },
 ]
+
+/** "Sign in" for visitors, "Dashboard" once signed in (staff browsing the public site). */
+function AccountLink({ className, onClick }: { className?: string; onClick?: () => void }) {
+  const { user, isLoading } = useSession()
+  if (isLoading) return null
+  return (
+    <Link to={user ? '/dashboard' : '/login'} onClick={onClick} className={cn('font-semibold text-primary hover:underline', className)}>
+      {user ? 'Dashboard' : 'Sign in'}
+    </Link>
+  )
+}
 
 function Nav() {
   const [open, setOpen] = useState(false)
@@ -30,9 +42,10 @@ function Nav() {
             </NavLink>
           ))}
         </nav>
-        <ButtonLink to="/directory/apply" className="hidden lg:inline-flex">
-          Apply to Directory
-        </ButtonLink>
+        <div className="hidden items-center gap-5 lg:flex">
+          <AccountLink />
+          <ButtonLink to="/directory/apply">Apply to Directory</ButtonLink>
+        </div>
         <button
           type="button"
           className="-mr-2 flex min-h-11 items-center gap-1.5 px-2 font-bold lg:hidden"
@@ -50,6 +63,7 @@ function Nav() {
               {l.label}
             </NavLink>
           ))}
+          <AccountLink className="py-2" onClick={() => setOpen(false)} />
           <ButtonLink to="/directory/apply" block className="mt-2" onClick={() => setOpen(false)}>
             Apply to Directory
           </ButtonLink>
@@ -84,7 +98,7 @@ function Footer() {
           <Link to="/trainings">Trainings</Link>
           <Link to="/directory">Directory</Link>
           <Link to="/resources">Resources</Link>
-          <Link to="/login">Login</Link>
+          <Link to="/login">Staff sign in</Link>
         </div>
       </div>
     </footer>

@@ -58,6 +58,7 @@ def test_invite_flow(login, monkeypatch):
     client.post("/auth/logout")
     info = client.get(f"/auth/invite/{token}").json()
     assert info["email"] == "r1@agency.org" and info["role"] == "directorate"
+    assert info["name"] == "Reviewer"
 
     body = {"token": token, "name": "Reviewer One", "password": "long-enough-pw"}
     res = client.post("/auth/accept-invite", json=body)

@@ -9,7 +9,7 @@ import { Field, FormError } from '@/components/forms/Field'
 import { DashboardPage } from '@/components/layout/DashboardLayout'
 import { Button } from '@/components/ui/button'
 import { Card, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import { Input, PasswordInput } from '@/components/ui/input'
 import { changePasswordSchema, profileSchema, type ChangePasswordValues, type ProfileValues } from '@/lib/schemas'
 
 export default function Account() {
@@ -83,13 +83,13 @@ function PasswordCard() {
       <CardTitle>Password</CardTitle>
       <form onSubmit={handleSubmit((v) => change.mutate(v))} className="flex flex-col gap-4" noValidate>
         <Field label="Current password" error={errors.current}>
-          <Input type="password" autoComplete="current-password" {...register('current')} />
+          <PasswordInput autoComplete="current-password" {...register('current')} />
         </Field>
         <Field label="New password" error={errors.password} hint="At least 10 characters">
-          <Input type="password" autoComplete="new-password" {...register('password')} />
+          <PasswordInput autoComplete="new-password" {...register('password')} />
         </Field>
         <Field label="Confirm new password" error={errors.confirm}>
-          <Input type="password" autoComplete="new-password" {...register('confirm')} />
+          <PasswordInput autoComplete="new-password" {...register('confirm')} />
         </Field>
         <FormError error={change.error} />
         <div className="flex items-center gap-3">

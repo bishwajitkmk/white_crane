@@ -26,7 +26,7 @@ export default function ForgotPassword() {
       ) : (
         <form onSubmit={handleSubmit((v) => forgot.mutate(v))} className="flex flex-col gap-4" noValidate>
           <Field label="Email" error={errors.email}>
-            <Input type="email" autoComplete="email" placeholder="name@whitecrane.org" {...register('email')} />
+            <Input type="email" autoComplete="email" placeholder="name@whitecrane.org" autoFocus {...register('email')} />
           </Field>
           <FormError error={forgot.error} />
           <Button type="submit" block disabled={forgot.isPending}>

@@ -22,7 +22,9 @@ export const resetPasswordSchema = z
   .refine((v) => v.password === v.confirm, { path: ['confirm'], message: 'Passwords do not match' })
 export type ResetPasswordValues = z.infer<typeof resetPasswordSchema>
 
-export const acceptInviteSchema = z.object({ name: requiredText('Name'), password: newPassword })
+export const acceptInviteSchema = z
+  .object({ name: requiredText('Name'), password: newPassword, confirm: z.string() })
+  .refine((v) => v.password === v.confirm, { path: ['confirm'], message: 'Passwords do not match' })
 export type AcceptInviteValues = z.infer<typeof acceptInviteSchema>
 
 export const profileSchema = z.object({ name: requiredText('Name'), email })

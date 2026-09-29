@@ -213,7 +213,7 @@ export const mockApi: Api = {
     },
     forgot: () => delay(undefined),
     reset: () => delay(undefined),
-    invite: () => delay<InviteInfo>({ email: 'invited@agency.org', role: 'directorate', invited_by: 'Ronda' }),
+    invite: () => delay<InviteInfo>({ email: 'invited@agency.org', name: 'Reviewer Two', role: 'directorate', invited_by: 'Ronda' }),
     acceptInvite: (_token, name) => {
       const user: User = { id: uid(), name, email: 'invited@agency.org', role: 'directorate', status: 'active', last_sign_in_at: now() }
       sessionStorage.setItem(SESSION_KEY, JSON.stringify(user))

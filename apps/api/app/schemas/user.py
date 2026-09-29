@@ -32,6 +32,8 @@ class ResetIn(BaseModel):
 
 class InviteInfoOut(BaseModel):
     email: EmailStr
+    # Name the Board entered when inviting; prefilled on the accept screen, editable there.
+    name: str
     role: Role
     invited_by: str
 

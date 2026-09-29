@@ -1,6 +1,9 @@
 export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 export const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true'
 
+/** Fired on window when a signed-in request fails even after a silent refresh. SessionProvider listens. */
+export const SESSION_EXPIRED_EVENT = 'wc:session-expired'
+
 export class ApiError extends Error {
   status: number
   detail: unknown
@@ -49,6 +52,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   if (res.status === 401 && !path.startsWith('/auth/')) {
     const refreshed = await send('/auth/refresh', { method: 'POST' })
     if (refreshed.ok) res = await send(path, options)
+    else window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
   }
 
   if (!res.ok) {
