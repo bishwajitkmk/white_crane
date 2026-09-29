@@ -63,11 +63,18 @@ export default function TrainingDetail() {
           {t.registration_url ? (
             <>
               <RegisterLink training={t} block />
-              <span className="text-xs text-muted-foreground">Opens the CEU manager event page in a new tab.</span>
+              <span className="text-xs text-muted-foreground">Opens the event registration page in a new tab.</span>
+            </>
+          ) : t.accepting_registrations ? (
+            <>
+              <RegisterLink training={t} block />
+              <span className="text-xs text-muted-foreground">Takes a minute. You will get a confirmation email.</span>
             </>
           ) : (
             <div>
-              <Badge variant="acc">Registration not open</Badge>
+              <Badge variant={t.is_full ? 'warn' : 'acc'}>
+                {t.is_full ? 'Fully booked' : t.status === 'open' ? 'Registration closed' : 'Registration not open'}
+              </Badge>
             </div>
           )}
         </Card>

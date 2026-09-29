@@ -20,6 +20,7 @@ _env = Environment(
 SUBJECTS = {
     "application_received": "We received your DBT Clinical Directory application",
     "application_decision": "Update on your DBT Clinical Directory application",
+    "training_registration": "You are registered: White Crane training",
     "subscribe_confirm": "Confirm your White Crane subscription",
     "invite": "You are invited to the White Crane dashboard",
     "password_reset": "Reset your White Crane password",

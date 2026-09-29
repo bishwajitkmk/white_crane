@@ -9,6 +9,7 @@ from app.models.resource import Resource, ResourceCategory, ResourceKind
 from app.models.site_content import SiteContent
 from app.models.subscriber import Subscriber
 from app.models.training import Training, TrainingFormat, TrainingStatus
+from app.models.training_registration import TrainingRegistration
 from app.models.user import Role, User, UserStatus
 
 __all__ = [
@@ -27,6 +28,7 @@ __all__ = [
     "Subscriber",
     "Training",
     "TrainingFormat",
+    "TrainingRegistration",
     "TrainingStatus",
     "User",
     "UserStatus",

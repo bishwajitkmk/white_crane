@@ -14,8 +14,10 @@ import type {
   Role,
   SiteContent,
   Subscriber,
+  RegistrationInput,
   Training,
   TrainingInput,
+  TrainingRegistration,
   User,
 } from './types'
 
@@ -36,6 +38,8 @@ const httpApi = {
     trainings: () => get<Training[]>('/public/trainings'),
     upcomingTrainings: () => get<Training[]>('/public/trainings/upcoming'),
     training: (slug: string) => get<Training>(`/public/trainings/${slug}`),
+    register: (slug: string, input: RegistrationInput) =>
+      post<{ email: string; training_title: string }>(`/public/trainings/${slug}/registrations`, input),
     directory: (params: { q?: string; location?: string }) => get<Listing[]>('/public/directory', params),
     apply: (input: ApplicationInput) =>
       post<Pick<Application, 'id' | 'contact_email' | 'submitted_at'>>('/public/applications', input),
@@ -72,6 +76,9 @@ const httpApi = {
     createTraining: (input: TrainingInput) => post<Training>('/admin/trainings', input),
     updateTraining: (id: string, input: TrainingInput) => patch<Training>(`/admin/trainings/${id}`, input),
     deleteTraining: (id: string) => del(`/admin/trainings/${id}`),
+    registrations: (trainingId: string) => get<TrainingRegistration[]>(`/admin/trainings/${trainingId}/registrations`),
+    deleteRegistration: (trainingId: string, id: string) => del(`/admin/trainings/${trainingId}/registrations/${id}`),
+    registrationsExportUrl: (trainingId: string) => absoluteUrl(`/admin/trainings/${trainingId}/registrations/export.csv`),
 
     applications: (status?: ApplicationStatus) => get<Application[]>('/admin/applications', { status }),
     application: (id: string) => get<Application>(`/admin/applications/${id}`),

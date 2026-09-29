@@ -155,7 +155,7 @@ uv run python -m app.seed_demo                 # optional: wireframe placeholder
 ```
 
 - `app.seed` without `--password` prints an invite link instead (the normal way to create the real first Board account).
-- `app.seed_demo` only runs on an empty database. It leaves registration URLs blank: they must be the real event pages on the client's registration platform, entered per training in the dashboard.
+- `app.seed_demo` only runs on an empty database. It leaves registration URLs blank, so trainings use the built-in registration form (sign-ups under Dashboard > Trainings > Registrations). Set a URL on a training only if it registers on an external platform.
 - After changing models: `uv run alembic revision --autogenerate -m "..."`, review the file, commit it.
 
 No Docker? Set `DATABASE_URL=sqlite:///./dev.db` and `EMAIL_PROVIDER=console` in `apps/api/.env` (emails, including invite and reset links, are then printed in the API log). Production stays on Postgres.

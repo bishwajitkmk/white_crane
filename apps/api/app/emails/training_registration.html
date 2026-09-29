@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block body %}
+<p>Hi {{ name }},</p>
+<p>You are registered for <strong>{{ training_title }}</strong>.</p>
+<p>
+  <strong>When:</strong> {{ when }}<br />
+  <strong>Format:</strong> {{ format }}
+</p>
+<p>The trainers will email joining details and any materials closer to the date. If you can no longer attend, reply to this email so we can offer your place to someone else.</p>
+{% with label="View training details" %}{% include "_button.html" %}{% endwith %}
+{% endblock %}

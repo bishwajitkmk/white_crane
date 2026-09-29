@@ -103,9 +103,17 @@ export function TrainingForm({ defaultValues, breadcrumb, onSubmit, onDelete, pe
             </div>
           </div>
           <Field
-            label="Registration URL"
+            label="Seats"
+            error={errors.capacity}
+            hint="Registration closes when this many people have signed up. Leave empty for no limit."
+            className={cn(status !== 'open' && 'hidden')}
+          >
+            <Input type="number" min={1} step={1} inputMode="numeric" placeholder="No limit" {...register('capacity')} />
+          </Field>
+          <Field
+            label="External registration URL (optional)"
             error={errors.registration_url}
-            hint="The event page on your registration platform. The public Register button opens it in a new tab and stays hidden until this is set."
+            hint="Leave empty to use the site's built-in registration form; sign-ups then appear under Registrations. Set it only if this training registers on another platform."
           >
             <Input type="url" placeholder="https://..." {...register('registration_url')} />
           </Field>

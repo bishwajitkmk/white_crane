@@ -7,6 +7,7 @@ export const keys = {
   boardMembers: ['board-members'] as const,
   trainings: ['trainings'] as const,
   training: (idOrSlug: string) => ['trainings', idOrSlug] as const,
+  registrations: (trainingId: string) => ['trainings', trainingId, 'registrations'] as const,
   directory: (q: string, location: string) => ['directory', q, location] as const,
   resources: ['resources'] as const,
   summary: ['summary'] as const,
@@ -37,6 +38,8 @@ export const useBoardMembers = () => useQuery({ queryKey: keys.boardMembers, que
 export const useTrainings = () => useQuery({ queryKey: keys.trainings, queryFn: api.admin.trainings })
 export const useTraining = (id: string | undefined) =>
   useQuery({ queryKey: keys.training(id ?? ''), queryFn: () => api.admin.training(id!), enabled: !!id })
+export const useRegistrations = (trainingId: string) =>
+  useQuery({ queryKey: keys.registrations(trainingId), queryFn: () => api.admin.registrations(trainingId) })
 export const useApplications = (status?: ApplicationStatus) =>
   useQuery({ queryKey: [...keys.applications, { status }], queryFn: () => api.admin.applications(status) })
 export const useApplication = (id: string) =>

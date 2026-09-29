@@ -6,14 +6,27 @@ import { Card, CardDescription, CardTitle } from '@/components/ui/card'
 import { formatDate, formatShortDay, formatTimeRange } from '@/lib/format'
 import { TRAINING_FORMAT } from '@/lib/status'
 
-/** External registration link. Hidden until the trainer sets a URL. */
+/**
+ * Register button: the external registration page when the trainer set one, otherwise the built-in form.
+ * Shows "Fully booked" once capacity is reached, and nothing when registration is closed.
+ */
 export function RegisterLink({ training, block = false, variant = 'default' }: { training: Training; block?: boolean; variant?: 'default' | 'secondary' }) {
-  if (!training.registration_url) return null
-  return (
-    <a href={training.registration_url} target="_blank" rel="noreferrer" className={buttonVariants({ block, variant })}>
-      Register
-    </a>
-  )
+  if (training.registration_url) {
+    return (
+      <a href={training.registration_url} target="_blank" rel="noreferrer" className={buttonVariants({ block, variant })}>
+        Register
+      </a>
+    )
+  }
+  if (training.accepting_registrations) {
+    return (
+      <Link to={`/trainings/${training.slug}/register`} className={buttonVariants({ block, variant })}>
+        Register
+      </Link>
+    )
+  }
+  if (training.is_full) return <Badge variant="warn" className="self-center">Fully booked</Badge>
+  return null
 }
 
 /** Compact card used on Home: date tile, title, time and format, link to the detail page. */

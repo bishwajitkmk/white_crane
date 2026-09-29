@@ -38,7 +38,10 @@ export default function TrainingEditor() {
             defaultValues={toTrainingValues(t)}
             breadcrumb={t.title}
             onSubmit={submit}
-            onDelete={() => confirm(`Delete "${t.title}"? This cannot be undone.`) && remove.mutate(undefined, { onSuccess: backToList })}
+            onDelete={() => {
+              const registered = t.registration_count ? ` and its ${t.registration_count} registrations` : ''
+              if (confirm(`Delete "${t.title}"${registered}? This cannot be undone.`)) remove.mutate(undefined, { onSuccess: backToList })
+            }}
             pending={save.isPending || remove.isPending}
             error={save.error ?? remove.error}
           />

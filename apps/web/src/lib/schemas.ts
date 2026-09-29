@@ -67,10 +67,22 @@ export const trainingSchema = z
     objectives: z.string(),
     agenda: z.string(),
     registration_url: optionalUrl,
+    capacity: z.string().trim().regex(/^([1-9][0-9]*)?$/, 'Enter a whole number, or leave empty for no limit'),
     cover_image_url: z.string().nullable(),
   })
   .refine((v) => v.status !== 'open' || v.date !== '', { path: ['date'], message: 'Open trainings need a date' })
 export type TrainingValues = z.infer<typeof trainingSchema>
+
+export const registrationSchema = z.object({
+  full_name: requiredText('Full name'),
+  email,
+  phone: z.string().trim(),
+  organization: z.string().trim(),
+  role: z.string().trim(),
+  notes: z.string().trim().max(2000, 'Keep this under 2000 characters'),
+  nickname,
+})
+export type RegistrationValues = z.infer<typeof registrationSchema>
 
 export const landingContentSchema = z.object({
   hero_headline: requiredText('Headline'),

@@ -58,7 +58,18 @@ export default function TrainingsAdmin() {
               { header: 'Date', cell: (t) => (t.starts_at ? formatDate(t.starts_at) : t.expected_label || 'TBD') },
               { header: 'Trainer', cell: (t) => t.trainers || 'TBD' },
               { header: 'Status', cell: (t) => <Badge variant={TRAINING_STATUS[t.status].variant}>{TRAINING_STATUS[t.status].label}</Badge> },
-              { header: 'Registration', cell: (t) => (t.registration_url ? <a href={t.registration_url} target="_blank" rel="noreferrer" className="text-primary">External link</a> : 'Not yet') },
+              {
+                header: 'Registrations',
+                cell: (t) =>
+                  t.registration_url ? (
+                    <a href={t.registration_url} target="_blank" rel="noreferrer" className="text-primary">External link</a>
+                  ) : (
+                    <Link to={`/dashboard/trainings/${t.id}/registrations`} className="text-primary hover:underline">
+                      {t.registration_count ?? 0}
+                      {t.capacity ? ` / ${t.capacity}` : ''} registered
+                    </Link>
+                  ),
+              },
               { header: '', cell: (t) => <Link to={`/dashboard/trainings/${t.id}`} className="font-semibold text-primary">Edit</Link> },
             ]}
           />

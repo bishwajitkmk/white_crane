@@ -26,6 +26,7 @@ const routes: RouteObject[] = [
       { path: '/trainings', element: page(() => import('@/pages/public/trainings/TrainingsList')) },
       { path: '/trainings/upcoming', element: page(() => import('@/pages/public/trainings/UpcomingTrainings')) },
       { path: '/trainings/:slug', element: page(() => import('@/pages/public/trainings/TrainingDetail')) },
+      { path: '/trainings/:slug/register', element: page(() => import('@/pages/public/trainings/TrainingRegister')) },
       { path: '/directory', element: page(() => import('@/pages/public/directory/Directory')) },
       { path: '/directory/apply', element: page(() => import('@/pages/public/directory/Apply')) },
       { path: '/directory/apply/submitted', element: page(() => import('@/pages/public/directory/ApplicationSubmitted')) },
@@ -69,6 +70,7 @@ const routes: RouteObject[] = [
               { path: 'trainings', element: page(() => import('@/pages/dashboard/trainings/TrainingsAdmin')) },
               { path: 'trainings/new', element: page(() => import('@/pages/dashboard/trainings/TrainingEditor')) },
               { path: 'trainings/:id', element: page(() => import('@/pages/dashboard/trainings/TrainingEditor')) },
+              { path: 'trainings/:id/registrations', element: page(() => import('@/pages/dashboard/trainings/TrainingRegistrations')) },
             ],
           },
           {

@@ -21,6 +21,7 @@ import type {
   Subscriber,
   Training,
   TrainingInput,
+  TrainingRegistration,
   User,
 } from './types'
 
@@ -50,31 +51,34 @@ let boardMembers: BoardMember[] = [
 ]
 
 const lorem = 'Rich text block managed from the dashboard training editor.'
-let trainings: Training[] = [
+/** Stored without the fields the API derives from registrations; see withRegistrations. */
+type StoredTraining = TrainingInput & { id: string }
+
+let trainings: StoredTraining[] = [
   {
     id: 't1', slug: 'dbt-skills-intensive', title: 'DBT Skills Intensive', status: 'open', format: 'online',
     starts_at: '2026-10-14T09:00:00', ends_at: '2026-10-14T16:00:00', expected_label: '', trainers: 'J. Doe',
-    description: lorem, objectives: lorem, agenda: lorem, registration_url: null, cover_image_url: null,
+    description: lorem, objectives: lorem, agenda: lorem, registration_url: null, capacity: 30, cover_image_url: null,
   },
   {
     id: 't2', slug: 'chain-analysis-workshop', title: 'Chain Analysis Workshop', status: 'open', format: 'in_person',
     starts_at: '2026-11-02T09:00:00', ends_at: '2026-11-02T16:00:00', expected_label: '', trainers: 'A. Smith',
-    description: lorem, objectives: lorem, agenda: lorem, registration_url: null, cover_image_url: null,
+    description: lorem, objectives: lorem, agenda: lorem, registration_url: null, capacity: null, cover_image_url: null,
   },
   {
     id: 't3', slug: 'dbt-team-consultation', title: 'DBT Team Consultation Basics', status: 'open', format: 'online',
     starts_at: '2026-11-18T09:00:00', ends_at: '2026-11-18T13:00:00', expected_label: '', trainers: 'J. Doe, A. Smith',
-    description: lorem, objectives: lorem, agenda: lorem, registration_url: null, cover_image_url: null,
+    description: lorem, objectives: lorem, agenda: lorem, registration_url: null, capacity: null, cover_image_url: null,
   },
   {
     id: 't4', slug: 'adolescent-dbt-overview', title: 'Adolescent DBT Overview', status: 'upcoming', format: 'online',
     starts_at: null, ends_at: null, expected_label: 'Spring 2027', trainers: 'TBD',
-    description: 'Short description.', objectives: '', agenda: '', registration_url: null, cover_image_url: null,
+    description: 'Short description.', objectives: '', agenda: '', registration_url: null, capacity: null, cover_image_url: null,
   },
   {
     id: 't5', slug: 'dbt-for-substance-use', title: 'DBT for Substance Use', status: 'upcoming', format: 'in_person',
     starts_at: null, ends_at: null, expected_label: 'Summer 2027', trainers: 'TBD',
-    description: 'Short description.', objectives: '', agenda: '', registration_url: null, cover_image_url: null,
+    description: 'Short description.', objectives: '', agenda: '', registration_url: null, capacity: null, cover_image_url: null,
   },
 ]
 
@@ -149,7 +153,24 @@ const sessionUser = (): User | null => {
 const roleFromEmail = (email: string): Role =>
   /trainer/i.test(email) ? 'trainer' : /directorate|review/i.test(email) ? 'directorate' : 'board'
 
-const trainingFromInput = (id: string, input: TrainingInput): Training => ({ ...input, id, cover_image_url: null })
+const trainingFromInput = (id: string, input: TrainingInput): StoredTraining => ({ ...input, id, cover_image_url: null })
+
+let registrations: TrainingRegistration[] = [
+  { id: 'g1', training_id: 't1', full_name: 'Dana Lee', email: 'dana@riverbend.org', phone: '', organization: 'Riverbend DBT Team', role: 'LCSW', notes: '', registered_at: '2026-09-20T10:00:00' },
+  { id: 'g2', training_id: 't1', full_name: 'Sam Ortiz', email: 'sam@harbor.org', phone: '(206) 555 0142', organization: 'Harbor Health', role: 'Psychologist', notes: 'Wheelchair access please.', registered_at: '2026-09-22T15:30:00' },
+]
+
+const withRegistrations = (t: StoredTraining): Training => {
+  const registration_count = registrations.filter((r) => r.training_id === t.id).length
+  const is_full = t.capacity != null && registration_count >= t.capacity
+  const ended = !!t.starts_at && new Date(t.ends_at ?? t.starts_at) < new Date()
+  return { ...t, registration_count, is_full, accepting_registrations: t.status === 'open' && !t.registration_url && !ended && !is_full }
+}
+const publicTraining = (t: StoredTraining): Training => {
+  const { registration_count, ...rest } = withRegistrations(t)
+  void registration_count
+  return rest
+}
 
 const listingState = (l: Listing) => l.hidden || new Date(l.renewal_due_at) < new Date()
 
@@ -157,11 +178,25 @@ export const mockApi: Api = {
   public: {
     content: () => delay(content),
     boardMembers: () => delay([...boardMembers].sort((a, b) => a.position - b.position)),
-    trainings: () => delay(trainings.filter((t) => t.status === 'open')),
-    upcomingTrainings: () => delay(trainings.filter((t) => t.status === 'upcoming')),
+    trainings: () => delay(trainings.filter((t) => t.status === 'open').map(publicTraining)),
+    upcomingTrainings: () => delay(trainings.filter((t) => t.status === 'upcoming').map(publicTraining)),
     training: (slug) => {
       const t = trainings.find((x) => x.slug === slug)
-      return t ? delay(t) : notFound()
+      return t ? delay(publicTraining(t)) : notFound()
+    },
+    register: (slug, { nickname, ...input }) => {
+      const t = trainings.find((x) => x.slug === slug)
+      if (!t) return notFound()
+      const email = input.email.toLowerCase()
+      const receipt = { email: input.email, training_title: t.title }
+      if (nickname || registrations.some((r) => r.training_id === t.id && r.email === email)) return delay(receipt)
+      const state = withRegistrations(t)
+      if (!state.accepting_registrations) {
+        const reason = state.is_full ? 'This training is fully booked.' : 'Registration for this training is closed.'
+        return Promise.reject(new ApiError(409, reason))
+      }
+      registrations = [...registrations, { ...input, email, id: uid(), training_id: t.id, registered_at: now() }]
+      return delay(receipt)
     },
     directory: ({ q, location } = {}) =>
       delay(
@@ -265,23 +300,36 @@ export const mockApi: Api = {
       return delay(undefined)
     },
 
-    trainings: () => delay(trainings),
+    trainings: () => delay(trainings.map(withRegistrations)),
     training: (id) => {
       const t = trainings.find((x) => x.id === id)
-      return t ? delay(t) : notFound()
+      return t ? delay(withRegistrations(t)) : notFound()
     },
     createTraining: (input) => {
       const t = trainingFromInput(uid(), input)
       trainings = [t, ...trainings]
-      return delay(t)
+      return delay(withRegistrations(t))
     },
     updateTraining: (id, input) => {
       trainings = trainings.map((t) => (t.id === id ? trainingFromInput(id, input) : t))
-      return delay(trainings.find((t) => t.id === id)!)
+      return delay(withRegistrations(trainings.find((t) => t.id === id)!))
     },
     deleteTraining: (id) => {
       trainings = trainings.filter((t) => t.id !== id)
+      registrations = registrations.filter((r) => r.training_id !== id)
       return delay(undefined)
+    },
+    registrations: (trainingId) => delay(registrations.filter((r) => r.training_id === trainingId)),
+    deleteRegistration: (_trainingId, id) => {
+      registrations = registrations.filter((r) => r.id !== id)
+      return delay(undefined)
+    },
+    registrationsExportUrl: (trainingId) => {
+      const cell = (v: string) => `"${v.replace(/"/g, '""')}"`
+      const rows = registrations
+        .filter((r) => r.training_id === trainingId)
+        .map((r) => [r.full_name, r.email, r.phone, r.organization, r.role, r.notes, r.registered_at].map(cell).join(','))
+      return `data:text/csv;charset=utf-8,${encodeURIComponent(['full_name,email,phone,organization,role,notes,registered_at', ...rows].join('\n'))}`
     },
 
     applications: (status?: ApplicationStatus) => delay(status ? applications.filter((a) => a.status === status) : applications),

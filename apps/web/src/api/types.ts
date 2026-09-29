@@ -45,11 +45,36 @@ export interface Training {
   description: string
   objectives: string
   agenda: string
+  /** External registration page. When null, the built-in form at /trainings/:slug/register is used. */
   registration_url: string | null
+  /** Seats for built-in registration; null means unlimited. */
+  capacity: number | null
   cover_image_url: string | null
+  is_full: boolean
+  /** Open, not finished, not full, and no external registration_url. */
+  accepting_registrations: boolean
+  /** Dashboard only. */
+  registration_count?: number
 }
 
-export type TrainingInput = Omit<Training, 'id'>
+export type TrainingInput = Omit<Training, 'id' | 'is_full' | 'accepting_registrations' | 'registration_count'>
+
+export interface RegistrationInput {
+  full_name: string
+  email: string
+  phone: string
+  organization: string
+  role: string
+  notes: string
+  /** Honeypot, see HoneypotField. */
+  nickname: string
+}
+
+export interface TrainingRegistration extends Omit<RegistrationInput, 'nickname'> {
+  id: string
+  training_id: string
+  registered_at: string
+}
 
 export type ApplicationStatus = 'pending' | 'approved' | 'declined' | 'info_requested'
 
