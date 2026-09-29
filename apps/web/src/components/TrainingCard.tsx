@@ -16,19 +16,37 @@ export function RegisterLink({ training, block = false, variant = 'default' }: {
   )
 }
 
-/** Compact card used on Home. */
+/** Compact card used on Home: date tile, title, time and format, link to the detail page. */
 export function TrainingCard({ training }: { training: Training }) {
+  const day = training.starts_at ? formatShortDay(training.starts_at) : null
   return (
-    <Card>
-      <CardTitle>
-        <Link to={`/trainings/${training.slug}`} className="hover:text-primary">
-          {training.title}
-        </Link>
-      </CardTitle>
+    <Card className="gap-4 transition-shadow hover:shadow-md">
+      <div className="flex items-start gap-4">
+        {day && (
+          <div className="w-14 shrink-0 rounded-md bg-primary/10 py-1.5 text-center text-primary">
+            <small className="block text-[11px] font-semibold tracking-wide">{day.month}</small>
+            <b className="block text-2xl leading-tight">{day.day}</b>
+          </div>
+        )}
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <Badge variant="acc" className="self-start">
+            {TRAINING_FORMAT[training.format]}
+          </Badge>
+          <CardTitle>
+            <Link to={`/trainings/${training.slug}`} className="hover:text-primary">
+              {training.title}
+            </Link>
+          </CardTitle>
+        </div>
+      </div>
       <CardDescription>
-        {formatDate(training.starts_at)}, {formatTimeRange(training.starts_at, training.ends_at)}. {TRAINING_FORMAT[training.format]}.
+        {formatDate(training.starts_at)}, {formatTimeRange(training.starts_at, training.ends_at)}
+        {training.trainers && <span className="block">With {training.trainers}</span>}
       </CardDescription>
-      <div className="mt-auto pt-1">
+      <div className="mt-auto flex items-center justify-between gap-3 border-t pt-3">
+        <Link to={`/trainings/${training.slug}`} className="text-[13px] font-semibold text-primary hover:underline">
+          View details
+        </Link>
         <RegisterLink training={training} variant="secondary" />
       </div>
     </Card>
