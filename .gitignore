@@ -36,3 +36,4 @@ logs
 # local api data (dev uploads, sqlite)
 apps/api/uploads/
 *.db
+.neon
