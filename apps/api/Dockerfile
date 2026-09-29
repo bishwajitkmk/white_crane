@@ -17,4 +17,5 @@ USER app
 EXPOSE 8000
 # Migrations run as the host's pre-deploy step (alembic upgrade head), not here.
 # --proxy-headers: rate limits and logs see the visitor's IP instead of the platform proxy.
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]
+
