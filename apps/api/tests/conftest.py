@@ -14,6 +14,7 @@ from sqlalchemy import create_engine  # noqa: E402
 from sqlalchemy.orm import Session, sessionmaker  # noqa: E402
 from sqlalchemy.pool import StaticPool  # noqa: E402
 
+from app.core import rate_limit  # noqa: E402
 from app.core.deps import get_db  # noqa: E402
 from app.core.security import hash_password  # noqa: E402
 from app.db.base import Base  # noqa: E402
@@ -21,6 +22,11 @@ from app.main import app  # noqa: E402
 from app.models import Role, User, UserStatus  # noqa: E402
 
 PASSWORD = "correct-horse-battery"
+
+
+@pytest.fixture(autouse=True)
+def _fresh_rate_limits():
+    rate_limit.reset()
 
 
 @pytest.fixture

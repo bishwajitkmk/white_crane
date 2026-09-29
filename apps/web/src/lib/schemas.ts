@@ -5,7 +5,10 @@ const email = z.email('Enter a valid email address')
 const optionalUrl = z.union([z.literal(''), z.url('Enter a full URL, including https://')])
 const newPassword = z.string().min(10, 'At least 10 characters')
 
-export const subscribeSchema = z.object({ email })
+/** Honeypot: rendered hidden (HoneypotField), so only bots fill it; the API silently drops those submissions. */
+const nickname = z.string()
+
+export const subscribeSchema = z.object({ email, nickname })
 export type SubscribeValues = z.infer<typeof subscribeSchema>
 
 export const loginSchema = z.object({ email, password: requiredText('Password') })
@@ -40,6 +43,7 @@ export const applicationSchema = z.object({
   contact_phone: z.string().trim(),
   attested: z.boolean().refine((v) => v, 'You must attest before submitting'),
   attestation_signed_name: requiredText('Typed signature'),
+  nickname,
 })
 export type ApplicationValues = z.infer<typeof applicationSchema>
 

@@ -4,10 +4,22 @@ from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 
 from app.core.deps import BOARD, DbSession, require_role
-from app.models import Resource
+from app.models import Resource, ResourceKind
 from app.schemas.resource import ResourceIn, ResourceOut
+from app.services import storage
 
 router = APIRouter(dependencies=[require_role(*BOARD)])
+
+
+def _with_size(data: ResourceIn, existing: Resource | None = None) -> dict:
+    """Files we host are measured server-side; the client-sent (or previously stored) size is only a fallback."""
+    values = data.model_dump()
+    if data.kind == ResourceKind.file:
+        kept = existing.file_size_bytes if existing and existing.url == data.url else None
+        values["file_size_bytes"] = storage.file_size(data.url) or data.file_size_bytes or kept
+    else:
+        values["file_size_bytes"] = None
+    return values
 
 
 def _get(db: DbSession, resource_id: uuid.UUID) -> Resource:
@@ -29,7 +41,7 @@ def read(resource_id: uuid.UUID, db: DbSession):
 
 @router.post("/resources", response_model=ResourceOut, status_code=status.HTTP_201_CREATED)
 def create(data: ResourceIn, db: DbSession):
-    resource = Resource(**data.model_dump())
+    resource = Resource(**_with_size(data))
     db.add(resource)
     db.commit()
     return resource
@@ -38,7 +50,7 @@ def create(data: ResourceIn, db: DbSession):
 @router.patch("/resources/{resource_id}", response_model=ResourceOut)
 def update(resource_id: uuid.UUID, data: ResourceIn, db: DbSession):
     resource = _get(db, resource_id)
-    for key, value in data.model_dump(exclude_unset=True).items():
+    for key, value in _with_size(data, resource).items():
         setattr(resource, key, value)
     db.commit()
     return resource

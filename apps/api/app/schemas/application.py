@@ -16,6 +16,8 @@ class ApplicationIn(BaseModel):
     contact_email: EmailStr
     contact_phone: str = Field(default="", max_length=50)
     attestation_signed_name: str = Field(min_length=1, max_length=200)
+    # Honeypot: hidden in the form, so only bots fill it. Never stored.
+    nickname: str = Field(default="", exclude=True)
 
 
 class ApplicationReceipt(ORMModel):

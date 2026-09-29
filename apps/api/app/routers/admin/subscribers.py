@@ -1,16 +1,18 @@
+import logging
 import uuid
 
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import Response
 from sqlalchemy import select
 
-from app.core.deps import BOARD, DbSession, require_role
+from app.core.deps import BOARD, CurrentUser, DbSession, require_role
 from app.db.base import utcnow
 from app.models import Subscriber
 from app.schemas.resource import SubscriberOut
 from app.services.export import subscribers_csv
 
 router = APIRouter(prefix="/subscribers", dependencies=[require_role(*BOARD)])
+log = logging.getLogger(__name__)
 
 
 @router.get("", response_model=list[SubscriberOut])
@@ -19,8 +21,10 @@ def list_subscribers(db: DbSession):
 
 
 @router.get("/export.csv")
-def export(db: DbSession):
+def export(db: DbSession, me: CurrentUser):
     rows = db.scalars(select(Subscriber).order_by(Subscriber.subscribed_at)).all()
+    # Audit trail for personal data leaving the system (Architecture section 9).
+    log.info("Subscriber list exported by %s <%s>: %d rows", me.name, me.email, len(rows))
     filename = f"white-crane-subscribers-{utcnow():%Y-%m-%d}.csv"
     return Response(
         subscribers_csv(rows),

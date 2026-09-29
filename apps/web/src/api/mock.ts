@@ -367,6 +367,14 @@ export const mockApi: Api = {
       users = users.map((u) => (u.id === id ? { ...u, ...input } : u))
       return delay(users.find((u) => u.id === id)!)
     },
+    deactivateUser: (id) => {
+      users = users.map((u) => (u.id === id ? { ...u, status: 'deactivated' as const } : u))
+      return delay(users.find((u) => u.id === id)!)
+    },
+    reactivateUser: (id) => {
+      users = users.map((u) => (u.id === id ? { ...u, status: u.last_sign_in_at ? ('active' as const) : ('invited' as const) } : u))
+      return delay(users.find((u) => u.id === id)!)
+    },
 
     updateProfile: (input) => {
       const user = { ...sessionUser()!, ...input }

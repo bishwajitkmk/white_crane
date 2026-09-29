@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { applicationSchema, type ApplicationValues } from '@/lib/schemas'
-import { Field, FieldRow, FormError } from './Field'
+import { Field, FieldRow, FormError, HoneypotField } from './Field'
 
 /** Placeholder until Ronda supplies the legal / clinical attestation wording (PRD section 2). */
 const ATTESTATION_TEXT = [
@@ -37,6 +37,7 @@ export function ApplicationForm({ onSubmit, pending, error }: ApplicationFormPro
       contact_phone: '',
       attested: false,
       attestation_signed_name: '',
+      nickname: '',
     },
   })
 
@@ -100,6 +101,7 @@ export function ApplicationForm({ onSubmit, pending, error }: ApplicationFormPro
         </Field>
       </Card>
 
+      <HoneypotField {...register('nickname')} />
       <FormError error={error} />
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <span className="text-[13px] text-muted-foreground">Fields marked * must be completed.</span>

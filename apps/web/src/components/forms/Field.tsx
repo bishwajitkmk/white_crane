@@ -1,4 +1,4 @@
-import { useId, type ReactElement, type ReactNode } from 'react'
+import { useId, type ComponentProps, type ReactElement, type ReactNode } from 'react'
 import { cloneElement } from 'react'
 import type { FieldError } from 'react-hook-form'
 import { Label } from '@/components/ui/input'
@@ -52,5 +52,20 @@ export function FormError({ error }: { error: unknown }) {
     <p role="alert" className="text-[13px] text-destructive">
       {error instanceof Error ? error.message : 'Something went wrong. Try again.'}
     </p>
+  )
+}
+
+/**
+ * Spam trap for public forms: off-screen and skipped by keyboard, screen readers and autofill, so only bots
+ * fill it. The API accepts such submissions but stores nothing.
+ */
+export function HoneypotField(props: ComponentProps<'input'>) {
+  return (
+    <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+      <label>
+        Leave this field empty
+        <input type="text" tabIndex={-1} autoComplete="off" {...props} />
+      </label>
+    </div>
   )
 }

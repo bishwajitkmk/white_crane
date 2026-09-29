@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -5,6 +7,11 @@ from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
 from app.routers import admin, auth, public, uploads
 from app.services.storage import local_root
+
+# Uvicorn only configures its own loggers; without this, app INFO logs (console emails with invite and
+# reset links, subscriber export audit lines) are silently dropped.
+logging.basicConfig(level=logging.WARNING, format="%(levelname)s:  %(name)s  %(message)s")
+logging.getLogger("app").setLevel(logging.INFO)
 
 app = FastAPI(title="White Crane API", version="0.1.0")
 

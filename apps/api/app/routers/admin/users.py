@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, status
@@ -6,9 +7,10 @@ from sqlalchemy import select
 from app.core.deps import BOARD, CurrentUser, DbSession, require_role
 from app.models import Role, User, UserStatus
 from app.schemas.user import InviteIn, UserOut, UserUpdate
-from app.services.users import send_invite
+from app.services.users import expire_invites, expire_password_resets, send_invite
 
 router = APIRouter(prefix="/users", dependencies=[require_role(*BOARD)])
+log = logging.getLogger(__name__)
 
 
 def _get(db: DbSession, user_id: uuid.UUID) -> User:
@@ -38,8 +40,10 @@ def invite(data: InviteIn, db: DbSession, me: CurrentUser, tasks: BackgroundTask
 @router.post("/{user_id}/resend-invite", status_code=status.HTTP_204_NO_CONTENT)
 def resend_invite(user_id: uuid.UUID, db: DbSession, me: CurrentUser, tasks: BackgroundTasks):
     user = _get(db, user_id)
-    if user.status != UserStatus.invited:
+    if user.status == UserStatus.active:
         raise HTTPException(status.HTTP_409_CONFLICT, "User has already accepted their invite")
+    if user.status == UserStatus.deactivated:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Reactivate this user before resending their invite")
     send_invite(db, user, me, tasks)
 
 
@@ -51,4 +55,36 @@ def update(user_id: uuid.UUID, data: UserUpdate, db: DbSession, me: CurrentUser)
     for key, value in data.model_dump(exclude_unset=True, exclude_none=True).items():
         setattr(user, key, value)
     db.commit()
+    return user
+
+
+@router.post("/{user_id}/deactivate", response_model=UserOut)
+def deactivate(user_id: uuid.UUID, db: DbSession, me: CurrentUser):
+    """Revokes access immediately: every request re-checks status, so open sessions stop working too."""
+    user = _get(db, user_id)
+    if user.id == me.id:
+        raise HTTPException(status.HTTP_409_CONFLICT, "You cannot deactivate your own account")
+    if user.status == UserStatus.deactivated:
+        return user
+    user.status = UserStatus.deactivated
+    expire_invites(db, user)
+    expire_password_resets(db, user)
+    db.commit()
+    log.info("User %s <%s> deactivated by %s <%s>", user.name, user.email, me.name, me.email)
+    return user
+
+
+@router.post("/{user_id}/reactivate", response_model=UserOut)
+def reactivate(user_id: uuid.UUID, db: DbSession, me: CurrentUser, tasks: BackgroundTasks):
+    """Back to active with their old password, or, if they never accepted their invite, a fresh invite."""
+    user = _get(db, user_id)
+    if user.status != UserStatus.deactivated:
+        return user
+    if user.password_hash:
+        user.status = UserStatus.active
+        db.commit()
+    else:
+        user.status = UserStatus.invited
+        send_invite(db, user, me, tasks)
+    log.info("User %s <%s> reactivated by %s <%s>", user.name, user.email, me.name, me.email)
     return user

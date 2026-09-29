@@ -7,7 +7,7 @@ Local dev (S3_ENDPOINT empty): the API itself accepts the PUT (signed token in t
 import re
 import uuid
 from pathlib import Path
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 
 from fastapi import HTTPException, status
 
@@ -74,3 +74,25 @@ def local_path(key: str) -> Path:
     if root not in path.parents:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid file key")
     return path
+
+
+def file_size(url: str) -> int | None:
+    """Size in bytes of a file we host (uploaded via presign_upload), or None for anything else."""
+    if settings.use_local_storage:
+        prefix = f"{settings.api_url.rstrip('/')}/files/"
+        if not url.startswith(prefix):
+            return None
+        try:
+            path = local_path(unquote(url.removeprefix(prefix)))
+        except HTTPException:
+            return None
+        return path.stat().st_size if path.is_file() else None
+
+    prefix = f"{settings.s3_public_url.rstrip('/')}/"
+    if not settings.s3_public_url or not url.startswith(prefix):
+        return None
+    try:
+        head = _client().head_object(Bucket=settings.s3_bucket, Key=unquote(url.removeprefix(prefix)))
+    except Exception:
+        return None
+    return head.get("ContentLength")

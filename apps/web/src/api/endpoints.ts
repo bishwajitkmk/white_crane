@@ -39,7 +39,8 @@ const httpApi = {
     apply: (input: ApplicationInput) =>
       post<Pick<Application, 'id' | 'contact_email' | 'submitted_at'>>('/public/applications', input),
     resources: () => get<Resource[]>('/public/resources'),
-    subscribe: (email: string, source: string) => post<void>('/public/subscribe', { email, source }),
+    subscribe: (email: string, source: string, nickname = '') =>
+      post<void>('/public/subscribe', { email, source, nickname }),
   },
 
   auth: {
@@ -96,6 +97,10 @@ const httpApi = {
     inviteUser: (input: { name: string; email: string; role: Role }) => post<User>('/admin/users/invite', input),
     resendInvite: (id: string) => post<void>(`/admin/users/${id}/resend-invite`),
     updateUser: (id: string, input: { name?: string; role?: Role }) => patch<User>(`/admin/users/${id}`, input),
+    /** Signs the user out everywhere and blocks sign-in; the record is kept. */
+    deactivateUser: (id: string) => post<User>(`/admin/users/${id}/deactivate`),
+    /** Active again with their old password, or back to invited (new invite email) if they never signed up. */
+    reactivateUser: (id: string) => post<User>(`/admin/users/${id}/reactivate`),
 
     updateProfile: (input: { name: string; email: string }) => patch<User>('/admin/account', input),
     changePassword: (current: string, password: string) =>

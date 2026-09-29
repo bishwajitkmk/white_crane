@@ -5,7 +5,7 @@ export interface User {
   name: string
   email: string
   role: Role
-  status: 'active' | 'invited'
+  status: 'active' | 'invited' | 'deactivated'
   last_sign_in_at: string | null
 }
 
@@ -62,6 +62,8 @@ export interface ApplicationInput {
   contact_email: string
   contact_phone: string
   attestation_signed_name: string
+  /** Honeypot, always empty for people. */
+  nickname?: string
 }
 
 export interface Application extends ApplicationInput {

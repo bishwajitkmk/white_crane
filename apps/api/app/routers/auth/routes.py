@@ -5,6 +5,7 @@ from sqlalchemy import select
 
 from app.core.config import settings
 from app.core.deps import CurrentUser, DbSession
+from app.core.rate_limit import rate_limit
 from app.core.security import (
     REFRESH_COOKIE,
     clear_auth_cookies,
@@ -19,11 +20,12 @@ from app.db.base import utcnow
 from app.models import Invite, PasswordReset, User, UserStatus
 from app.schemas.user import AcceptInviteIn, ForgotIn, InviteInfoOut, LoginIn, ResetIn, UserOut
 from app.services import email
+from app.services.users import expire_password_resets
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/login", response_model=UserOut)
+@router.post("/login", response_model=UserOut, dependencies=[rate_limit("login", 10, 300)])
 def login(data: LoginIn, response: Response, db: DbSession):
     user = db.scalar(select(User).where(User.email == data.email.lower()))
     if not user or user.status != UserStatus.active or not verify_password(data.password, user.password_hash):
@@ -56,12 +58,13 @@ def me(user: CurrentUser):
     return user
 
 
-@router.post("/forgot", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/forgot", status_code=status.HTTP_204_NO_CONTENT, dependencies=[rate_limit("forgot", 5, 900)])
 def forgot(data: ForgotIn, db: DbSession, tasks: BackgroundTasks):
     """Always 204 so the endpoint cannot be used to discover accounts."""
     user = db.scalar(select(User).where(User.email == data.email.lower(), User.status == UserStatus.active))
     if not user:
         return
+    expire_password_resets(db, user)
     raw, token_hash = new_token()
     db.add(
         PasswordReset(
@@ -76,19 +79,25 @@ def forgot(data: ForgotIn, db: DbSession, tasks: BackgroundTasks):
     )
 
 
-@router.post("/reset", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/reset", status_code=status.HTTP_204_NO_CONTENT, dependencies=[rate_limit("reset", 10, 900)])
 def reset(data: ResetIn, db: DbSession):
     reset_row = db.scalar(select(PasswordReset).where(PasswordReset.token_hash == hash_token(data.token)))
-    if not reset_row or reset_row.used_at or reset_row.expires_at < utcnow():
+    if (
+        not reset_row
+        or reset_row.used_at
+        or reset_row.expires_at < utcnow()
+        or reset_row.user.status != UserStatus.active
+    ):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "This reset link is invalid or has expired")
     reset_row.user.password_hash = hash_password(data.password)
     reset_row.used_at = utcnow()
+    expire_password_resets(db, reset_row.user)
     db.commit()
 
 
 def _valid_invite(db: DbSession, token: str) -> Invite:
     invite = db.scalar(select(Invite).where(Invite.token_hash == hash_token(token)))
-    if not invite or invite.accepted_at or invite.expires_at < utcnow():
+    if not invite or invite.accepted_at or invite.expires_at < utcnow() or invite.user.status != UserStatus.invited:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "This invite link is invalid or has expired")
     return invite
 

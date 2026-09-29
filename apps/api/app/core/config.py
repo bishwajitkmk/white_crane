@@ -41,6 +41,9 @@ class Settings(BaseSettings):
     invite_expiry_days: int = 7
     password_reset_minutes: int = 60
 
+    # Per-IP limits on public forms and login (app.core.rate_limit).
+    rate_limit_enabled: bool = True
+
     @property
     def allowed_origins(self) -> list[str]:
         extra = [o.strip().rstrip("/") for o in self.cors_origins.split(",") if o.strip()]

@@ -1,15 +1,19 @@
+import logging
+
 from fastapi import APIRouter, BackgroundTasks, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy import select
 
 from app.core.config import settings
 from app.core.deps import DbSession
+from app.core.rate_limit import rate_limit
 from app.core.security import hash_token, new_token
 from app.models import Resource, Subscriber
 from app.schemas.resource import ResourceOut, SubscribeIn
 from app.services import email
 
 router = APIRouter()
+log = logging.getLogger(__name__)
 
 
 @router.get("/resources", response_model=list[ResourceOut])
@@ -17,10 +21,14 @@ def resources(db: DbSession):
     return db.scalars(select(Resource).order_by(Resource.category, Resource.title)).all()
 
 
-@router.post("/subscribe", status_code=status.HTTP_202_ACCEPTED)
+@router.post("/subscribe", status_code=status.HTTP_202_ACCEPTED, dependencies=[rate_limit("subscribe", 10, 3600)])
 def subscribe(data: SubscribeIn, db: DbSession, tasks: BackgroundTasks):
     """Idempotent: re-subscribing an existing address only re-sends the confirmation if still unconfirmed."""
     email_addr = data.email.lower()
+    if data.nickname:
+        # Honeypot filled: same response as a real signup, nothing stored or sent.
+        log.info("Dropped subscription with honeypot filled (%s)", email_addr)
+        return {"status": "pending_confirmation"}
     subscriber = db.scalar(select(Subscriber).where(Subscriber.email == email_addr))
     if subscriber and subscriber.confirmed:
         return {"status": "subscribed"}

@@ -16,6 +16,8 @@ class Role(StrEnum):
 class UserStatus(StrEnum):
     active = "active"
     invited = "invited"
+    # Signed out everywhere and cannot sign in, reset a password or accept an invite. Kept for the audit trail.
+    deactivated = "deactivated"
 
 
 class User(IdMixin, TimestampMixin, Base):

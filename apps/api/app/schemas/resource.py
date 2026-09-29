@@ -40,6 +40,8 @@ class PresignOut(BaseModel):
 class SubscribeIn(BaseModel):
     email: EmailStr
     source: str = Field(default="", max_length=100)
+    # Honeypot, see ApplicationIn.nickname.
+    nickname: str = ""
 
 
 class SubscriberOut(ORMModel):

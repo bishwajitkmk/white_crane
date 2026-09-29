@@ -1,9 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useState, type ReactNode } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '@/api/endpoints'
-import type { Role } from '@/api/types'
+import type { Role, User } from '@/api/types'
 import { ROLE_LABEL } from '@/auth/roles'
+import { useSession } from '@/auth/session'
 import { DataTable } from '@/components/DataTable'
 import { Field, FieldRow, FormError } from '@/components/forms/Field'
 import { DashboardPage, Toolbar } from '@/components/layout/DashboardLayout'
@@ -16,8 +18,17 @@ import { keys, useInvalidatingMutation, useUsers } from '@/hooks/queries'
 import { relativeDays } from '@/lib/format'
 import { inviteSchema, type InviteValues } from '@/lib/schemas'
 
+const STATUS_BADGE: Record<User['status'], ReactNode> = {
+  active: <Badge variant="ok">Active</Badge>,
+  invited: <Badge variant="warn">Invited</Badge>,
+  deactivated: <Badge variant="bad">Deactivated</Badge>,
+}
+
 export default function Users() {
   const users = useUsers()
+  const { user: me } = useSession()
+  const [deactivating, setDeactivating] = useState<User | null>(null)
+  const reactivate = useInvalidatingMutation(api.admin.reactivateUser, [keys.users])
   const [params, setParams] = useSearchParams()
   const inviting = params.get('invite') === '1'
   const setInviting = (open: boolean) => setParams(open ? { invite: '1' } : {})
@@ -42,21 +53,39 @@ export default function Users() {
               { header: 'Name', cell: (u) => <span className="font-semibold">{u.name}</span> },
               { header: 'Email', cell: (u) => u.email },
               { header: 'Role', cell: (u) => <Badge variant="acc">{ROLE_LABEL[u.role]}</Badge> },
-              { header: 'Status', cell: (u) => (u.status === 'active' ? <Badge variant="ok">Active</Badge> : <Badge variant="warn">Invited</Badge>) },
+              { header: 'Status', cell: (u) => STATUS_BADGE[u.status] },
               { header: 'Last sign in', cell: (u) => relativeDays(u.last_sign_in_at) },
               {
                 header: '',
-                cell: (u) =>
-                  u.status === 'invited' ? (
-                    <Button variant="link" disabled={resend.isPending} onClick={() => resend.mutate(u.id)}>
-                      {resend.isSuccess && resend.variables === u.id ? 'Invite sent' : 'Resend invite'}
-                    </Button>
-                  ) : null,
+                cell: (u) => (
+                  <div className="flex justify-end gap-4">
+                    {u.status === 'invited' && (
+                      <Button variant="link" disabled={resend.isPending} onClick={() => resend.mutate(u.id)}>
+                        {resend.isSuccess && resend.variables === u.id ? 'Invite sent' : 'Resend invite'}
+                      </Button>
+                    )}
+                    {u.status === 'deactivated' ? (
+                      <Button variant="link" disabled={reactivate.isPending} onClick={() => reactivate.mutate(u.id)}>
+                        Reactivate
+                      </Button>
+                    ) : (
+                      u.id !== me?.id && (
+                        <Button variant="link" className="text-destructive" onClick={() => setDeactivating(u)}>
+                          Deactivate
+                        </Button>
+                      )
+                    )}
+                  </div>
+                ),
               },
             ]}
           />
         )}
       </QueryState>
+      <FormError error={reactivate.error} />
+      <Dialog open={deactivating !== null} onClose={() => setDeactivating(null)} title="Deactivate user">
+        {deactivating && <DeactivateConfirm user={deactivating} onDone={() => setDeactivating(null)} />}
+      </Dialog>
       <Dialog open={inviting} onClose={() => setInviting(false)} title="Invite user">
         <InviteForm onDone={() => setInviting(false)} />
       </Dialog>
@@ -103,5 +132,28 @@ function InviteForm({ onDone }: { onDone: () => void }) {
         </Button>
       </div>
     </form>
+  )
+}
+
+function DeactivateConfirm({ user, onDone }: { user: User; onDone: () => void }) {
+  const deactivate = useInvalidatingMutation(api.admin.deactivateUser, [keys.users])
+
+  return (
+    <div className="flex flex-col gap-4">
+      <p>
+        <span className="font-semibold">{user.name}</span> ({user.email}) will be signed out everywhere and can no longer
+        sign in{user.status === 'invited' ? ' or accept their invite' : ''}. Their history is kept, and you can reactivate
+        them at any time.
+      </p>
+      <FormError error={deactivate.error} />
+      <div className="flex gap-2">
+        <Button variant="destructive" disabled={deactivate.isPending} onClick={() => deactivate.mutate(user.id, { onSuccess: onDone })}>
+          {deactivate.isPending ? 'Deactivating...' : 'Deactivate'}
+        </Button>
+        <Button variant="secondary" onClick={onDone}>
+          Cancel
+        </Button>
+      </div>
+    </div>
   )
 }
