@@ -1,58 +1,163 @@
-import { Menu, X } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { ChevronDown, ExternalLink, LogOut, Menu, UserRound, X } from 'lucide-react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
+import type { User } from '@/api/types'
 import { navFor, ROLE_LABEL } from '@/auth/roles'
 import { useSession } from '@/auth/session'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { cn } from '@/lib/utils'
 import { Logo } from './Logo'
 
-function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
-  const { user, signOut } = useSession()
-  const navigate = useNavigate()
-  if (!user) return null
+const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]!.toUpperCase())
+    .join('')
 
-  const handleSignOut = async () => {
+function Avatar({ user, className }: { user: User; className?: string }) {
+  return (
+    <span
+      aria-hidden
+      className={cn('flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-[13px] font-semibold text-primary-foreground', className)}
+    >
+      {initials(user.name)}
+    </span>
+  )
+}
+
+function useSignOut() {
+  const { signOut } = useSession()
+  const navigate = useNavigate()
+  return async () => {
     await signOut()
     navigate('/login')
   }
+}
+
+/** Pinned to the bottom of the sidebar: who is signed in, plus account and sign-out actions. */
+function SidebarAccount({ user, onNavigate }: { user: User; onNavigate?: () => void }) {
+  const handleSignOut = useSignOut()
+  const row = 'flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sidebar-foreground hover:bg-sidebar-accent'
 
   return (
-    <div className="flex h-full flex-col gap-1 p-5">
-      <Logo dark className="w-full" />
-      <div className="mt-1 mb-2 text-xs text-sidebar-muted">{ROLE_LABEL[user.role]} view</div>
-      <nav aria-label="Dashboard" className="flex flex-col gap-1">
-        {navFor(user.role).map(({ group, items }) => (
-          <div key={group} className="flex flex-col gap-0.5">
-            <div className="mt-2.5 text-[11px] font-semibold text-sidebar-muted">{group}</div>
-            {items.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === '/dashboard'}
-                onClick={onNavigate}
-                className={({ isActive }) =>
-                  cn(
-                    'rounded-md px-2.5 py-2',
-                    isActive ? 'bg-primary font-semibold text-primary-foreground' : 'text-sidebar-foreground hover:bg-sidebar-accent',
-                  )
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
-          </div>
-        ))}
-      </nav>
-      <div className="mt-auto flex gap-2 px-2.5 pt-6 text-[13px] text-sidebar-muted">
-        <NavLink to="/dashboard/account" onClick={onNavigate} className="hover:text-sidebar-foreground">
-          My account
-        </NavLink>
-        <span aria-hidden>|</span>
-        <button type="button" onClick={handleSignOut} className="cursor-pointer hover:text-sidebar-foreground">
-          Sign out
-        </button>
+    <div className="flex flex-col gap-1 border-t border-sidebar-accent p-3">
+      <div className="flex items-center gap-2.5 px-2 py-2">
+        <Avatar user={user} />
+        <div className="min-w-0">
+          <div className="truncate font-semibold text-sidebar-foreground">{user.name}</div>
+          <div className="truncate text-xs text-sidebar-muted">{ROLE_LABEL[user.role]}</div>
+        </div>
       </div>
+      <NavLink
+        to="/dashboard/account"
+        onClick={onNavigate}
+        className={({ isActive }) => cn(row, isActive && 'bg-primary font-semibold text-primary-foreground hover:bg-primary')}
+      >
+        <UserRound className="size-4" /> My account
+      </NavLink>
+      <button type="button" onClick={handleSignOut} className={cn(row, 'cursor-pointer text-left')}>
+        <LogOut className="size-4" /> Sign out
+      </button>
+    </div>
+  )
+}
+
+function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
+  const { user } = useSession()
+  if (!user) return null
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-5">
+        <Logo dark className="w-full max-lg:hidden" />
+        <div className="mt-1 mb-2 text-xs text-sidebar-muted">{ROLE_LABEL[user.role]} view</div>
+        <nav aria-label="Dashboard" className="flex flex-col gap-1">
+          {navFor(user.role).map(({ group, items }) => (
+            <div key={group} className="flex flex-col gap-0.5">
+              <div className="mt-2.5 text-[11px] font-semibold text-sidebar-muted">{group}</div>
+              {items.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  end={item.to === '/dashboard'}
+                  onClick={onNavigate}
+                  className={({ isActive }) =>
+                    cn(
+                      'rounded-md px-2.5 py-2',
+                      isActive ? 'bg-primary font-semibold text-primary-foreground' : 'text-sidebar-foreground hover:bg-sidebar-accent',
+                    )
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
+          ))}
+        </nav>
+      </div>
+      <SidebarAccount user={user} onNavigate={onNavigate} />
+    </div>
+  )
+}
+
+/** Top-right avatar button that opens the account menu (closes on outside click, Escape, or choosing an item). */
+function AccountMenu({ user }: { user: User }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const handleSignOut = useSignOut()
+
+  useEffect(() => {
+    if (!open) return
+    const onPointer = (e: PointerEvent) => ref.current && !ref.current.contains(e.target as Node) && setOpen(false)
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    document.addEventListener('pointerdown', onPointer)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onPointer)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  const item = 'flex items-center gap-2.5 px-4 py-2.5 text-left hover:bg-surface'
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={`Account menu for ${user.name}`}
+        onClick={() => setOpen((o) => !o)}
+        className="flex cursor-pointer items-center gap-2 rounded-full py-1 pr-2 pl-1 hover:bg-surface"
+      >
+        <Avatar user={user} className="size-8 text-xs" />
+        <span className="hidden max-w-40 truncate font-semibold md:inline">{user.name.split(' ')[0]}</span>
+        <ChevronDown className={cn('size-4 text-muted-foreground transition-transform', open && 'rotate-180')} />
+      </button>
+      {open && (
+        <div role="menu" className="absolute top-full right-0 z-20 mt-2 w-64 overflow-hidden rounded-lg border bg-background shadow-lg">
+          <div className="border-b px-4 py-3">
+            <div className="truncate font-semibold">{user.name}</div>
+            <div className="truncate text-[13px] text-muted-foreground">{user.email}</div>
+            <div className="mt-1 text-xs text-muted-foreground">{ROLE_LABEL[user.role]}</div>
+          </div>
+          <div className="flex flex-col py-1">
+            <Link role="menuitem" to="/dashboard/account" onClick={() => setOpen(false)} className={item}>
+              <UserRound className="size-4 text-muted-foreground" /> My account
+            </Link>
+            <Link role="menuitem" to="/" onClick={() => setOpen(false)} className={item}>
+              <ExternalLink className="size-4 text-muted-foreground" /> View public site
+            </Link>
+          </div>
+          <div className="border-t py-1">
+            <button role="menuitem" type="button" onClick={handleSignOut} className={cn(item, 'w-full cursor-pointer text-destructive')}>
+              <LogOut className="size-4" /> Sign out
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -63,7 +168,7 @@ export function DashboardLayout() {
   return (
     <div className="min-h-dvh bg-surface lg:grid lg:grid-cols-[240px_1fr]">
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-dvh overflow-y-auto bg-sidebar lg:block">
+      <aside className="sticky top-0 hidden h-dvh bg-sidebar lg:block">
         <Sidebar />
       </aside>
 
@@ -103,12 +208,7 @@ export function DashboardPage({ title, children }: { title: string; children: Re
             <span className="hidden sm:inline">View public site</span>
             <span className="sm:hidden">Public site</span>
           </Link>
-          <span
-            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-placeholder text-xs font-semibold text-muted-foreground"
-            title={user?.name}
-          >
-            {user?.name.charAt(0)}
-          </span>
+          {user && <AccountMenu user={user} />}
         </div>
       </header>
       <div className="flex flex-col gap-5 p-4 sm:p-8">{children}</div>
