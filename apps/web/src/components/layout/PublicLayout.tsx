@@ -1,7 +1,7 @@
 import { Menu, X } from 'lucide-react'
-import { useState } from 'react'
-import { Link, NavLink, Outlet } from 'react-router-dom'
-import { useSession } from '@/auth/session'
+import { useEffect, useState } from 'react'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useSession, type SignOutState } from '@/auth/session'
 import { SubscribeForm } from '@/components/forms/SubscribeForm'
 import { ButtonLink } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -105,7 +105,22 @@ function Footer() {
   )
 }
 
+/** Finishes a sign-out started in the dashboard, now that no signed-in page is mounted. */
+function useFinishSignOut() {
+  const { signOut } = useSession()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const signingOut = (location.state as SignOutState | null)?.signingOut
+
+  useEffect(() => {
+    if (!signingOut) return
+    void signOut()
+    navigate(location.pathname, { replace: true, state: null }) // so Back/refresh doesn't repeat it
+  }, [signingOut, signOut, navigate, location.pathname])
+}
+
 export function PublicLayout() {
+  useFinishSignOut()
   return (
     <div className="flex min-h-dvh flex-col">
       <Nav />

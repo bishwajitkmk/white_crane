@@ -20,18 +20,26 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const setUser = useCallback((user: User | null) => queryClient.setQueryData(ME_KEY, user), [queryClient])
 
+  // Update the session entry in place (so everything reading useSession re-renders at once), then drop
+  // cached data no screen is showing (the dashboard's, once it has unmounted). Never queryClient.clear()
+  // or remove queries a mounted page observes: the observers are orphaned and that UI stays stale (the
+  // old user, or "Loading...") until a page refresh.
+  const dropSession = useCallback(() => {
+    setUser(null)
+    queryClient.removeQueries({ type: 'inactive', predicate: (q) => q.queryKey[0] !== ME_KEY[0] })
+  }, [queryClient, setUser])
+
   // Signed out elsewhere, deactivated, or idle past the refresh token: drop the session so RequireRole
   // sends the user to /login (and back to this page afterwards).
   useEffect(() => {
     const onExpired = () => {
       if (!queryClient.getQueryData(ME_KEY)) return
-      queryClient.clear()
-      setUser(null)
+      dropSession()
       setExpired(true)
     }
     window.addEventListener(SESSION_EXPIRED_EVENT, onExpired)
     return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired)
-  }, [queryClient, setUser])
+  }, [queryClient, dropSession])
 
   const signIn = useCallback(
     async (email: string, password: string) => {
@@ -44,10 +52,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   )
 
   const signOut = useCallback(async () => {
-    await api.auth.logout()
-    queryClient.clear()
-    setUser(null)
-  }, [queryClient, setUser])
+    // Screen first, then the server (clears the cookies). A failed request (offline, API asleep) still
+    // leaves the visitor signed out locally.
+    dropSession()
+    await api.auth.logout().catch(() => undefined)
+  }, [dropSession])
 
   const value = useMemo<Session>(
     () => ({ user: me.data ?? null, isLoading: me.isLoading, expired, signIn, signOut, setUser }),

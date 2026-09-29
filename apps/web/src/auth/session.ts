@@ -11,6 +11,11 @@ export interface Session {
   setUser: (user: User) => void
 }
 
+/** Router state the dashboard sends to the home page on sign-out; PublicLayout ends the session. */
+export interface SignOutState {
+  signingOut?: boolean
+}
+
 export const SessionContext = createContext<Session | null>(null)
 
 export function useSession() {

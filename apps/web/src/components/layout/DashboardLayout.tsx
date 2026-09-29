@@ -3,8 +3,10 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import type { User } from '@/api/types'
 import { navFor, ROLE_LABEL } from '@/auth/roles'
-import { useSession } from '@/auth/session'
+import { useSession, type SignOutState } from '@/auth/session'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
+import { Button } from '@/components/ui/button'
+import { Dialog } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { Logo } from './Logo'
 
@@ -27,18 +29,41 @@ function Avatar({ user, className }: { user: User; className?: string }) {
   )
 }
 
-function useSignOut() {
-  const { signOut } = useSession()
+/**
+ * Sign out behind a confirmation. Returns `ask` (open the dialog) and the dialog element to render.
+ * Confirming ends the session and lands on the public home page, as a visitor.
+ */
+function useSignOutConfirm() {
   const navigate = useNavigate()
-  return async () => {
-    await signOut()
-    navigate('/login')
+  const [open, setOpen] = useState(false)
+  const [pending, setPending] = useState(false)
+
+  // Only navigate here; PublicLayout ends the session once the home page is on screen. Ending it while
+  // the dashboard is still mounted makes RequireRole redirect to /login instead.
+  const confirm = () => {
+    setPending(true)
+    navigate('/', { replace: true, state: { signingOut: true } satisfies SignOutState })
   }
+
+  const dialog = (
+    <Dialog open={open} onClose={() => !pending && setOpen(false)} title="Sign out?">
+      <p className="text-muted-foreground">You'll need to sign in again to use the dashboard.</p>
+      <div className="flex gap-2">
+        <Button onClick={confirm} disabled={pending}>
+          {pending ? 'Signing out...' : 'Sign out'}
+        </Button>
+        <Button variant="secondary" onClick={() => setOpen(false)} disabled={pending}>
+          Cancel
+        </Button>
+      </div>
+    </Dialog>
+  )
+  return { ask: () => setOpen(true), dialog }
 }
 
 /** Pinned to the bottom of the sidebar: who is signed in, plus account and sign-out actions. */
 function SidebarAccount({ user, onNavigate }: { user: User; onNavigate?: () => void }) {
-  const handleSignOut = useSignOut()
+  const signOut = useSignOutConfirm()
   const row = 'flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sidebar-foreground hover:bg-sidebar-accent'
 
   return (
@@ -57,9 +82,10 @@ function SidebarAccount({ user, onNavigate }: { user: User; onNavigate?: () => v
       >
         <UserRound className="size-4" /> My account
       </NavLink>
-      <button type="button" onClick={handleSignOut} className={cn(row, 'cursor-pointer text-left')}>
+      <button type="button" onClick={signOut.ask} className={cn(row, 'cursor-pointer text-left')}>
         <LogOut className="size-4" /> Sign out
       </button>
+      {signOut.dialog}
     </div>
   )
 }
@@ -106,7 +132,7 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 function AccountMenu({ user }: { user: User }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-  const handleSignOut = useSignOut()
+  const signOut = useSignOutConfirm()
 
   useEffect(() => {
     if (!open) return
@@ -152,12 +178,21 @@ function AccountMenu({ user }: { user: User }) {
             </Link>
           </div>
           <div className="border-t py-1">
-            <button role="menuitem" type="button" onClick={handleSignOut} className={cn(item, 'w-full cursor-pointer text-destructive')}>
+            <button
+              role="menuitem"
+              type="button"
+              onClick={() => {
+                setOpen(false)
+                signOut.ask()
+              }}
+              className={cn(item, 'w-full cursor-pointer text-destructive')}
+            >
               <LogOut className="size-4" /> Sign out
             </button>
           </div>
         </div>
       )}
+      {signOut.dialog}
     </div>
   )
 }
