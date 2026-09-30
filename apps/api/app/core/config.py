@@ -1,6 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -16,6 +17,8 @@ class Settings(BaseSettings):
     # "none" (with cookie_secure=true) only if the site and API are on different registrable domains,
     # e.g. *.vercel.app + *.up.railway.app. Keep "lax" for whitecrane.org + api.whitecrane.org.
     cookie_samesite: Literal["lax", "strict", "none"] = "lax"
+    # e.g. ".whitecranetraining.org" to share auth cookies across the site and api subdomains. Empty = host-only.
+    cookie_domain: str | None = None
     frontend_url: str = "http://localhost:5173"
     # Extra CORS origins besides frontend_url, comma separated (e.g. preview deploys, vite preview on :4173).
     cors_origins: str = ""
@@ -43,6 +46,20 @@ class Settings(BaseSettings):
 
     # Per-IP limits on public forms and login (app.core.rate_limit).
     rate_limit_enabled: bool = True
+
+    @field_validator("database_url")
+    @classmethod
+    def _use_psycopg3(cls, v: str) -> str:
+        # Neon/Render hand out postgres:// or postgresql:// URLs, which SQLAlchemy maps to psycopg2 (not installed).
+        for prefix in ("postgres://", "postgresql://"):
+            if v.startswith(prefix):
+                return "postgresql+psycopg://" + v[len(prefix) :]
+        return v
+
+    @field_validator("cookie_domain")
+    @classmethod
+    def _empty_domain_is_none(cls, v: str | None) -> str | None:
+        return v.strip() or None if v else None
 
     @property
     def allowed_origins(self) -> list[str]:

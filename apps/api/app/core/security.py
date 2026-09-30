@@ -49,7 +49,12 @@ def decode_token(token: str, kind: TokenType) -> uuid.UUID | None:
 
 
 def set_auth_cookies(response: Response, user_id: uuid.UUID) -> None:
-    common = {"httponly": True, "secure": settings.cookie_secure, "samesite": settings.cookie_samesite}
+    common = {
+        "httponly": True,
+        "secure": settings.cookie_secure,
+        "samesite": settings.cookie_samesite,
+        "domain": settings.cookie_domain,
+    }
     response.set_cookie(
         ACCESS_COOKIE, create_token(user_id, "access"), max_age=settings.access_token_minutes * 60, path="/", **common
     )
@@ -64,7 +69,12 @@ def set_auth_cookies(response: Response, user_id: uuid.UUID) -> None:
 
 def clear_auth_cookies(response: Response) -> None:
     # Attributes must match the ones used when setting, or browsers keep SameSite=None cookies.
-    common = {"httponly": True, "secure": settings.cookie_secure, "samesite": settings.cookie_samesite}
+    common = {
+        "httponly": True,
+        "secure": settings.cookie_secure,
+        "samesite": settings.cookie_samesite,
+        "domain": settings.cookie_domain,
+    }
     response.delete_cookie(ACCESS_COOKIE, path="/", **common)
     response.delete_cookie(REFRESH_COOKIE, path="/auth", **common)
 
