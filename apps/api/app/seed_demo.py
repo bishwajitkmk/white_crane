@@ -11,6 +11,7 @@ from datetime import timedelta
 
 from sqlalchemy import select
 
+from app.attestation import PRACTICE_ITEMS
 from app.db.base import utcnow
 from app.db.session import SessionLocal
 from app.models import (
@@ -72,6 +73,10 @@ APPLICATIONS = [
      "team@summitdbt.org", ApplicationStatus.approved, 250),
 ]  # fmt: skip
 
+# Attestation answers for every demo application: all Yes except item 10, explained in the comments.
+ANSWERS = {item: item != "10" for item in PRACTICE_ITEMS}
+PRACTICES_COMMENT = "10: Evening skills group starts in January once our second co-leader completes training."
+
 
 def main() -> None:
     with SessionLocal() as db:
@@ -109,7 +114,15 @@ def main() -> None:
             application = Application(
                 agency_name=agency, location=location, website=website, public_contact=public,
                 contact_name=name, contact_email=email, contact_phone="(503) 555 0100",
-                attestation_signed_name=name, attestation_signed_at=submitted, submitted_at=submitted,
+                program_address=f"100 Main St, {location}", services=["Outpatient (OP): Adult"],
+                team_members=[
+                    {"name": name, "affiliation": agency, "email": email,
+                     "joined_on": (submitted - timedelta(days=400)).date().isoformat()},
+                ],
+                first_consultation_on=(submitted - timedelta(days=400)).date(), residential=False,
+                answers=ANSWERS, comments_practices=PRACTICES_COMMENT,
+                attestation_signed_name=name, attestation_signed_title="DBT Team Leader",
+                attestation_signed_at=submitted, submitted_at=submitted,
                 status=status, activity=[{"at": submitted.isoformat(), "message": "Submitted by applicant"}],
             )  # fmt: skip
             db.add(application)

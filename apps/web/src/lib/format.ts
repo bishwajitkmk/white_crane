@@ -2,6 +2,8 @@ const dateFmt = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short
 const timeFmt = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' })
 
 export const formatDate = (iso: string | null | undefined) => (iso ? dateFmt.format(new Date(iso)) : '')
+/** For date-only values (YYYY-MM-DD): read as a local date, so US time zones don't show the day before. */
+export const formatDay = (day: string | null | undefined) => (day ? dateFmt.format(new Date(`${day}T00:00:00`)) : '')
 export const formatTime = (iso: string | null | undefined) => (iso ? timeFmt.format(new Date(iso)) : '')
 
 export const formatShortDay = (iso: string) => {

@@ -78,21 +78,44 @@ export interface TrainingRegistration extends Omit<RegistrationInput, 'nickname'
 
 export type ApplicationStatus = 'pending' | 'approved' | 'declined' | 'info_requested'
 
+export interface TeamMember {
+  name: string
+  affiliation: string
+  email: string
+  /** YYYY-MM-DD */
+  joined_on: string
+}
+
 export interface ApplicationInput {
   agency_name: string
   location: string
   website: string
   public_contact: string
+  /** The contact person is the DBT Team Leader. */
   contact_name: string
   contact_email: string
   contact_phone: string
+  program_address: string
+  services: string[]
+  team_members: TeamMember[]
+  /** YYYY-MM-DD */
+  first_consultation_on: string
+  residential: boolean
+  /** Attestation item id -> true for Yes, false for No. See lib/attestation. */
+  answers: Record<string, boolean>
+  comments_residential: string
+  comments_practices: string
+  additional_info: string
   attestation_signed_name: string
+  attestation_signed_title: string
   /** Honeypot, always empty for people. */
   nickname?: string
 }
 
-export interface Application extends ApplicationInput {
+export interface Application extends Omit<ApplicationInput, 'first_consultation_on'> {
   id: string
+  /** Null on applications submitted before attestation version 2.0. */
+  first_consultation_on: string | null
   status: ApplicationStatus
   attestation_signed_at: string
   attestation_version: string

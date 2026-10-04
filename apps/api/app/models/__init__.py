@@ -1,6 +1,7 @@
 """Import every model here so Base.metadata is complete for Alembic autogenerate."""
 
-from app.models.application import ATTESTATION_VERSION, Application, ApplicationStatus
+from app.attestation import ATTESTATION_VERSION
+from app.models.application import Application, ApplicationStatus
 from app.models.board_member import BoardMember
 from app.models.invite import Invite
 from app.models.listing import Listing

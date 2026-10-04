@@ -10,7 +10,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardTitle } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/input'
 import { keys, useApplication, useInvalidatingMutation } from '@/hooks/queries'
-import { formatDate, formatTime } from '@/lib/format'
+import { PRACTICE_GROUPS, RESIDENTIAL_ITEMS, type AttestationItem } from '@/lib/attestation'
+import { formatDate, formatDay, formatTime } from '@/lib/format'
 import { APPLICATION_STATUS } from '@/lib/status'
 
 export default function ApplicationReview() {
@@ -34,6 +35,123 @@ function KeyValues({ rows }: { rows: [string, ReactNode][] }) {
         </div>
       ))}
     </dl>
+  )
+}
+
+function TeamMembers({ application: a }: { application: Application }) {
+  return (
+    <Card className="p-6">
+      <CardTitle>Team members ({a.team_members.length})</CardTitle>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left">
+          <thead className="text-[13px] text-muted-foreground">
+            <tr>
+              <th className="py-1.5 pr-4 font-normal">Name</th>
+              <th className="py-1.5 pr-4 font-normal">Agency / practice</th>
+              <th className="py-1.5 pr-4 font-normal">Email</th>
+              <th className="py-1.5 font-normal whitespace-nowrap">Joined team</th>
+            </tr>
+          </thead>
+          <tbody>
+            {a.team_members.map((m, i) => (
+              <tr key={i} className="border-t">
+                <td className="py-2 pr-4 font-semibold">{m.name}</td>
+                <td className="py-2 pr-4">{m.affiliation}</td>
+                <td className="py-2 pr-4">
+                  <a href={`mailto:${m.email}`} className="text-primary">{m.email}</a>
+                </td>
+                <td className="py-2 whitespace-nowrap">{formatDay(m.joined_on)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  )
+}
+
+function Attestation({ application: a }: { application: Application }) {
+  const signed = `Signed by ${a.attestation_signed_name}${a.attestation_signed_title ? ` (${a.attestation_signed_title})` : ''} on ${formatDate(a.attestation_signed_at)} at ${formatTime(a.attestation_signed_at)}. Attestation version ${a.attestation_version}.`
+  const ids = Object.keys(a.answers)
+  if (ids.length === 0) {
+    // Submitted before the Attestation of DBT Practice checklist existed.
+    return (
+      <Card className="p-6">
+        <CardTitle>Attestation</CardTitle>
+        <p className="text-muted-foreground">{signed}</p>
+      </Card>
+    )
+  }
+
+  const groups = [
+    ...(a.residential ? [{ title: 'Residential and inpatient programs', items: RESIDENTIAL_ITEMS }] : []),
+    ...PRACTICE_GROUPS,
+  ]
+  const noItems = groups.flatMap((g) => g.items).filter((i) => a.answers[i.id] === false)
+  const comments = [
+    ['Residential and inpatient comments', a.comments_residential],
+    ['Program practices comments', a.comments_practices],
+    ['Other information', a.additional_info],
+  ].filter(([, text]) => text)
+
+  return (
+    <Card className="gap-4 p-6">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <CardTitle>Attestation of DBT practice</CardTitle>
+        <Badge variant={noItems.length ? 'warn' : 'ok'}>
+          {ids.length - noItems.length} of {ids.length} Yes
+        </Badge>
+      </div>
+
+      {noItems.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h5 className="text-[13px] font-semibold">Answered No</h5>
+          <ul className="flex flex-col gap-2">
+            {noItems.map((item) => (
+              <AnswerRow key={item.id} item={item} yes={false} />
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {comments.map(([label, text]) => (
+        <div key={label} className="flex flex-col gap-1">
+          <h5 className="text-[13px] font-semibold">{label}</h5>
+          <p className="whitespace-pre-line">{text}</p>
+        </div>
+      ))}
+
+      <details className="group">
+        <summary className="cursor-pointer text-[13px] font-semibold text-primary">Show all {ids.length} answers</summary>
+        <div className="mt-3 flex flex-col gap-4">
+          {groups.map((g) => (
+            <section key={g.title} className="flex flex-col gap-2">
+              <h5 className="text-[13px] font-semibold tracking-wide text-muted-foreground uppercase">{g.title}</h5>
+              <ul className="flex flex-col gap-2">
+                {g.items.map((item) => (
+                  <AnswerRow key={item.id} item={item} yes={a.answers[item.id]} />
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      </details>
+
+      <p className="text-[13px] text-muted-foreground">{signed}</p>
+    </Card>
+  )
+}
+
+function AnswerRow({ item, yes }: { item: AttestationItem; yes: boolean | undefined }) {
+  return (
+    <li className="flex items-start gap-3">
+      <Badge variant={yes === undefined ? 'acc' : yes ? 'ok' : 'bad'} className="mt-0.5 w-10 text-center">
+        {yes === undefined ? '—' : yes ? 'Yes' : 'No'}
+      </Badge>
+      <span>
+        <span className="font-semibold text-muted-foreground">{item.id}.</span> {item.text}
+      </span>
+    </li>
   )
 }
 
@@ -80,22 +198,21 @@ function Review({ application: a }: { application: Application }) {
             />
           </Card>
           <Card className="p-6">
-            <CardTitle>Contact person (private)</CardTitle>
+            <CardTitle>Team Leader and program (private)</CardTitle>
             <KeyValues
               rows={[
-                ['Name', a.contact_name],
+                ['Team Leader', a.contact_name],
                 ['Email', <a href={`mailto:${a.contact_email}`} className="text-primary">{a.contact_email}</a>],
                 ['Phone', a.contact_phone],
+                ['Program address', a.program_address && <span className="whitespace-pre-line">{a.program_address}</span>],
+                ['DBT services', a.services.length > 0 && <ul>{a.services.map((s) => <li key={s}>{s}</li>)}</ul>],
+                ['Residential / inpatient', a.answers && Object.keys(a.answers).length > 0 ? (a.residential ? 'Yes' : 'No') : ''],
+                ['First consultation team meeting', formatDay(a.first_consultation_on)],
               ]}
             />
           </Card>
-          <Card className="p-6">
-            <CardTitle>Attestation</CardTitle>
-            <p className="text-muted-foreground">
-              Signed by {a.attestation_signed_name} on {formatDate(a.attestation_signed_at)} at {formatTime(a.attestation_signed_at)}.
-              Attestation version {a.attestation_version}.
-            </p>
-          </Card>
+          {a.team_members.length > 0 && <TeamMembers application={a} />}
+          <Attestation application={a} />
         </div>
 
         <div className="flex flex-col gap-4">

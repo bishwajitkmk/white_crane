@@ -4,6 +4,7 @@
  * Mock sign-in: any password; role comes from a seeded user, or from the email
  * ("trainer" -> trainer, "directorate"/"review" -> directorate, otherwise board).
  */
+import { ATTESTATION_VERSION, PRACTICE_ITEMS } from '@/lib/attestation'
 import { ApiError } from './client'
 import type { Api, BoardMemberInput, InviteInfo, RenewalWindow } from './endpoints'
 import type {
@@ -88,9 +89,23 @@ const baseApplication = (overrides: Partial<Application> & Pick<Application, 'id
   contact_name: 'Dana Lee',
   contact_email: 'dana@example.org',
   contact_phone: '(503) 555 0100',
+  program_address: '100 Main St, Portland, OR 97201',
+  services: ['Outpatient (OP): Adult', 'Outpatient (OP): Adolescent/Family'],
+  team_members: [
+    { name: 'Dana Lee', affiliation: 'Riverbend DBT', email: 'dana@example.org', joined_on: '2024-01-15' },
+    { name: 'Sam Ortiz', affiliation: 'Private practice', email: 'sam@ortiz.example', joined_on: '2025-03-01' },
+  ],
+  first_consultation_on: '2024-01-17',
+  residential: false,
+  // All Yes except item 10, explained in the comments.
+  answers: Object.fromEntries(PRACTICE_ITEMS.map((i) => [i.id, i.id !== '10'])),
+  comments_residential: '',
+  comments_practices: '10: Evening skills group starts in January once our second co-leader completes training.',
+  additional_info: '',
   attestation_signed_name: 'Dana Lee',
+  attestation_signed_title: 'DBT Team Leader',
   attestation_signed_at: '2026-09-12T10:42:00',
-  attestation_version: '1.0',
+  attestation_version: ATTESTATION_VERSION,
   status: 'pending',
   submitted_at: '2026-09-12T10:42:00',
   reviewed_at: null,
@@ -213,7 +228,7 @@ export const mockApi: Api = {
         id: uid(),
         status: 'pending',
         attestation_signed_at: now(),
-        attestation_version: '1.0',
+        attestation_version: ATTESTATION_VERSION,
         submitted_at: now(),
         reviewed_at: null,
         activity: [{ at: now(), message: 'Submitted by applicant' }],

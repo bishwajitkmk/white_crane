@@ -1,13 +1,12 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from enum import StrEnum
 
-from sqlalchemy import JSON, Enum, ForeignKey, String
+from sqlalchemy import JSON, Enum, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.attestation import ATTESTATION_VERSION
 from app.db.base import Base, IdMixin, utcnow
-
-ATTESTATION_VERSION = "1.0"
 
 
 class ApplicationStatus(StrEnum):
@@ -26,12 +25,25 @@ class Application(IdMixin, Base):
     website: Mapped[str] = mapped_column(String(500), default="")
     public_contact: Mapped[str] = mapped_column(String(300))
 
-    # private
+    # private. The contact person is the DBT Team Leader.
     contact_name: Mapped[str] = mapped_column(String(200))
     contact_email: Mapped[str] = mapped_column(String(320))
     contact_phone: Mapped[str] = mapped_column(String(50), default="")
+    program_address: Mapped[str] = mapped_column(Text, default="")
+    services: Mapped[list[str]] = mapped_column(JSON, default=list)
+    # [{"name", "affiliation", "email", "joined_on"}]
+    team_members: Mapped[list[dict]] = mapped_column(JSON, default=list)
+    first_consultation_on: Mapped[date | None]
+    residential: Mapped[bool] = mapped_column(default=False)
+
+    # Attestation of DBT Practice: {item id: True for Yes / False for No}, see app.attestation
+    answers: Mapped[dict[str, bool]] = mapped_column(JSON, default=dict)
+    comments_residential: Mapped[str] = mapped_column(Text, default="")
+    comments_practices: Mapped[str] = mapped_column(Text, default="")
+    additional_info: Mapped[str] = mapped_column(Text, default="")
 
     attestation_signed_name: Mapped[str] = mapped_column(String(200))
+    attestation_signed_title: Mapped[str] = mapped_column(String(200), default="")
     attestation_signed_at: Mapped[datetime] = mapped_column(default=utcnow)
     attestation_version: Mapped[str] = mapped_column(String(20), default=ATTESTATION_VERSION)
 

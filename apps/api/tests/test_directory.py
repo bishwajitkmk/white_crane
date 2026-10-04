@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from app.attestation import ATTESTATION_VERSION, PRACTICE_ITEMS
 from app.db.base import utcnow
 from app.models import Listing, Role
 
@@ -11,8 +12,69 @@ APPLICATION = {
     "contact_name": "Dana Lee",
     "contact_email": "dana@riverbend.org",
     "contact_phone": "(503) 555 0100",
+    "program_address": "100 Main St, Portland, OR 97201",
+    "services": ["Outpatient (OP): Adult", "Equine-assisted DBT"],
+    "team_members": [
+        {"name": "Dana Lee", "affiliation": "Riverbend", "email": "dana@riverbend.org", "joined_on": "2024-01-15"},
+        {"name": "Sam Ortiz", "affiliation": "Private practice", "email": "sam@ortiz.com", "joined_on": "2025-03-01"},
+    ],
+    "first_consultation_on": "2024-01-17",
+    "residential": False,
+    "answers": {item: True for item in PRACTICE_ITEMS},
     "attestation_signed_name": "Dana Lee",
+    "attestation_signed_title": "DBT Team Leader",
 }
+
+
+def test_attestation_is_stored_and_shown_to_reviewers(login):
+    client = login(Role.directorate)
+    app_id = client.post("/public/applications", json=APPLICATION).json()["id"]
+
+    a = client.get(f"/admin/applications/{app_id}").json()
+    assert a["attestation_version"] == ATTESTATION_VERSION
+    assert a["attestation_signed_title"] == "DBT Team Leader"
+    assert a["answers"] == {item: True for item in PRACTICE_ITEMS}
+    assert a["team_members"][1] == APPLICATION["team_members"][1]
+    assert a["first_consultation_on"] == "2024-01-17"
+
+
+def test_attestation_needs_every_answer(client):
+    answers = {item: True for item in PRACTICE_ITEMS if item != "31"}
+    res = client.post("/public/applications", json={**APPLICATION, "answers": answers})
+    assert res.status_code == 422
+    assert "Missing: 31" in res.text
+
+
+def test_residential_programs_answer_r_items(client, login):
+    res = client.post("/public/applications", json={**APPLICATION, "residential": True})
+    assert res.status_code == 422
+    assert "R1" in res.text
+
+    answers = {**APPLICATION["answers"], "R1": True, "R2": True, "R3": True, "R4": True}
+    res = client.post("/public/applications", json={**APPLICATION, "residential": True, "answers": answers})
+    assert res.status_code == 201
+
+    # Not residential: leftover R answers and residential comments are dropped, not stored
+    body = {**APPLICATION, "answers": {**answers, "R1": False}, "comments_residential": "stale"}
+    app_id = client.post("/public/applications", json=body).json()["id"]
+    stored = login(Role.directorate).get(f"/admin/applications/{app_id}").json()
+    assert "R1" not in stored["answers"]
+    assert stored["comments_residential"] == ""
+
+
+def test_no_answers_need_an_explanation(client):
+    answers = {**APPLICATION["answers"], "15": False}
+    res = client.post("/public/applications", json={**APPLICATION, "answers": answers})
+    assert res.status_code == 422
+    assert "Program Practices comments" in res.text
+
+    body = {**APPLICATION, "answers": answers, "comments_practices": "15: coaching covered by on-call rota"}
+    assert client.post("/public/applications", json=body).status_code == 201
+
+
+def test_application_needs_team_and_services(client):
+    assert client.post("/public/applications", json={**APPLICATION, "team_members": []}).status_code == 422
+    assert client.post("/public/applications", json={**APPLICATION, "services": []}).status_code == 422
 
 
 def test_apply_review_approve_publishes_listing(login):

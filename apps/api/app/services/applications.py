@@ -22,7 +22,11 @@ _RESULT = {
 
 
 def submit(db: Session, data: ApplicationIn, tasks: BackgroundTasks) -> Application:
-    application = Application(**data.model_dump())
+    # JSON columns need plain values, so the roster's dates go in as ISO strings.
+    application = Application(
+        **data.model_dump(exclude={"team_members"}),
+        team_members=[member.model_dump(mode="json") for member in data.team_members],
+    )
     application.log("Submitted by applicant")
     tasks.add_task(email.send, "application_received", data.contact_email, application=data)
     application.log("Confirmation email sent")

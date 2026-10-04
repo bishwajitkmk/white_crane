@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { PRACTICE_ITEMS, RESIDENTIAL_ITEMS, requiredItems } from './attestation'
 
 const requiredText = (label: string) => z.string().trim().min(1, `${label} is required`)
 const email = z.email('Enter a valid email address')
@@ -35,18 +36,65 @@ export const changePasswordSchema = z
   .refine((v) => v.password === v.confirm, { path: ['confirm'], message: 'Passwords do not match' })
 export type ChangePasswordValues = z.infer<typeof changePasswordSchema>
 
-export const applicationSchema = z.object({
-  agency_name: requiredText('Agency / team name'),
-  location: requiredText('Location'),
-  website: optionalUrl,
-  public_contact: requiredText('Public contact'),
-  contact_name: requiredText('Name'),
-  contact_email: email,
-  contact_phone: z.string().trim(),
-  attested: z.boolean().refine((v) => v, 'You must attest before submitting'),
-  attestation_signed_name: requiredText('Typed signature'),
-  nickname,
+/** Form key for an attestation item. Prefixed because react-hook-form reads numeric path segments as array indexes. */
+export const answerKey = (itemId: string) => `q${itemId}`
+
+/** Null until chosen: react-hook-form reads a radio group with nothing checked as null. */
+const yesNo = z.enum(['', 'yes', 'no']).nullable()
+
+const teamMemberSchema = z.object({
+  name: requiredText('Name'),
+  affiliation: requiredText('Agency / practice'),
+  email,
+  joined_on: requiredText('Date joined'),
 })
+
+export const applicationSchema = z
+  .object({
+    agency_name: requiredText('Organization / agency / team name'),
+    location: requiredText('Location'),
+    website: optionalUrl,
+    public_contact: requiredText('Public contact'),
+    contact_name: requiredText('Team Leader name'),
+    contact_email: email,
+    contact_phone: z.string().trim(),
+    program_address: z.string().trim(),
+    services: z.array(z.string()),
+    services_other: z.string().trim(),
+    team_members: z.array(teamMemberSchema).min(1, 'Add at least one team member'),
+    first_consultation_on: requiredText('Date of first consultation team meeting'),
+    residential: yesNo,
+    answers: z.record(z.string(), yesNo),
+    comments_residential: z.string().trim(),
+    comments_practices: z.string().trim(),
+    additional_info: z.string().trim(),
+    attested: z.boolean().refine((v) => v, 'You must attest before submitting'),
+    attestation_signed_name: requiredText('Typed name'),
+    attestation_signed_title: requiredText('Title / role'),
+    nickname,
+  })
+  .superRefine((v, ctx) => {
+    if (v.services.length === 0 && !v.services_other) {
+      ctx.addIssue({ code: 'custom', path: ['services'], message: 'Choose at least one service' })
+    }
+    if (!v.residential) {
+      ctx.addIssue({ code: 'custom', path: ['residential'], message: 'Choose Yes or No' })
+    }
+    const residential = v.residential === 'yes'
+    for (const item of requiredItems(residential)) {
+      if (!v.answers[answerKey(item.id)]) {
+        ctx.addIssue({ code: 'custom', path: ['answers', answerKey(item.id)], message: 'Choose Yes or No' })
+      }
+    }
+    const anyNo = (items: { id: string }[]) => items.some((i) => v.answers[answerKey(i.id)] === 'no')
+    if (residential && anyNo(RESIDENTIAL_ITEMS) && !v.comments_residential) {
+      ctx.addIssue({ code: 'custom', path: ['comments_residential'], message: 'Explain each "No" answer and your plan to address it' })
+    }
+    if (anyNo(PRACTICE_ITEMS) && !v.comments_practices) {
+      ctx.addIssue({ code: 'custom', path: ['comments_practices'], message: 'Explain each "No" answer and your plan to address it' })
+    }
+    // Run even when other fields are invalid, so every missing answer is flagged on the first submit.
+  }, { when: () => true })
 export type ApplicationValues = z.infer<typeof applicationSchema>
 
 export const decisionSchema = z.object({ note: z.string() })
