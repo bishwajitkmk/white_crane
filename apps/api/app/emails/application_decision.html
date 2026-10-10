@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% block body %}
-{% if decision == "approve" %}
+{% if decision == "approve" and renewal %}
+<p>Thank you for renewing. <strong>{{ agency_name }}</strong> stays listed in the DBT Clinical Directory for another year.</p>
+<p>We will be in touch before your next renewal date.</p>
+{% elif decision == "approve" %}
 <p>Good news: <strong>{{ agency_name }}</strong> has been approved and is now listed in the DBT Clinical Directory.</p>
-<p>Listings are renewed yearly. We will be in touch before your renewal date.</p>
+<p>Listings are renewed yearly by submitting a fresh attestation. We will be in touch before your renewal date.</p>
 {% elif decision == "request-info" %}
 <p>The Directorate needs a little more information before deciding on the application for <strong>{{ agency_name }}</strong>.</p>
 {% else %}

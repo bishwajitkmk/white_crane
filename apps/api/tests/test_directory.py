@@ -1,3 +1,4 @@
+import uuid
 from datetime import timedelta
 
 from app.attestation import ATTESTATION_VERSION, PRACTICE_ITEMS
@@ -162,3 +163,51 @@ def test_landing_content_roundtrip(login, client):
     board = login(Role.board)
     board.patch("/admin/content", json={"mission": "Train DBT teams well."})
     assert client.get("/public/content").json()["mission"] == "Train DBT teams well."
+
+
+def _approved_listing(client):
+    app_id = client.post("/public/applications", json=APPLICATION).json()["id"]
+    client.post(f"/admin/applications/{app_id}/approve", json={"note": ""})
+    return client.get("/admin/listings").json()[0]
+
+
+def test_renewal_reattests_and_renews_the_same_listing(login, db):
+    client = login(Role.directorate)
+    listing = _approved_listing(client)
+    db.get(Listing, uuid.UUID(listing["id"])).renewal_due_at = utcnow() - timedelta(days=3)  # overdue, so hidden
+    db.commit()
+
+    body = {**APPLICATION, "renewal": True, "public_contact": "new-intake@riverbend.org"}
+    app_id = client.post("/public/applications", json=body).json()["id"]
+    renewal = client.get(f"/admin/applications/{app_id}").json()
+    assert renewal["renewal"] is True
+    assert renewal["renews_listing_id"] == listing["id"]  # matched on the Team Leader's email
+
+    client.post(f"/admin/applications/{app_id}/approve", json={"note": ""})
+    listings = client.get("/admin/listings").json()
+    assert len(listings) == 1  # renewed in place, no duplicate
+    assert listings[0]["application_id"] == app_id
+    assert listings[0]["public_contact"] == "new-intake@riverbend.org"
+    assert listings[0]["renewal_due_at"] > utcnow().isoformat()
+    assert len(client.get("/public/directory").json()) == 1
+
+
+def test_unmatched_renewal_can_be_linked_or_approved_as_new(login):
+    client = login(Role.directorate)
+    listing = _approved_listing(client)
+
+    body = {**APPLICATION, "renewal": True, "agency_name": "Renamed Team", "contact_email": "new@lead.org"}
+    app_id = client.post("/public/applications", json=body).json()["id"]
+    assert client.get(f"/admin/applications/{app_id}").json()["renews_listing_id"] is None
+
+    res = client.put(f"/admin/applications/{app_id}/renewal", json={"listing_id": listing["id"]})
+    assert res.json()["renews_listing_id"] == listing["id"]
+    client.post(f"/admin/applications/{app_id}/approve", json={"note": ""})
+    assert [entry["agency_name"] for entry in client.get("/admin/listings").json()] == ["Renamed Team"]
+
+    # Clearing the link before approval publishes a separate listing
+    other = client.post("/public/applications", json={**body, "agency_name": "Second Site"}).json()["id"]
+    client.put(f"/admin/applications/{other}/renewal", json={"listing_id": None})
+    client.post(f"/admin/applications/{other}/approve", json={"note": ""})
+    assert len(client.get("/admin/listings").json()) == 2
+    assert client.put(f"/admin/applications/{other}/renewal", json={"listing_id": None}).status_code == 409

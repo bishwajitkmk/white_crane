@@ -18,6 +18,7 @@ class PublicListingOut(ORMModel):
 class ListingOut(PublicListingOut):
     application_id: uuid.UUID
     contact_email: str
+    attested_at: datetime
     renewal_due_at: datetime
     hidden: bool
 

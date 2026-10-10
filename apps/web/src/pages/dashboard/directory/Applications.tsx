@@ -45,7 +45,15 @@ export default function Applications() {
             rowKey={(a) => a.id}
             empty="No applications in this list."
             columns={[
-              { header: 'Agency', cell: (a) => <span className="font-semibold">{a.agency_name}</span> },
+              {
+                header: 'Agency',
+                cell: (a) => (
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold">{a.agency_name}</span>
+                    {a.renewal && <Badge variant="acc">Renewal</Badge>}
+                  </span>
+                ),
+              },
               { header: 'Location', cell: (a) => a.location },
               { header: 'Submitted', cell: (a) => formatDate(a.submitted_at) },
               {

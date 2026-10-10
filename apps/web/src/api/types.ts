@@ -101,6 +101,8 @@ export interface ApplicationInput {
   /** YYYY-MM-DD */
   first_consultation_on: string
   residential: boolean
+  /** Annual renewal of an existing listing (teams re-attest every year). */
+  renewal: boolean
   /** Attestation item id -> true for Yes, false for No. See lib/attestation. */
   answers: Record<string, boolean>
   comments_residential: string
@@ -116,6 +118,8 @@ export interface Application extends Omit<ApplicationInput, 'first_consultation_
   id: string
   /** Null on applications submitted before attestation version 2.0. */
   first_consultation_on: string | null
+  /** The listing approval renews; null approves as a new listing. Matched on submit, editable by the Directorate. */
+  renews_listing_id: string | null
   status: ApplicationStatus
   attestation_signed_at: string
   attestation_version: string
@@ -135,6 +139,8 @@ export interface Listing {
   public_contact: string
   contact_email: string
   published_at: string
+  /** When the attestation behind the listing was signed (original application or latest renewal). */
+  attested_at: string
   renewal_due_at: string
   hidden: boolean
 }

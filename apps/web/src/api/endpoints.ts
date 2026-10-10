@@ -1,4 +1,4 @@
-import { absoluteUrl, del, get, patch, post, USE_MOCKS } from './client'
+import { absoluteUrl, del, get, patch, post, put, USE_MOCKS } from './client'
 import { mockApi } from './mock'
 import type {
   Application,
@@ -82,6 +82,8 @@ const httpApi = {
 
     applications: (status?: ApplicationStatus) => get<Application[]>('/admin/applications', { status }),
     application: (id: string) => get<Application>(`/admin/applications/${id}`),
+    linkRenewal: (id: string, listingId: string | null) =>
+      put<Application>(`/admin/applications/${id}/renewal`, { listing_id: listingId }),
     decide: (id: string, action: DecisionAction, note: string) =>
       post<Application>(`/admin/applications/${id}/${action}`, { note }),
 

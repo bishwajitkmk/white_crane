@@ -2,7 +2,7 @@ import uuid
 from datetime import date, datetime
 from enum import StrEnum
 
-from sqlalchemy import JSON, Enum, ForeignKey, String, Text
+from sqlalchemy import JSON, Enum, ForeignKey, String, Text, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.attestation import ATTESTATION_VERSION
@@ -46,6 +46,11 @@ class Application(IdMixin, Base):
     attestation_signed_title: Mapped[str] = mapped_column(String(200), default="")
     attestation_signed_at: Mapped[datetime] = mapped_column(default=utcnow)
     attestation_version: Mapped[str] = mapped_column(String(20), default=ATTESTATION_VERSION)
+
+    # Annual renewal: teams re-attest each year. renews_listing_id is the listing it renews, matched on submit
+    # and correctable by the Directorate. No FK: listings already reference applications, and are never deleted.
+    renewal: Mapped[bool] = mapped_column(default=False)
+    renews_listing_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, index=True)
 
     status: Mapped[ApplicationStatus] = mapped_column(
         Enum(ApplicationStatus, native_enum=False, length=20), default=ApplicationStatus.pending, index=True

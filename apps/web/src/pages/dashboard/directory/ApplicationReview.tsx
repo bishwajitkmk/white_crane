@@ -8,8 +8,8 @@ import { QueryState } from '@/components/PageState'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardTitle } from '@/components/ui/card'
-import { Textarea } from '@/components/ui/input'
-import { keys, useApplication, useInvalidatingMutation } from '@/hooks/queries'
+import { Select, Textarea } from '@/components/ui/input'
+import { keys, useApplication, useInvalidatingMutation, useListings } from '@/hooks/queries'
 import { PRACTICE_GROUPS, RESIDENTIAL_ITEMS, type AttestationItem } from '@/lib/attestation'
 import { formatDate, formatDay, formatTime } from '@/lib/format'
 import { APPLICATION_STATUS } from '@/lib/status'
@@ -155,6 +155,54 @@ function AnswerRow({ item, yes }: { item: AttestationItem; yes: boolean | undefi
   )
 }
 
+/** Teams re-attest every year: a renewal application renews an existing listing instead of creating one. */
+function Renewal({ application: a, decided }: { application: Application; decided: boolean }) {
+  const listings = useListings()
+  const link = useInvalidatingMutation(
+    (listingId: string | null) => api.admin.linkRenewal(a.id, listingId),
+    [keys.applications, keys.application(a.id)],
+  )
+  const linked = listings.data?.find((l) => l.id === a.renews_listing_id)
+
+  return (
+    <Card className="gap-3 border-primary/40 p-6">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <CardTitle>Annual renewal</CardTitle>
+        <Badge variant={a.renews_listing_id ? 'acc' : 'warn'}>{a.renews_listing_id ? 'Linked to listing' : 'No listing linked'}</Badge>
+      </div>
+      {linked ? (
+        <p className="text-muted-foreground">
+          Renews <span className="font-semibold text-foreground">{linked.agency_name}</span> ({linked.location}), last attested{' '}
+          {formatDate(linked.attested_at)}, renewal due {formatDate(linked.renewal_due_at)}. Approving updates that listing with
+          these details and sets the next renewal one year out.
+        </p>
+      ) : (
+        <p className="text-muted-foreground">
+          {a.renewal ? 'The team says this is a renewal, but no listing matched their Team Leader email or agency name. ' : ''}
+          Without a linked listing, approving publishes a new listing.
+        </p>
+      )}
+      {!decided && (
+        <Field label="Listing this renews">
+          <Select
+            value={a.renews_listing_id ?? ''}
+            disabled={link.isPending || !listings.data}
+            onChange={(e) => link.mutate(e.target.value || null)}
+          >
+            <option value="">None: approve as a new listing</option>
+            {listings.data?.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.agency_name} ({l.location}), due {formatDate(l.renewal_due_at)}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      )}
+      <FormError error={link.error} />
+    </Card>
+  )
+}
+
 function Review({ application: a }: { application: Application }) {
   const [note, setNote] = useState('')
   const decide = useInvalidatingMutation(
@@ -186,6 +234,7 @@ function Review({ application: a }: { application: Application }) {
 
       <div className="grid items-start gap-5 xl:grid-cols-[1fr_380px]">
         <div className="flex flex-col gap-4">
+          {(a.renewal || a.renews_listing_id) && <Renewal application={a} decided={decided} />}
           <Card className="p-6">
             <CardTitle>Team details (public if approved)</CardTitle>
             <KeyValues
@@ -229,7 +278,7 @@ function Review({ application: a }: { application: Application }) {
                 </Field>
                 <FormError error={decide.error} />
                 <Button disabled={decide.isPending} onClick={() => act('approve')}>
-                  Approve and publish listing
+                  {a.renews_listing_id ? 'Approve and renew listing' : 'Approve and publish listing'}
                 </Button>
                 <Button variant="secondary" disabled={decide.isPending || !note.trim()} onClick={() => act('request-info')} title={note.trim() ? undefined : 'Add a note describing what is needed'}>
                   Request more information

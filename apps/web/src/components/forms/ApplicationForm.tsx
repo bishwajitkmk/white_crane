@@ -21,6 +21,8 @@ import { cn } from '@/lib/utils'
 import { Field, FieldRow, FormError, HoneypotField } from './Field'
 
 interface ApplicationFormProps {
+  /** Preselect "Annual renewal", e.g. from a renewal link the Directorate sends (/directory/apply?renewal=1). */
+  renewal?: boolean
   onSubmit: (input: ApplicationInput) => void
   pending: boolean
   error: unknown
@@ -28,7 +30,7 @@ interface ApplicationFormProps {
 
 const emptyMember = { name: '', affiliation: '', email: '', joined_on: '' }
 
-export function ApplicationForm({ onSubmit, pending, error }: ApplicationFormProps) {
+export function ApplicationForm({ renewal = false, onSubmit, pending, error }: ApplicationFormProps) {
   const {
     register,
     control,
@@ -37,6 +39,7 @@ export function ApplicationForm({ onSubmit, pending, error }: ApplicationFormPro
   } = useForm<ApplicationValues>({
     resolver: zodResolver(applicationSchema),
     defaultValues: {
+      application_type: renewal ? 'renewal' : '',
       agency_name: '',
       location: '',
       website: '',
@@ -63,6 +66,7 @@ export function ApplicationForm({ onSubmit, pending, error }: ApplicationFormPro
   const team = useFieldArray({ control, name: 'team_members' })
 
   const residential = useWatch({ control, name: 'residential' }) === 'yes'
+  const isRenewal = useWatch({ control, name: 'application_type' }) === 'renewal'
   const answers = useWatch({ control, name: 'answers' })
   const required = requiredItems(residential)
   const answered = required.filter((i) => answers[answerKey(i.id)]).length
@@ -81,6 +85,7 @@ export function ApplicationForm({ onSubmit, pending, error }: ApplicationFormPro
       team_members: v.team_members,
       first_consultation_on: v.first_consultation_on,
       residential,
+      renewal: v.application_type === 'renewal',
       answers: Object.fromEntries(required.map((i) => [i.id, v.answers[answerKey(i.id)] === 'yes'])),
       comments_residential: residential ? v.comments_residential : '',
       comments_practices: v.comments_practices,
@@ -113,6 +118,31 @@ export function ApplicationForm({ onSubmit, pending, error }: ApplicationFormPro
 
       <Card className="gap-4 p-6">
         <SectionHeading title="1. Program and team information" />
+        <fieldset className="flex flex-col gap-2" aria-invalid={errors.application_type ? true : undefined}>
+          <legend className="mb-1.5 text-[13px] font-semibold">
+            This application is for<span className="text-destructive"> *</span>
+          </legend>
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-6">
+            {(
+              [
+                ['new', 'A new directory listing'],
+                ['renewal', 'The annual renewal of our existing listing'],
+              ] as const
+            ).map(([value, label]) => (
+              <label key={value} className="flex items-start gap-2.5">
+                <input type="radio" value={value} className="mt-0.5 size-[18px] shrink-0 accent-primary" {...register('application_type')} />
+                <span>{label}</span>
+              </label>
+            ))}
+          </div>
+          {isRenewal && (
+            <span className="text-xs text-muted-foreground">
+              Listed teams re-attest every year. Use the same Team Leader email as last year so we can match your listing, and
+              update any details that have changed.
+            </span>
+          )}
+          <ErrorText error={errors.application_type} />
+        </fieldset>
         <Field label="Name of organization / agency / team" required error={errors.agency_name}>
           <Input {...register('agency_name')} autoComplete="organization" />
         </Field>

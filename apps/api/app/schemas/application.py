@@ -32,6 +32,7 @@ class ApplicationIn(BaseModel):
     team_members: list[TeamMember] = Field(min_length=1, max_length=100)
     first_consultation_on: date
     residential: bool
+    renewal: bool = False
     answers: dict[str, bool]
     comments_residential: Comment
     comments_practices: Comment
@@ -86,6 +87,8 @@ class ApplicationOut(ORMModel):
     team_members: list[dict]
     first_consultation_on: date | None
     residential: bool
+    renewal: bool
+    renews_listing_id: uuid.UUID | None
     answers: dict[str, bool]
     comments_residential: str
     comments_practices: str
@@ -98,6 +101,12 @@ class ApplicationOut(ORMModel):
     submitted_at: datetime
     reviewed_at: datetime | None
     activity: list[ActivityEntry]
+
+
+class RenewalLinkIn(BaseModel):
+    """The listing a renewal application renews; null treats it as a new listing."""
+
+    listing_id: uuid.UUID | None
 
 
 class DecisionIn(BaseModel):

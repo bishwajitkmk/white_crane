@@ -51,6 +51,7 @@ const teamMemberSchema = z.object({
 
 export const applicationSchema = z
   .object({
+    application_type: z.enum(['', 'new', 'renewal']).nullable(),
     agency_name: requiredText('Organization / agency / team name'),
     location: requiredText('Location'),
     website: optionalUrl,
@@ -74,6 +75,9 @@ export const applicationSchema = z
     nickname,
   })
   .superRefine((v, ctx) => {
+    if (!v.application_type) {
+      ctx.addIssue({ code: 'custom', path: ['application_type'], message: 'Choose a new listing or an annual renewal' })
+    }
     if (v.services.length === 0 && !v.services_other) {
       ctx.addIssue({ code: 'custom', path: ['services'], message: 'Choose at least one service' })
     }

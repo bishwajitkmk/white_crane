@@ -97,6 +97,8 @@ const baseApplication = (overrides: Partial<Application> & Pick<Application, 'id
   ],
   first_consultation_on: '2024-01-17',
   residential: false,
+  renewal: false,
+  renews_listing_id: null,
   // All Yes except item 10, explained in the comments.
   answers: Object.fromEntries(PRACTICE_ITEMS.map((i) => [i.id, i.id !== '10'])),
   comments_residential: '',
@@ -125,16 +127,25 @@ let applications: Application[] = [
   baseApplication({ id: 'a2', agency_name: 'Harbor Health', location: 'Seattle, WA', contact_name: 'Sam Ortiz', contact_email: 'admin@harbor.org', submitted_at: '2026-09-08T14:10:00' }),
   baseApplication({ id: 'a3', agency_name: 'Cedar Counseling', location: 'Boise, ID', contact_name: 'Lee Park', contact_email: 'info@cedar.org', submitted_at: '2026-09-01T09:05:00' }),
   baseApplication({ id: 'a4', agency_name: 'Northside Clinic', location: 'Denver, CO', status: 'info_requested', submitted_at: '2026-09-10T11:30:00' }),
+  baseApplication({
+    id: 'a6', agency_name: 'Riverbend DBT Team', location: 'Portland, OR', website: 'https://riverbend.org',
+    public_contact: 'intake@riverbend.org', contact_email: 'dana@riverbend.org', submitted_at: '2026-09-28T09:15:00',
+    renewal: true, renews_listing_id: 'l1',
+    activity: [
+      { at: '2026-09-28T09:15:00', message: 'Submitted by applicant as an annual renewal' },
+      { at: '2026-09-28T09:15:00', message: 'Matched to listing Riverbend DBT Team' },
+    ],
+  }),
   baseApplication({ id: 'a5', agency_name: 'Lakeside Behavioral', location: 'Madison, WI', status: 'approved', submitted_at: '2026-02-20T11:30:00', reviewed_at: '2026-03-02T09:00:00' }),
 ]
 
 let listings: Listing[] = [
-  { id: 'l1', application_id: 'a0', agency_name: 'Riverbend DBT Team', location: 'Portland, OR', website: 'https://riverbend.org', public_contact: 'intake@riverbend.org', contact_email: 'dana@riverbend.org', published_at: '2025-09-14T00:00:00', renewal_due_at: daysFromNow(28), hidden: false },
-  { id: 'l2', application_id: 'a5', agency_name: 'Lakeside Behavioral', location: 'Madison, WI', website: 'https://lakeside.org', public_contact: 'hello@lakeside.org', contact_email: 'ops@lakeside.org', published_at: '2026-03-02T00:00:00', renewal_due_at: '2027-03-02T00:00:00', hidden: false },
-  { id: 'l3', application_id: 'a6', agency_name: 'Summit DBT', location: 'Salt Lake City, UT', website: 'https://summitdbt.org', public_contact: '(801) 555 0199', contact_email: 'team@summitdbt.org', published_at: '2026-01-20T00:00:00', renewal_due_at: '2027-01-20T00:00:00', hidden: false },
-  { id: 'l4', application_id: 'a7', agency_name: 'Cedar Counseling', location: 'Boise, ID', website: 'https://cedar.org', public_contact: 'info@cedar.org', contact_email: 'info@cedar.org', published_at: '2025-10-12T00:00:00', renewal_due_at: daysFromNow(26), hidden: false },
-  { id: 'l5', application_id: 'a8', agency_name: 'Harbor Health', location: 'Seattle, WA', website: 'https://harbor.org', public_contact: 'admin@harbor.org', contact_email: 'admin@harbor.org', published_at: '2025-11-03T00:00:00', renewal_due_at: daysFromNow(55), hidden: false },
-  { id: 'l6', application_id: 'a9', agency_name: 'Old Town Clinic', location: 'Austin, TX', website: 'https://oldtown.org', public_contact: 'front@oldtown.org', contact_email: 'front@oldtown.org', published_at: '2025-06-01T00:00:00', renewal_due_at: '2026-06-01T00:00:00', hidden: false },
+  { id: 'l1', application_id: 'a0', agency_name: 'Riverbend DBT Team', location: 'Portland, OR', website: 'https://riverbend.org', public_contact: 'intake@riverbend.org', contact_email: 'dana@riverbend.org', published_at: '2025-09-14T00:00:00', attested_at: '2025-09-14T00:00:00', renewal_due_at: daysFromNow(28), hidden: false },
+  { id: 'l2', application_id: 'a5', agency_name: 'Lakeside Behavioral', location: 'Madison, WI', website: 'https://lakeside.org', public_contact: 'hello@lakeside.org', contact_email: 'ops@lakeside.org', published_at: '2026-03-02T00:00:00', attested_at: '2026-03-02T00:00:00', renewal_due_at: '2027-03-02T00:00:00', hidden: false },
+  { id: 'l3', application_id: 'a6', agency_name: 'Summit DBT', location: 'Salt Lake City, UT', website: 'https://summitdbt.org', public_contact: '(801) 555 0199', contact_email: 'team@summitdbt.org', published_at: '2026-01-20T00:00:00', attested_at: '2026-01-20T00:00:00', renewal_due_at: '2027-01-20T00:00:00', hidden: false },
+  { id: 'l4', application_id: 'a7', agency_name: 'Cedar Counseling', location: 'Boise, ID', website: 'https://cedar.org', public_contact: 'info@cedar.org', contact_email: 'info@cedar.org', published_at: '2025-10-12T00:00:00', attested_at: '2025-10-12T00:00:00', renewal_due_at: daysFromNow(26), hidden: false },
+  { id: 'l5', application_id: 'a8', agency_name: 'Harbor Health', location: 'Seattle, WA', website: 'https://harbor.org', public_contact: 'admin@harbor.org', contact_email: 'admin@harbor.org', published_at: '2025-11-03T00:00:00', attested_at: '2025-11-03T00:00:00', renewal_due_at: daysFromNow(55), hidden: false },
+  { id: 'l6', application_id: 'a9', agency_name: 'Old Town Clinic', location: 'Austin, TX', website: 'https://oldtown.org', public_contact: 'front@oldtown.org', contact_email: 'front@oldtown.org', published_at: '2025-06-01T00:00:00', attested_at: '2025-06-01T00:00:00', renewal_due_at: '2026-06-01T00:00:00', hidden: false },
 ]
 
 let resources: Resource[] = [
@@ -223,9 +234,14 @@ export const mockApi: Api = {
         ),
       ),
     apply: (input: ApplicationInput) => {
+      const match = input.renewal
+        ? listings.find((l) => l.contact_email.toLowerCase() === input.contact_email.toLowerCase()) ??
+          listings.find((l) => l.agency_name.toLowerCase() === input.agency_name.trim().toLowerCase())
+        : undefined
       const a: Application = {
         ...input,
         id: uid(),
+        renews_listing_id: match?.id ?? null,
         status: 'pending',
         attestation_signed_at: now(),
         attestation_version: ATTESTATION_VERSION,
@@ -354,7 +370,12 @@ export const mockApi: Api = {
     },
     decide: (id, action: DecisionAction, note) => {
       const status: ApplicationStatus = action === 'approve' ? 'approved' : action === 'decline' ? 'declined' : 'info_requested'
-      const label = { approve: 'Approved and listing published', decline: 'Declined', 'request-info': 'More information requested' }[action]
+      const renewing = listings.find((l) => l.id === applications.find((x) => x.id === id)?.renews_listing_id)
+      const label = {
+        approve: renewing ? 'Approved and listing renewed' : 'Approved and listing published',
+        decline: 'Declined',
+        'request-info': 'More information requested',
+      }[action]
       applications = applications.map((a) =>
         a.id === id
           ? {
@@ -366,16 +387,36 @@ export const mockApi: Api = {
           : a,
       )
       const a = applications.find((x) => x.id === id)!
-      if (action === 'approve') {
+      if (action === 'approve' && renewing) {
+        listings = listings.map((l) =>
+          l.id === renewing.id
+            ? {
+                ...l, application_id: a.id, agency_name: a.agency_name, location: a.location, website: a.website,
+                public_contact: a.public_contact, contact_email: a.contact_email, attested_at: a.attestation_signed_at,
+                renewal_due_at: daysFromNow(365), hidden: false,
+              }
+            : l,
+        )
+      } else if (action === 'approve') {
         listings = [
           {
             id: uid(), application_id: a.id, agency_name: a.agency_name, location: a.location, website: a.website,
-            public_contact: a.public_contact, contact_email: a.contact_email, published_at: now(), renewal_due_at: daysFromNow(365), hidden: false,
+            public_contact: a.public_contact, contact_email: a.contact_email, published_at: now(), attested_at: a.attestation_signed_at,
+            renewal_due_at: daysFromNow(365), hidden: false,
           },
           ...listings,
         ]
       }
       return delay(a)
+    },
+
+    linkRenewal: (id, listingId) => {
+      const listing = listings.find((l) => l.id === listingId)
+      const message = listing ? `Linked to listing ${listing.agency_name}` : 'Renewal link cleared; approving will create a new listing'
+      applications = applications.map((a) =>
+        a.id === id ? { ...a, renews_listing_id: listing?.id ?? null, activity: [...a.activity, { at: now(), message }] } : a,
+      )
+      return delay(applications.find((a) => a.id === id)!)
     },
 
     listings: ({ renewal }: { renewal?: RenewalWindow } = {}) => {

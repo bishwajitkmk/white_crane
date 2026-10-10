@@ -67,6 +67,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 export const get = <T>(path: string, query?: Query) => request<T>(path, { query })
 export const post = <T>(path: string, body?: unknown) => request<T>(path, { method: 'POST', body })
 export const patch = <T>(path: string, body: unknown) => request<T>(path, { method: 'PATCH', body })
+export const put = <T>(path: string, body: unknown) => request<T>(path, { method: 'PUT', body })
 export const del = (path: string) => request<void>(path, { method: 'DELETE' })
 
 export const absoluteUrl = (path: string, query?: Query) => buildUrl(path, query)

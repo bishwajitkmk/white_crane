@@ -27,3 +27,8 @@ class Listing(IdMixin, TimestampMixin, Base):
     @property
     def contact_email(self) -> str:
         return self.application.contact_email
+
+    @property
+    def attested_at(self) -> datetime:
+        """When the attestation behind this listing was signed: the original application, or the latest renewal."""
+        return self.application.attestation_signed_at

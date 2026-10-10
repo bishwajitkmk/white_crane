@@ -8,6 +8,8 @@ import { Tabs } from '@/components/ui/tabs'
 import { keys, useInvalidatingMutation, useListings } from '@/hooks/queries'
 import { daysUntil, formatDate } from '@/lib/format'
 
+const renewalLink = `${window.location.origin}/directory/apply?renewal=1`
+
 export default function Renewals() {
   const [range, setRange] = useState<RenewalWindow>('next_30')
   const next30 = useListings('next_30')
@@ -39,6 +41,7 @@ export default function Renewals() {
             columns={[
               { header: 'Agency', cell: (l) => <span className="font-semibold">{l.agency_name}</span> },
               { header: 'Contact', cell: (l) => <a href={`mailto:${l.contact_email}`} className="text-primary">{l.contact_email}</a> },
+              { header: 'Last attested', cell: (l) => formatDate(l.attested_at) },
               { header: 'Renewal due', cell: (l) => formatDate(l.renewal_due_at) },
               { header: 'Days left', cell: (l) => daysUntil(l.renewal_due_at) },
               {
@@ -54,7 +57,9 @@ export default function Renewals() {
         )}
       </QueryState>
       <span className="text-[13px] text-muted-foreground">
-        Mark renewed sets a new renewal date one year out. Expired listings hide automatically but are not deleted.
+        Teams renew by submitting a fresh attestation at {renewalLink}. Approving it renews their listing for a year. Mark
+        renewed extends a listing without a new attestation, for exceptions only. Expired listings hide automatically but are not
+        deleted.
       </span>
     </DashboardPage>
   )
