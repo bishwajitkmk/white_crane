@@ -141,13 +141,19 @@ export const landingContentSchema = z.object({
   hero_subheading: z.string(),
   hero_cta_label: requiredText('Button label'),
   hero_image_url: z.string().nullable(),
+  about_intro: z.string(),
   mission: z.string(),
-  vision: z.string(),
+  what_we_do: z.string(),
+  who_we_serve: z.string(),
+  how_we_work: z.string(),
   values: z.string(),
+  about_closing: z.string(),
+  trainer_credentials: z.string(),
 })
 export type LandingContentValues = z.infer<typeof landingContentSchema>
 
 export const boardMemberSchema = z.object({
+  kind: z.enum(['board', 'trainer']),
   name: requiredText('Name'),
   role: z.string().trim(),
   bio: z.string(),

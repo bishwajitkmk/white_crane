@@ -22,8 +22,8 @@ export const DASHBOARD_NAV: { group: string; items: NavItem[] }[] = [
   {
     group: 'Content',
     items: [
-      { label: 'Landing content', to: '/dashboard/landing', roles: BOARD },
-      { label: 'Board members', to: '/dashboard/board-members', roles: BOARD },
+      { label: 'Site content', to: '/dashboard/landing', roles: BOARD },
+      { label: 'Board & trainers', to: '/dashboard/board-members', roles: BOARD },
       { label: 'Resources', to: '/dashboard/resources', roles: BOARD },
     ],
   },

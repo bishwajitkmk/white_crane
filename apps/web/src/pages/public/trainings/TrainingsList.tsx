@@ -32,9 +32,14 @@ export default function TrainingsList() {
       <Section className="gap-4">
         <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
           <PageTitle>Trainings</PageTitle>
-          <Link to="/trainings/upcoming" className="font-semibold text-primary">
-            See upcoming (not yet open)
-          </Link>
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <Link to="/trainings/upcoming" className="font-semibold text-primary">
+              See upcoming (not yet open)
+            </Link>
+            <Link to="/trainers" className="font-semibold text-primary">
+              Meet our trainers
+            </Link>
+          </div>
         </div>
         <div className="flex flex-col gap-3 md:flex-row">
           <Input

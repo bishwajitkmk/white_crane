@@ -11,6 +11,7 @@ const LINKS = [
   { to: '/', label: 'Home', end: true },
   { to: '/about', label: 'About' },
   { to: '/trainings', label: 'Trainings' },
+  { to: '/trainers', label: 'Trainers' },
   { to: '/directory', label: 'Directory' },
   { to: '/resources', label: 'Resources' },
 ]
@@ -96,6 +97,7 @@ function Footer() {
         <div className="flex flex-wrap items-center gap-x-4 text-xs text-muted-foreground [&>a]:py-2 lg:[&>a]:py-0">
           <span>&copy; {new Date().getFullYear()} White Crane Training Collective.</span>
           <Link to="/trainings">Trainings</Link>
+          <Link to="/trainers">Trainers</Link>
           <Link to="/directory">Directory</Link>
           <Link to="/resources">Resources</Link>
           <Link to="/login">Staff sign in</Link>

@@ -9,6 +9,7 @@ import type {
   DecisionAction,
   Listing,
   ListingInput,
+  MemberKind,
   Resource,
   ResourceInput,
   Role,
@@ -22,7 +23,7 @@ import type {
 } from './types'
 
 export type RenewalWindow = 'next_30' | 'next_90' | 'overdue'
-export type BoardMemberInput = Pick<BoardMember, 'name' | 'role' | 'bio' | 'photo_url'>
+export type BoardMemberInput = Pick<BoardMember, 'kind' | 'name' | 'role' | 'bio' | 'photo_url'>
 
 export interface InviteInfo {
   email: string
@@ -34,7 +35,7 @@ export interface InviteInfo {
 const httpApi = {
   public: {
     content: () => get<SiteContent>('/public/content'),
-    boardMembers: () => get<BoardMember[]>('/public/board-members'),
+    boardMembers: (kind: MemberKind) => get<BoardMember[]>(`/public/board-members?kind=${kind}`),
     trainings: () => get<Training[]>('/public/trainings'),
     upcomingTrainings: () => get<Training[]>('/public/trainings/upcoming'),
     training: (slug: string) => get<Training>(`/public/trainings/${slug}`),
@@ -65,7 +66,7 @@ const httpApi = {
     content: () => get<SiteContent>('/admin/content'),
     updateContent: (input: Partial<SiteContent>) => patch<SiteContent>('/admin/content', input),
 
-    boardMembers: () => get<BoardMember[]>('/admin/board-members'),
+    boardMembers: (kind: MemberKind) => get<BoardMember[]>(`/admin/board-members?kind=${kind}`),
     createBoardMember: (input: BoardMemberInput) => post<BoardMember>('/admin/board-members', input),
     updateBoardMember: (id: string, input: BoardMemberInput) => patch<BoardMember>(`/admin/board-members/${id}`, input),
     deleteBoardMember: (id: string) => del(`/admin/board-members/${id}`),

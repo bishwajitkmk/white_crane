@@ -14,13 +14,22 @@ export interface SiteContent {
   hero_subheading: string
   hero_cta_label: string
   hero_image_url: string | null
+  about_intro: string
   mission: string
-  vision: string
+  what_we_do: string
+  who_we_serve: string
+  how_we_work: string
   values: string
+  about_closing: string
+  trainer_credentials: string
 }
+
+/** Which public page a person appears on: About (board) or Trainers. */
+export type MemberKind = 'board' | 'trainer'
 
 export interface BoardMember {
   id: string
+  kind: MemberKind
   name: string
   role: string
   bio: string

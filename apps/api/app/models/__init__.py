@@ -2,7 +2,7 @@
 
 from app.attestation import ATTESTATION_VERSION
 from app.models.application import Application, ApplicationStatus
-from app.models.board_member import BoardMember
+from app.models.board_member import BoardMember, MemberKind
 from app.models.invite import Invite
 from app.models.listing import Listing
 from app.models.password_reset import PasswordReset
@@ -20,6 +20,7 @@ __all__ = [
     "BoardMember",
     "Invite",
     "Listing",
+    "MemberKind",
     "PasswordReset",
     "Resource",
     "ResourceCategory",

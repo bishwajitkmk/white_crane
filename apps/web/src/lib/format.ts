@@ -33,3 +33,33 @@ export const relativeDays = (iso: string | null) => {
 
 /** Splits "a\nb" text blocks from the CMS into paragraphs. */
 export const paragraphs = (text: string) => text.split(/\n{2,}|\n/).filter((p) => p.trim() !== '')
+
+export type TextBlock = { type: 'p'; text: string } | { type: 'ul' | 'ol'; items: string[] }
+
+/**
+ * Reads a CMS text block: each line is a paragraph, except lines starting "- " (bullets) or "1. " (numbered
+ * items), which group with their neighbours into a list.
+ */
+export function textBlocks(text: string): TextBlock[] {
+  const blocks: TextBlock[] = []
+  for (const raw of text.split('\n')) {
+    const line = raw.trim()
+    if (!line) continue
+    const item = /^(?:(-|\*)|\d+[.)])\s+(.*)$/.exec(line)
+    if (!item) {
+      blocks.push({ type: 'p', text: line })
+      continue
+    }
+    const type = item[1] ? 'ul' : 'ol'
+    const last = blocks.at(-1)
+    if (last?.type === type) last.items.push(item[2])
+    else blocks.push({ type, items: [item[2]] })
+  }
+  return blocks
+}
+
+/** "Name. Explanation" lines (e.g. values) split into their bold lead and the rest. */
+export function leadSentence(line: string): { lead: string; rest: string } {
+  const match = /^(.{1,60}?)[.:]\s+(.+)$/.exec(line.trim())
+  return match ? { lead: match[1], rest: match[2] } : { lead: '', rest: line.trim() }
+}

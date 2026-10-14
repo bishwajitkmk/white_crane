@@ -14,35 +14,15 @@ from sqlalchemy import select
 from app.attestation import PRACTICE_ITEMS
 from app.db.base import utcnow
 from app.db.session import SessionLocal
+from app.load_client_content import load as load_client_content
 from app.models import (
     Application,
     ApplicationStatus,
-    BoardMember,
     Listing,
-    SiteContent,
     Training,
     TrainingFormat,
     TrainingStatus,
 )
-
-CONTENT = {
-    "hero_headline": "Advancing DBT fidelity through training and community",
-    "hero_subheading": (
-        "White Crane Training Collective offers high-quality Dialectical Behavior Therapy training "
-        "and maintains a directory of teams practicing DBT with fidelity."
-    ),
-    "hero_cta_label": "Browse Trainings",
-    "mission": "Mission text. Editable from Landing content in the dashboard.",
-    "vision": "Vision text. Editable from Landing content in the dashboard.",
-    "values": "Values text. Editable from Landing content in the dashboard.",
-}
-
-BOARD = [
-    ("Ronda Oswalt Reitz", "Founder, LCSW"),
-    ("Member Name", "Role / credentials"),
-    ("Member Name", "Role / credentials"),
-    ("Member Name", "Role / credentials"),
-]
 
 LOREM = "Rich text block managed from the dashboard training editor."
 
@@ -86,11 +66,7 @@ def main() -> None:
         now = utcnow().replace(minute=0, second=0, microsecond=0)
         today = now.replace(hour=0)
 
-        for key, value in CONTENT.items():
-            db.merge(SiteContent(key=key, value=value))
-
-        for position, (name, role) in enumerate(BOARD):
-            db.add(BoardMember(name=name, role=role, bio="Short bio, two to three lines.", position=position))
+        load_client_content(db)
 
         for slug, title, fmt, days, hour, hours, trainers in OPEN_TRAININGS:
             starts = today + timedelta(days=days, hours=hour)
@@ -139,7 +115,7 @@ def main() -> None:
                 )  # fmt: skip
 
         db.commit()
-        print("Demo content created: landing text, 4 board members, 5 trainings, 6 applications, 2 listings.")
+        print("Demo content created: site copy, board members, trainers, 5 trainings, 6 applications, 2 listings.")
 
 
 if __name__ == "__main__":

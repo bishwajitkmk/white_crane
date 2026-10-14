@@ -6,6 +6,7 @@
  */
 import { ATTESTATION_VERSION, PRACTICE_ITEMS } from '@/lib/attestation'
 import { ApiError } from './client'
+import { MOCK_CONTENT, MOCK_PEOPLE } from './mock-content'
 import type { Api, BoardMemberInput, InviteInfo, RenewalWindow } from './endpoints'
 import type {
   Application,
@@ -15,6 +16,7 @@ import type {
   DecisionAction,
   Listing,
   ListingInput,
+  MemberKind,
   Resource,
   ResourceInput,
   Role,
@@ -33,23 +35,8 @@ const now = () => new Date().toISOString()
 const daysFromNow = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString()
 const SESSION_KEY = 'wc-mock-user'
 
-let content: SiteContent = {
-  hero_headline: 'Advancing DBT fidelity through training and community',
-  hero_subheading:
-    'White Crane Training Collective offers high-quality Dialectical Behavior Therapy training and maintains a directory of teams practicing DBT with fidelity.',
-  hero_cta_label: 'Browse Trainings',
-  hero_image_url: null,
-  mission: 'Mission text. Editable from Landing content in the dashboard.',
-  vision: 'Vision text. Editable from Landing content in the dashboard.',
-  values: 'Values text. Editable from Landing content in the dashboard.',
-}
-
-let boardMembers: BoardMember[] = [
-  { id: 'bm1', name: 'Ronda Oswalt Reitz', role: 'Founder, LCSW', bio: 'Short bio, two to three lines.', photo_url: null, position: 0 },
-  { id: 'bm2', name: 'Member Name', role: 'Role / credentials', bio: 'Short bio, two to three lines.', photo_url: null, position: 1 },
-  { id: 'bm3', name: 'Member Name', role: 'Role / credentials', bio: 'Short bio, two to three lines.', photo_url: null, position: 2 },
-  { id: 'bm4', name: 'Member Name', role: 'Role / credentials', bio: 'Short bio, two to three lines.', photo_url: null, position: 3 },
-]
+let content: SiteContent = { ...MOCK_CONTENT }
+let boardMembers: BoardMember[] = [...MOCK_PEOPLE]
 
 const lorem = 'Rich text block managed from the dashboard training editor.'
 /** Stored without the fields the API derives from registrations; see withRegistrations. */
@@ -198,12 +185,15 @@ const publicTraining = (t: StoredTraining): Training => {
   return rest
 }
 
+const membersOf = (kind: MemberKind) =>
+  boardMembers.filter((m) => m.kind === kind).sort((a, b) => a.position - b.position)
+
 const listingState = (l: Listing) => l.hidden || new Date(l.renewal_due_at) < new Date()
 
 export const mockApi: Api = {
   public: {
     content: () => delay(content),
-    boardMembers: () => delay([...boardMembers].sort((a, b) => a.position - b.position)),
+    boardMembers: (kind) => delay(membersOf(kind)),
     trainings: () => delay(trainings.filter((t) => t.status === 'open').map(publicTraining)),
     upcomingTrainings: () => delay(trainings.filter((t) => t.status === 'upcoming').map(publicTraining)),
     training: (slug) => {
@@ -312,9 +302,9 @@ export const mockApi: Api = {
       return delay(content)
     },
 
-    boardMembers: () => delay([...boardMembers].sort((a, b) => a.position - b.position)),
+    boardMembers: (kind) => delay(membersOf(kind)),
     createBoardMember: (input: BoardMemberInput) => {
-      const m: BoardMember = { ...input, id: uid(), photo_url: null, position: boardMembers.length }
+      const m: BoardMember = { ...input, id: uid(), position: membersOf(input.kind).length }
       boardMembers = [...boardMembers, m]
       return delay(m)
     },
@@ -327,7 +317,7 @@ export const mockApi: Api = {
       return delay(undefined)
     },
     reorderBoardMembers: (ids) => {
-      boardMembers = boardMembers.map((m) => ({ ...m, position: ids.indexOf(m.id) }))
+      boardMembers = boardMembers.map((m) => (ids.includes(m.id) ? { ...m, position: ids.indexOf(m.id) } : m))
       return delay(undefined)
     },
 

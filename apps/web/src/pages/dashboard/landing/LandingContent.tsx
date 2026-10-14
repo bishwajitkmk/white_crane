@@ -12,10 +12,22 @@ import { Input, Textarea } from '@/components/ui/input'
 import { keys, useAdminContent, useInvalidatingMutation } from '@/hooks/queries'
 import { landingContentSchema, type LandingContentValues } from '@/lib/schemas'
 
+const FORMAT_HINT = 'A blank line starts a new paragraph. Start a line with "- " for a bullet or "1. " for a numbered item.'
+
+const ABOUT_FIELDS: [Exclude<keyof LandingContentValues, 'hero_image_url' | 'trainer_credentials'>, string, number][] = [
+  ['about_intro', 'About White Crane (introduction)', 8],
+  ['mission', 'Our Mission (also shown on the home page)', 5],
+  ['what_we_do', 'What We Do', 9],
+  ['who_we_serve', 'Who We Serve', 8],
+  ['how_we_work', 'How We Work', 8],
+  ['values', 'What Guides Us (one per line: "Name. Explanation", also on the home page)', 8],
+  ['about_closing', 'Learn With White Crane (closing)', 3],
+]
+
 export default function LandingContent() {
   const content = useAdminContent()
   return (
-    <DashboardPage title="Landing content">
+    <DashboardPage title="Site content">
       <QueryState query={content}>{(c) => <LandingContentForm content={c} />}</QueryState>
     </DashboardPage>
   )
@@ -73,15 +85,18 @@ function LandingContentForm({ content }: { content: SiteContent }) {
           />
         </Card>
         <Card className="gap-4 p-6">
-          <CardTitle>Mission, Vision, Values</CardTitle>
-          <Field label="Mission" error={errors.mission}>
-            <Textarea rows={4} {...register('mission')} />
-          </Field>
-          <Field label="Vision" error={errors.vision}>
-            <Textarea rows={4} {...register('vision')} />
-          </Field>
-          <Field label="Values" error={errors.values}>
-            <Textarea rows={4} {...register('values')} />
+          <CardTitle>About page</CardTitle>
+          <p className="text-[13px] text-muted-foreground">{FORMAT_HINT}</p>
+          {ABOUT_FIELDS.map(([name, label, rows]) => (
+            <Field key={name} label={label} error={errors[name]}>
+              <Textarea rows={rows} {...register(name)} />
+            </Field>
+          ))}
+        </Card>
+        <Card className="gap-4 p-6">
+          <CardTitle>Trainers page</CardTitle>
+          <Field label="Credentialing standards" hint={FORMAT_HINT} error={errors.trainer_credentials}>
+            <Textarea rows={12} {...register('trainer_credentials')} />
           </Field>
         </Card>
       </div>

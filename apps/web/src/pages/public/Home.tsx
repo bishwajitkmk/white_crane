@@ -4,8 +4,6 @@ import {
   CalendarDays,
   Check,
   ClipboardCheck,
-  Compass,
-  Eye,
   GraduationCap,
   HeartHandshake,
   Mail,
@@ -26,7 +24,7 @@ import { buttonVariants } from '@/components/ui/button-variants'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useDirectory, useOpenTrainings, useSiteContent } from '@/hooks/queries'
-import { formatDate } from '@/lib/format'
+import { formatDate, leadSentence, paragraphs } from '@/lib/format'
 import { TRAINING_FORMAT } from '@/lib/status'
 
 const HERO_POINTS = ['Online and in-person trainings', 'Directory reviewed by the Directorate', 'Resources for DBT teams']
@@ -220,24 +218,30 @@ export default function Home() {
             <Section alt>
               <div className="flex flex-col gap-2">
                 <Eyebrow>Who we are</Eyebrow>
-                <SectionTitle>Mission, Vision, Values</SectionTitle>
+                <SectionTitle>Mission and Values</SectionTitle>
               </div>
-              <div className="grid gap-6 md:grid-cols-3">
-                {(
-                  [
-                    ['Mission', c.mission, Compass],
-                    ['Vision', c.vision, Eye],
-                    ['Values', c.values, HeartHandshake],
-                  ] as const
-                ).map(([title, text, icon]) => (
-                  <Card key={title} className="gap-3 border-t-4 border-t-primary p-6">
-                    <div className="flex items-center gap-3">
-                      <IconTile icon={icon} className="size-10" />
-                      <CardTitle className="text-lg">{title}</CardTitle>
-                    </div>
-                    <CardDescription className="whitespace-pre-line">{text}</CardDescription>
-                  </Card>
-                ))}
+              <div className="grid items-start gap-6 lg:grid-cols-[2fr_3fr]">
+                <Card className="gap-4 border-primary bg-primary p-6 text-primary-foreground md:p-8">
+                  <span className="text-[13px] font-semibold uppercase tracking-wider text-primary-foreground/80">Our Mission</span>
+                  <p className="text-lg font-semibold leading-snug">{paragraphs(c.mission)[0]}</p>
+                  <Link to="/about" className="mt-auto flex items-center gap-1.5 font-semibold text-primary-foreground hover:underline">
+                    More about White Crane <ArrowRight aria-hidden className="size-4" />
+                  </Link>
+                </Card>
+                <ul className="grid gap-4 sm:grid-cols-2">
+                  {paragraphs(c.values).map((line) => {
+                    const { lead, rest } = leadSentence(line)
+                    return (
+                      <li key={line} className="flex gap-3">
+                        <HeartHandshake aria-hidden className="mt-0.5 size-5 shrink-0 text-primary" />
+                        <span className="text-muted-foreground">
+                          {lead && <b className="text-foreground">{lead}. </b>}
+                          {rest}
+                        </span>
+                      </li>
+                    )
+                  })}
+                </ul>
               </div>
             </Section>
           </>

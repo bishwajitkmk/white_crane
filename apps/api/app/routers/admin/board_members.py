@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import func, select
 
 from app.core.deps import BOARD, DbSession, require_role
-from app.models import BoardMember
+from app.models import BoardMember, MemberKind
 from app.schemas.content import BoardMemberIn, BoardMemberOut, ReorderIn
 
 router = APIRouter(prefix="/board-members", dependencies=[require_role(*BOARD)])
@@ -18,13 +18,14 @@ def _get(db: DbSession, member_id: uuid.UUID) -> BoardMember:
 
 
 @router.get("", response_model=list[BoardMemberOut])
-def list_members(db: DbSession):
-    return db.scalars(select(BoardMember).order_by(BoardMember.position)).all()
+def list_members(db: DbSession, kind: MemberKind = MemberKind.board):
+    return db.scalars(select(BoardMember).where(BoardMember.kind == kind).order_by(BoardMember.position)).all()
 
 
 @router.post("", response_model=BoardMemberOut, status_code=status.HTTP_201_CREATED)
 def create(data: BoardMemberIn, db: DbSession):
-    position = (db.scalar(select(func.max(BoardMember.position))) or 0) + 1
+    last = db.scalar(select(func.max(BoardMember.position)).where(BoardMember.kind == data.kind))
+    position = (last or 0) + 1
     member = BoardMember(**data.model_dump(), position=position)
     db.add(member)
     db.commit()

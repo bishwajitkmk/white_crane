@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient, type QueryKey } from '@tanstack/react-query'
 import { api, type RenewalWindow } from '@/api/endpoints'
-import type { ApplicationStatus } from '@/api/types'
+import type { ApplicationStatus, MemberKind } from '@/api/types'
 
 export const keys = {
   content: ['content'] as const,
@@ -20,8 +20,8 @@ export const keys = {
 
 // ---------- public ----------
 export const useSiteContent = () => useQuery({ queryKey: [...keys.content, 'public'], queryFn: api.public.content })
-export const usePublicBoardMembers = () =>
-  useQuery({ queryKey: [...keys.boardMembers, 'public'], queryFn: api.public.boardMembers })
+export const usePublicBoardMembers = (kind: MemberKind) =>
+  useQuery({ queryKey: [...keys.boardMembers, kind, 'public'], queryFn: () => api.public.boardMembers(kind) })
 export const useOpenTrainings = () => useQuery({ queryKey: [...keys.trainings, 'open'], queryFn: api.public.trainings })
 export const useUpcomingTrainings = () =>
   useQuery({ queryKey: [...keys.trainings, 'upcoming'], queryFn: api.public.upcomingTrainings })
@@ -34,7 +34,8 @@ export const usePublicResources = () => useQuery({ queryKey: [...keys.resources,
 // ---------- admin ----------
 export const useSummary = () => useQuery({ queryKey: keys.summary, queryFn: api.admin.summary })
 export const useAdminContent = () => useQuery({ queryKey: keys.content, queryFn: api.admin.content })
-export const useBoardMembers = () => useQuery({ queryKey: keys.boardMembers, queryFn: api.admin.boardMembers })
+export const useBoardMembers = (kind: MemberKind) =>
+  useQuery({ queryKey: [...keys.boardMembers, kind], queryFn: () => api.admin.boardMembers(kind) })
 export const useTrainings = () => useQuery({ queryKey: keys.trainings, queryFn: api.admin.trainings })
 export const useTraining = (id: string | undefined) =>
   useQuery({ queryKey: keys.training(id ?? ''), queryFn: () => api.admin.training(id!), enabled: !!id })

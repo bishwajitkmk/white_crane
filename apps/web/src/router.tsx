@@ -27,6 +27,7 @@ const routes: RouteObject[] = [
       { path: '/trainings/upcoming', element: page(() => import('@/pages/public/trainings/UpcomingTrainings')) },
       { path: '/trainings/:slug', element: page(() => import('@/pages/public/trainings/TrainingDetail')) },
       { path: '/trainings/:slug/register', element: page(() => import('@/pages/public/trainings/TrainingRegister')) },
+      { path: '/trainers', element: page(() => import('@/pages/public/Trainers')) },
       { path: '/directory', element: page(() => import('@/pages/public/directory/Directory')) },
       { path: '/directory/apply', element: page(() => import('@/pages/public/directory/Apply')) },
       { path: '/directory/apply/submitted', element: page(() => import('@/pages/public/directory/ApplicationSubmitted')) },
