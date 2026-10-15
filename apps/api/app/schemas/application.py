@@ -73,6 +73,18 @@ class ActivityEntry(BaseModel):
     message: str
 
 
+class ApplicationListOut(ORMModel):
+    """One row of the review queue; the full record comes from GET /admin/applications/{id}."""
+
+    id: uuid.UUID
+    agency_name: str
+    location: str
+    renewal: bool
+    status: ApplicationStatus
+    submitted_at: datetime
+    reviewed_at: datetime | None
+
+
 class ApplicationOut(ORMModel):
     id: uuid.UUID
     agency_name: str

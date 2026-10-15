@@ -2,7 +2,7 @@ import uuid
 from datetime import date, datetime
 from enum import StrEnum
 
-from sqlalchemy import JSON, Enum, ForeignKey, String, Text, Uuid
+from sqlalchemy import JSON, Enum, ForeignKey, Index, String, Text, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.attestation import ATTESTATION_VERSION
@@ -18,6 +18,8 @@ class ApplicationStatus(StrEnum):
 
 class Application(IdMixin, Base):
     __tablename__ = "applications"
+    # The review queue: one status, oldest first.
+    __table_args__ = (Index("ix_applications_status_submitted_at", "status", "submitted_at"),)
 
     # public if approved
     agency_name: Mapped[str] = mapped_column(String(300))
@@ -57,7 +59,7 @@ class Application(IdMixin, Base):
     )
     submitted_at: Mapped[datetime] = mapped_column(default=utcnow)
     reviewed_at: Mapped[datetime | None]
-    reviewed_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    reviewed_by_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), index=True)
 
     # [{"at": iso, "message": str}] - append-only audit trail shown on the review screen
     activity: Mapped[list[dict]] = mapped_column(JSON, default=list)

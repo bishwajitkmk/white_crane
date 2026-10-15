@@ -4,12 +4,17 @@ import type {
   Application,
   ApplicationInput,
   ApplicationStatus,
+  ApplicationSummary,
   BoardMember,
   DashboardSummary,
   DecisionAction,
   Listing,
   ListingInput,
+  ListingStats,
   MemberKind,
+  Page,
+  PageQuery,
+  PublicListing,
   Resource,
   ResourceInput,
   Role,
@@ -41,7 +46,8 @@ const httpApi = {
     training: (slug: string) => get<Training>(`/public/trainings/${slug}`),
     register: (slug: string, input: RegistrationInput) =>
       post<{ email: string; training_title: string }>(`/public/trainings/${slug}/registrations`, input),
-    directory: (params: { q?: string; location?: string }) => get<Listing[]>('/public/directory', params),
+    directory: (params: { q?: string; location?: string } & PageQuery) =>
+      get<Page<PublicListing>>('/public/directory', params),
     apply: (input: ApplicationInput) =>
       post<Pick<Application, 'id' | 'contact_email' | 'submitted_at'>>('/public/applications', input),
     resources: () => get<Resource[]>('/public/resources'),
@@ -81,14 +87,19 @@ const httpApi = {
     deleteRegistration: (trainingId: string, id: string) => del(`/admin/trainings/${trainingId}/registrations/${id}`),
     registrationsExportUrl: (trainingId: string) => absoluteUrl(`/admin/trainings/${trainingId}/registrations/export.csv`),
 
-    applications: (status?: ApplicationStatus) => get<Application[]>('/admin/applications', { status }),
+    applications: (params: { status?: ApplicationStatus; q?: string } & PageQuery) =>
+      get<Page<ApplicationSummary>>('/admin/applications', params),
+    applicationCounts: (q = '') => get<Record<ApplicationStatus, number>>('/admin/applications/counts', { q }),
     application: (id: string) => get<Application>(`/admin/applications/${id}`),
     linkRenewal: (id: string, listingId: string | null) =>
       put<Application>(`/admin/applications/${id}/renewal`, { listing_id: listingId }),
     decide: (id: string, action: DecisionAction, note: string) =>
       post<Application>(`/admin/applications/${id}/${action}`, { note }),
 
-    listings: (params: { renewal?: RenewalWindow } = {}) => get<Listing[]>('/admin/listings', params),
+    listings: (params: { renewal?: RenewalWindow; q?: string; state?: string } & PageQuery = {}) =>
+      get<Page<Listing>>('/admin/listings', params),
+    listingStats: () => get<ListingStats>('/admin/listings/stats'),
+    listing: (id: string) => get<Listing>(`/admin/listings/${id}`),
     updateListing: (id: string, input: Partial<ListingInput>) => patch<Listing>(`/admin/listings/${id}`, input),
     renewListing: (id: string) => post<Listing>(`/admin/listings/${id}/renew`),
 
@@ -100,7 +111,7 @@ const httpApi = {
     presignUpload: (filename: string, content_type: string) =>
       post<{ upload_url: string; public_url: string }>('/admin/uploads/presign', { filename, content_type }),
 
-    subscribers: () => get<Subscriber[]>('/admin/subscribers'),
+    subscribers: (params: { q?: string } & PageQuery = {}) => get<Page<Subscriber>>('/admin/subscribers', params),
     deleteSubscriber: (id: string) => del(`/admin/subscribers/${id}`),
     subscribersExportUrl: () => absoluteUrl('/admin/subscribers/export.csv'),
 

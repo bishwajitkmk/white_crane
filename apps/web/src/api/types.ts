@@ -137,6 +137,12 @@ export interface Application extends Omit<ApplicationInput, 'first_consultation_
   activity: { at: string; message: string }[]
 }
 
+/** Row of the review queue; the full record comes from api.admin.application(id). */
+export type ApplicationSummary = Pick<
+  Application,
+  'id' | 'agency_name' | 'location' | 'renewal' | 'status' | 'submitted_at' | 'reviewed_at'
+>
+
 export type DecisionAction = 'approve' | 'decline' | 'request-info'
 
 export interface Listing {
@@ -152,6 +158,19 @@ export interface Listing {
   attested_at: string
   renewal_due_at: string
   hidden: boolean
+}
+
+/** What the public directory shows for a listing. */
+export type PublicListing = Pick<
+  Listing,
+  'id' | 'agency_name' | 'location' | 'website' | 'public_contact' | 'published_at'
+>
+
+export interface ListingStats {
+  /** Teams shown on the public directory right now. */
+  public: number
+  /** States (the last part of each location), for the filter. */
+  states: string[]
 }
 
 export type ListingInput = Pick<Listing, 'agency_name' | 'location' | 'website' | 'public_contact' | 'renewal_due_at' | 'hidden'>
@@ -186,5 +205,17 @@ export interface DashboardSummary {
   upcoming_trainings_30_days: number
   subscribers: number
   subscribers_this_month: number
-  recent_applications: Application[]
+  recent_applications: ApplicationSummary[]
+}
+
+/** One page of a list endpoint; `total` counts every match. */
+export interface Page<T> {
+  items: T[]
+  total: number
+}
+
+// A type alias (not an interface) so it fits the request helper's query record.
+export type PageQuery = {
+  limit?: number
+  offset?: number
 }

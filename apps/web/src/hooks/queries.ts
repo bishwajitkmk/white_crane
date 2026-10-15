@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient, type QueryKey } from '@tanstack/react-query'
-import { api, type RenewalWindow } from '@/api/endpoints'
-import type { ApplicationStatus, MemberKind } from '@/api/types'
+import { keepPreviousData, useMutation, useQuery, useQueryClient, type QueryKey } from '@tanstack/react-query'
+import { api } from '@/api/endpoints'
+import type { MemberKind, PageQuery } from '@/api/types'
 
 export const keys = {
   content: ['content'] as const,
@@ -8,7 +8,7 @@ export const keys = {
   trainings: ['trainings'] as const,
   training: (idOrSlug: string) => ['trainings', idOrSlug] as const,
   registrations: (trainingId: string) => ['trainings', trainingId, 'registrations'] as const,
-  directory: (q: string, location: string) => ['directory', q, location] as const,
+  directory: ['directory'] as const,
   resources: ['resources'] as const,
   summary: ['summary'] as const,
   applications: ['applications'] as const,
@@ -17,6 +17,8 @@ export const keys = {
   subscribers: ['subscribers'] as const,
   users: ['users'] as const,
 }
+
+type DirectoryParams = Parameters<typeof api.public.directory>[0]
 
 // ---------- public ----------
 export const useSiteContent = () => useQuery({ queryKey: [...keys.content, 'public'], queryFn: api.public.content })
@@ -27,8 +29,12 @@ export const useUpcomingTrainings = () =>
   useQuery({ queryKey: [...keys.trainings, 'upcoming'], queryFn: api.public.upcomingTrainings })
 export const usePublicTraining = (slug: string) =>
   useQuery({ queryKey: [...keys.training(slug), 'public'], queryFn: () => api.public.training(slug) })
-export const useDirectory = (q: string, location: string) =>
-  useQuery({ queryKey: keys.directory(q, location), queryFn: () => api.public.directory({ q, location }) })
+export const useDirectory = (params: DirectoryParams) =>
+  useQuery({
+    queryKey: [...keys.directory, params],
+    queryFn: () => api.public.directory(params),
+    placeholderData: keepPreviousData,
+  })
 export const usePublicResources = () => useQuery({ queryKey: [...keys.resources, 'public'], queryFn: api.public.resources })
 
 // ---------- admin ----------
@@ -41,14 +47,33 @@ export const useTraining = (id: string | undefined) =>
   useQuery({ queryKey: keys.training(id ?? ''), queryFn: () => api.admin.training(id!), enabled: !!id })
 export const useRegistrations = (trainingId: string) =>
   useQuery({ queryKey: keys.registrations(trainingId), queryFn: () => api.admin.registrations(trainingId) })
-export const useApplications = (status?: ApplicationStatus) =>
-  useQuery({ queryKey: [...keys.applications, { status }], queryFn: () => api.admin.applications(status) })
+export const useApplications = (params: Parameters<typeof api.admin.applications>[0]) =>
+  useQuery({
+    queryKey: [...keys.applications, params],
+    queryFn: () => api.admin.applications(params),
+    placeholderData: keepPreviousData,
+  })
+export const useApplicationCounts = (q: string) =>
+  useQuery({ queryKey: [...keys.applications, 'counts', q], queryFn: () => api.admin.applicationCounts(q) })
 export const useApplication = (id: string) =>
   useQuery({ queryKey: keys.application(id), queryFn: () => api.admin.application(id) })
-export const useListings = (renewal?: RenewalWindow) =>
-  useQuery({ queryKey: [...keys.listings, { renewal }], queryFn: () => api.admin.listings({ renewal }) })
+export const useListings = (params: Parameters<typeof api.admin.listings>[0] = {}) =>
+  useQuery({
+    queryKey: [...keys.listings, params],
+    queryFn: () => api.admin.listings(params),
+    placeholderData: keepPreviousData,
+  })
+export const useListingStats = () =>
+  useQuery({ queryKey: [...keys.listings, 'stats'], queryFn: api.admin.listingStats })
+export const useListing = (id: string | null) =>
+  useQuery({ queryKey: [...keys.listings, 'one', id], queryFn: () => api.admin.listing(id!), enabled: !!id })
 export const useResources = () => useQuery({ queryKey: keys.resources, queryFn: api.admin.resources })
-export const useSubscribers = () => useQuery({ queryKey: keys.subscribers, queryFn: api.admin.subscribers })
+export const useSubscribers = (params: { q?: string } & PageQuery) =>
+  useQuery({
+    queryKey: [...keys.subscribers, params],
+    queryFn: () => api.admin.subscribers(params),
+    placeholderData: keepPreviousData,
+  })
 export const useUsers = () => useQuery({ queryKey: keys.users, queryFn: api.admin.users })
 
 /** Mutation that invalidates the given query keys (plus the dashboard summary) on success. */

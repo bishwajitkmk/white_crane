@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.core.deps import TRAININGS, CurrentUser, DbSession, require_role
 from app.db.base import utcnow
-from app.models import Training
+from app.models import Training, TrainingRegistration
 from app.schemas.training import AdminTrainingOut, RegistrationOut, TrainingIn
 from app.services.export import registrations_csv
 
@@ -68,15 +68,21 @@ def delete(training_id: uuid.UUID, db: DbSession):
     db.commit()
 
 
+def _registrations(db: DbSession, training_id: uuid.UUID) -> list[TrainingRegistration]:
+    stmt = select(TrainingRegistration).where(TrainingRegistration.training_id == training_id)
+    return list(db.scalars(stmt.order_by(TrainingRegistration.registered_at)))
+
+
 @router.get("/{training_id}/registrations", response_model=list[RegistrationOut])
 def list_registrations(training_id: uuid.UUID, db: DbSession):
-    return _get(db, training_id).registrations
+    _get(db, training_id)
+    return _registrations(db, training_id)
 
 
 @router.get("/{training_id}/registrations/export.csv")
 def export_registrations(training_id: uuid.UUID, db: DbSession, me: CurrentUser):
     training = _get(db, training_id)
-    rows = training.registrations
+    rows = _registrations(db, training_id)
     # Audit trail for personal data leaving the system (Architecture section 9).
     log.info("Registrations for %s exported by %s <%s>: %d rows", training.slug, me.name, me.email, len(rows))
     filename = f"registrations-{training.slug}-{utcnow():%Y-%m-%d}.csv"
@@ -89,9 +95,8 @@ def export_registrations(training_id: uuid.UUID, db: DbSession, me: CurrentUser)
 
 @router.delete("/{training_id}/registrations/{registration_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_registration(training_id: uuid.UUID, registration_id: uuid.UUID, db: DbSession):
-    training = _get(db, training_id)
-    registration = next((r for r in training.registrations if r.id == registration_id), None)
-    if not registration:
+    registration = db.get(TrainingRegistration, registration_id)
+    if not registration or registration.training_id != training_id:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Registration not found")
-    training.registrations.remove(registration)  # delete-orphan
+    db.delete(registration)
     db.commit()

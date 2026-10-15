@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from app.schemas.application import ApplicationOut
+from app.schemas.application import ApplicationListOut
 
 
 class DashboardSummary(BaseModel):
@@ -10,4 +10,4 @@ class DashboardSummary(BaseModel):
     upcoming_trainings_30_days: int
     subscribers: int
     subscribers_this_month: int
-    recent_applications: list[ApplicationOut]
+    recent_applications: list[ApplicationListOut]

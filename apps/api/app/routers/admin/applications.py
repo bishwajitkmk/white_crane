@@ -1,13 +1,15 @@
 import uuid
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from app.core.deps import DIRECTORY, CurrentUser, DbSession, require_role
 from app.models import Application, ApplicationStatus
-from app.schemas.application import ApplicationOut, DecisionIn, RenewalLinkIn
+from app.schemas.application import ApplicationListOut, ApplicationOut, DecisionIn, RenewalLinkIn
+from app.schemas.common import Page
 from app.services import applications
 from app.services.applications import Decision
+from app.services.pagination import Paging, contains, paginate
 
 router = APIRouter(prefix="/applications", dependencies=[require_role(*DIRECTORY)])
 
@@ -19,12 +21,25 @@ def _get(db: DbSession, application_id: uuid.UUID) -> Application:
     return application
 
 
-@router.get("", response_model=list[ApplicationOut])
-def list_applications(db: DbSession, status: ApplicationStatus | None = None):
-    stmt = select(Application).order_by(Application.submitted_at)
+@router.get("", response_model=Page[ApplicationListOut])
+def list_applications(db: DbSession, page: Paging, status: ApplicationStatus | None = None, q: str = ""):
+    """Oldest first, so the longest-waiting applications lead the queue."""
+    stmt = select(Application).order_by(Application.submitted_at, Application.id)
     if status:
         stmt = stmt.where(Application.status == status)
-    return db.scalars(stmt).all()
+    if q.strip():
+        stmt = stmt.where(contains(Application.agency_name, q))
+    return paginate(db, stmt, page)
+
+
+@router.get("/counts", response_model=dict[ApplicationStatus, int])
+def counts(db: DbSession, q: str = ""):
+    """Applications per status, for the queue tabs."""
+    stmt = select(Application.status, func.count()).group_by(Application.status)
+    if q.strip():
+        stmt = stmt.where(contains(Application.agency_name, q))
+    found = dict(db.execute(stmt).tuples().all())
+    return {s: found.get(s, 0) for s in ApplicationStatus}
 
 
 @router.get("/{application_id}", response_model=ApplicationOut)

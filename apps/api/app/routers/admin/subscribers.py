@@ -8,16 +8,21 @@ from sqlalchemy import select
 from app.core.deps import BOARD, CurrentUser, DbSession, require_role
 from app.db.base import utcnow
 from app.models import Subscriber
+from app.schemas.common import Page
 from app.schemas.resource import SubscriberOut
 from app.services.export import subscribers_csv
+from app.services.pagination import Paging, contains, paginate
 
 router = APIRouter(prefix="/subscribers", dependencies=[require_role(*BOARD)])
 log = logging.getLogger(__name__)
 
 
-@router.get("", response_model=list[SubscriberOut])
-def list_subscribers(db: DbSession):
-    return db.scalars(select(Subscriber).order_by(Subscriber.subscribed_at.desc())).all()
+@router.get("", response_model=Page[SubscriberOut])
+def list_subscribers(db: DbSession, page: Paging, q: str = ""):
+    stmt = select(Subscriber).order_by(Subscriber.subscribed_at.desc(), Subscriber.id)
+    if q.strip():
+        stmt = stmt.where(contains(Subscriber.email, q))
+    return paginate(db, stmt, page)
 
 
 @router.get("/export.csv")

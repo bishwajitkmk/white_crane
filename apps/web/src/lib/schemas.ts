@@ -9,9 +9,6 @@ const newPassword = z.string().min(10, 'At least 10 characters')
 /** Honeypot: rendered hidden (HoneypotField), so only bots fill it; the API silently drops those submissions. */
 const nickname = z.string()
 
-export const subscribeSchema = z.object({ email, nickname })
-export type SubscribeValues = z.infer<typeof subscribeSchema>
-
 export const loginSchema = z.object({ email, password: requiredText('Password') })
 export type LoginValues = z.infer<typeof loginSchema>
 

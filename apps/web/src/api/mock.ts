@@ -12,11 +12,14 @@ import type {
   Application,
   ApplicationInput,
   ApplicationStatus,
+  ApplicationSummary,
   BoardMember,
   DecisionAction,
   Listing,
   ListingInput,
   MemberKind,
+  Page,
+  PageQuery,
   Resource,
   ResourceInput,
   Role,
@@ -188,6 +191,17 @@ const publicTraining = (t: StoredTraining): Training => {
 const membersOf = (kind: MemberKind) =>
   boardMembers.filter((m) => m.kind === kind).sort((a, b) => a.position - b.position)
 
+/** Same shape as the API's paged lists. */
+const paged = <T>(rows: T[], { limit = 50, offset = 0 }: PageQuery = {}): Page<T> => ({
+  items: rows.slice(offset, offset + limit),
+  total: rows.length,
+})
+const has = (text: string, q?: string) => !q || text.toLowerCase().includes(q.trim().toLowerCase())
+const stateOf = (location: string) => location.split(',').pop()?.trim() ?? ''
+const summary = ({ id, agency_name, location, renewal, status, submitted_at, reviewed_at }: Application): ApplicationSummary => ({
+  id, agency_name, location, renewal, status, submitted_at, reviewed_at,
+})  // prettier-ignore
+
 const listingState = (l: Listing) => l.hidden || new Date(l.renewal_due_at) < new Date()
 
 export const mockApi: Api = {
@@ -214,13 +228,13 @@ export const mockApi: Api = {
       registrations = [...registrations, { ...input, email, id: uid(), training_id: t.id, registered_at: now() }]
       return delay(receipt)
     },
-    directory: ({ q, location } = {}) =>
+    directory: ({ q, location, ...page } = {}) =>
       delay(
-        listings.filter(
-          (l) =>
-            !listingState(l) &&
-            (!q || l.agency_name.toLowerCase().includes(q.toLowerCase())) &&
-            (!location || l.location.toLowerCase().includes(location.toLowerCase())),
+        paged(
+          listings
+            .filter((l) => !listingState(l) && has(l.agency_name, q) && has(l.location, location))
+            .sort((a, b) => a.agency_name.localeCompare(b.agency_name)),
+          page,
         ),
       ),
     apply: (input: ApplicationInput) => {
@@ -292,7 +306,7 @@ export const mockApi: Api = {
         ).length,
         subscribers: 312,
         subscribers_this_month: 18,
-        recent_applications: applications.slice(0, 3),
+        recent_applications: applications.slice(0, 3).map(summary),
       })
     },
 
@@ -353,7 +367,13 @@ export const mockApi: Api = {
       return `data:text/csv;charset=utf-8,${encodeURIComponent(['full_name,email,phone,organization,role,notes,registered_at', ...rows].join('\n'))}`
     },
 
-    applications: (status?: ApplicationStatus) => delay(status ? applications.filter((a) => a.status === status) : applications),
+    applications: ({ status, q, ...page }) =>
+      delay(paged(applications.filter((a) => (!status || a.status === status) && has(a.agency_name, q)).map(summary), page)),
+    applicationCounts: (q = '') => {
+      const counts = { pending: 0, info_requested: 0, approved: 0, declined: 0 } satisfies Record<ApplicationStatus, number>
+      applications.filter((a) => has(a.agency_name, q)).forEach((a) => counts[a.status]++)
+      return delay(counts)
+    },
     application: (id) => {
       const a = applications.find((x) => x.id === id)
       return a ? delay(a) : notFound()
@@ -409,11 +429,21 @@ export const mockApi: Api = {
       return delay(applications.find((a) => a.id === id)!)
     },
 
-    listings: ({ renewal }: { renewal?: RenewalWindow } = {}) => {
+    listings: ({ renewal, q, state, ...page }: { renewal?: RenewalWindow; q?: string; state?: string } & PageQuery = {}) => {
       const days = (l: Listing) => (new Date(l.renewal_due_at).getTime() - Date.now()) / 86_400_000
-      const match = (l: Listing) =>
+      const due = (l: Listing) =>
         renewal === 'overdue' ? days(l) < 0 : renewal === 'next_30' ? days(l) >= 0 && days(l) <= 30 : renewal === 'next_90' ? days(l) >= 0 && days(l) <= 90 : true
-      return delay(listings.filter(match).sort((a, b) => a.renewal_due_at.localeCompare(b.renewal_due_at)))
+      const match = (l: Listing) => due(l) && has(l.agency_name, q) && (!state || stateOf(l.location) === state)
+      return delay(paged(listings.filter(match).sort((a, b) => a.renewal_due_at.localeCompare(b.renewal_due_at)), page))
+    },
+    listingStats: () =>
+      delay({
+        public: listings.filter((l) => !listingState(l)).length,
+        states: [...new Set(listings.map((l) => stateOf(l.location)))].filter(Boolean).sort(),
+      }),
+    listing: (id) => {
+      const l = listings.find((x) => x.id === id)
+      return l ? delay(l) : notFound()
     },
     updateListing: (id, input: Partial<ListingInput>) => {
       listings = listings.map((l) => (l.id === id ? { ...l, ...input } : l))
@@ -440,7 +470,7 @@ export const mockApi: Api = {
     },
     presignUpload: (filename) => delay({ upload_url: '', public_url: `https://files.example/${encodeURIComponent(filename)}` }),
 
-    subscribers: () => delay(subscribers),
+    subscribers: ({ q, ...page } = {}) => delay(paged(subscribers.filter((s) => has(s.email, q)), page)),
     deleteSubscriber: (id) => {
       subscribers = subscribers.filter((s) => s.id !== id)
       return delay(undefined)

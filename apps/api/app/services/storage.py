@@ -6,6 +6,7 @@ Local dev (S3_ENDPOINT empty): the API itself accepts the PUT (signed token in t
 
 import re
 import uuid
+from functools import lru_cache
 from pathlib import Path
 from urllib.parse import quote, unquote
 
@@ -21,7 +22,9 @@ ALLOWED_EXTENSIONS = {
 }  # fmt: skip
 
 
+@lru_cache
 def _client():
+    """One client per process: building it costs tens of milliseconds. Timeouts keep a slow R2 from hanging requests."""
     import boto3
     from botocore.client import Config
 
@@ -31,7 +34,7 @@ def _client():
         aws_access_key_id=settings.s3_access_key,
         aws_secret_access_key=settings.s3_secret_key,
         region_name="auto",
-        config=Config(signature_version="s3v4"),
+        config=Config(signature_version="s3v4", connect_timeout=5, read_timeout=15, retries={"max_attempts": 2}),
     )
 
 

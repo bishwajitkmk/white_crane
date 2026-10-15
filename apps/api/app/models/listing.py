@@ -14,7 +14,7 @@ class Listing(IdMixin, TimestampMixin, Base):
     __tablename__ = "listings"
 
     application_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("applications.id"), unique=True)
-    agency_name: Mapped[str] = mapped_column(String(300))
+    agency_name: Mapped[str] = mapped_column(String(300), index=True)
     location: Mapped[str] = mapped_column(String(200), index=True)
     website: Mapped[str] = mapped_column(String(500), default="")
     public_contact: Mapped[str] = mapped_column(String(300), default="")
@@ -22,7 +22,8 @@ class Listing(IdMixin, TimestampMixin, Base):
     renewal_due_at: Mapped[datetime] = mapped_column(index=True)
     hidden: Mapped[bool] = mapped_column(default=False)
 
-    application: Mapped[Application] = relationship(lazy="joined")
+    # Loaded on demand: the public directory never needs it, and admin lists join only the fields they show.
+    application: Mapped[Application] = relationship()
 
     @property
     def contact_email(self) -> str:

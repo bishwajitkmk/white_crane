@@ -23,6 +23,11 @@ class ListingOut(PublicListingOut):
     hidden: bool
 
 
+class ListingStats(BaseModel):
+    public: int  # shown on the directory right now
+    states: list[str]  # last part of each location ("St. Louis, MO" -> "MO"), for the filter
+
+
 class ListingUpdate(BaseModel):
     agency_name: str | None = Field(default=None, min_length=1, max_length=300)
     location: str | None = Field(default=None, min_length=1, max_length=200)

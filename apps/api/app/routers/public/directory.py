@@ -9,26 +9,28 @@ from app.core.rate_limit import rate_limit
 from app.db.base import utcnow
 from app.models import Listing
 from app.schemas.application import ApplicationIn, ApplicationReceipt
+from app.schemas.common import Page
 from app.schemas.listing import PublicListingOut
 from app.services import applications
+from app.services.pagination import Paging, contains, paginate
 
 router = APIRouter()
 log = logging.getLogger(__name__)
 
 
-@router.get("/directory", response_model=list[PublicListingOut])
-def directory(db: DbSession, q: str = "", location: str = ""):
+@router.get("/directory", response_model=Page[PublicListingOut])
+def directory(db: DbSession, page: Paging, q: str = "", location: str = ""):
     """Approved teams that are not hidden and not past their renewal date."""
     stmt = (
         select(Listing)
         .where(Listing.hidden.is_(False), Listing.renewal_due_at >= utcnow())
-        .order_by(Listing.agency_name)
+        .order_by(Listing.agency_name, Listing.id)
     )
-    if q:
-        stmt = stmt.where(Listing.agency_name.ilike(f"%{q}%"))
-    if location:
-        stmt = stmt.where(Listing.location.ilike(f"%{location}%"))
-    return db.scalars(stmt).all()
+    if q.strip():
+        stmt = stmt.where(contains(Listing.agency_name, q))
+    if location.strip():
+        stmt = stmt.where(contains(Listing.location, location))
+    return paginate(db, stmt, page)
 
 
 @router.post(

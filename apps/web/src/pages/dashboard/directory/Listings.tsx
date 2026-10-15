@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { api } from '@/api/endpoints'
 import type { Listing } from '@/api/types'
 import { DataTable } from '@/components/DataTable'
+import { Pager } from '@/components/Pager'
 import { Field, FieldRow, FormError } from '@/components/forms/Field'
 import { DashboardPage, Toolbar } from '@/components/layout/DashboardLayout'
 import { QueryState } from '@/components/PageState'
@@ -12,53 +13,64 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog } from '@/components/ui/dialog'
 import { Input, Select } from '@/components/ui/input'
-import { keys, useInvalidatingMutation, useListings } from '@/hooks/queries'
+import { keys, useInvalidatingMutation, useListings, useListingStats } from '@/hooks/queries'
+import { usePagedSearch } from '@/hooks/usePagedSearch'
 import { formatDate } from '@/lib/format'
 import { listingSchema, type ListingValues } from '@/lib/schemas'
 import { listingStatus } from '@/lib/status'
 
-const stateOf = (location: string) => location.split(',').pop()?.trim() ?? ''
-
 export default function Listings() {
-  const listings = useListings()
-  const [search, setSearch] = useState('')
   const [state, setState] = useState('')
+  const { search, setSearch, q, page, setPage, limit, offset } = usePagedSearch([state])
+  const listings = useListings({ q, state, limit, offset })
+  const stats = useListingStats()
   const [managing, setManaging] = useState<Listing | null>(null)
-
-  const all = listings.data ?? []
-  const states = [...new Set(all.map((l) => stateOf(l.location)))].sort()
-  const visibleCount = all.filter((l) => listingStatus(l).variant !== 'bad').length
-  const rows = all.filter((l) => l.agency_name.toLowerCase().includes(search.toLowerCase()) && (!state || stateOf(l.location) === state))
 
   return (
     <DashboardPage title="Published listings">
       <Toolbar>
-        <span className="text-[13px] text-muted-foreground">{visibleCount} teams shown on the public directory.</span>
+        <span className="text-[13px] text-muted-foreground">{stats.data?.public ?? '…'} teams shown on the public directory.</span>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Input aria-label="Search listings" placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)} className="h-[38px] sm:w-[220px]" />
+          <Input
+            aria-label="Search listings"
+            placeholder="Search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-[38px] sm:w-[220px]"
+          />
           <Select aria-label="State" value={state} onChange={(e) => setState(e.target.value)} className="h-[38px] py-0 sm:w-[140px]">
             <option value="">State: All</option>
-            {states.map((s) => (
+            {stats.data?.states.map((s) => (
               <option key={s}>{s}</option>
             ))}
           </Select>
         </div>
       </Toolbar>
       <QueryState query={listings}>
-        {() => (
-          <DataTable
-            rows={rows}
-            rowKey={(l) => l.id}
-            empty="No listings match."
-            columns={[
-              { header: 'Agency', cell: (l) => <span className="font-semibold">{l.agency_name}</span> },
-              { header: 'Location', cell: (l) => l.location },
-              { header: 'Published', cell: (l) => formatDate(l.published_at) },
-              { header: 'Renewal due', cell: (l) => formatDate(l.renewal_due_at) },
-              { header: 'Status', cell: (l) => <Badge variant={listingStatus(l).variant}>{listingStatus(l).label}</Badge> },
-              { header: '', cell: (l) => <Button variant="link" onClick={() => setManaging(l)}>Manage</Button> },
-            ]}
-          />
+        {({ items, total }) => (
+          <>
+            <DataTable
+              rows={items}
+              rowKey={(l) => l.id}
+              empty="No listings match."
+              columns={[
+                { header: 'Agency', cell: (l) => <span className="font-semibold">{l.agency_name}</span> },
+                { header: 'Location', cell: (l) => l.location },
+                { header: 'Published', cell: (l) => formatDate(l.published_at) },
+                { header: 'Renewal due', cell: (l) => formatDate(l.renewal_due_at) },
+                { header: 'Status', cell: (l) => <Badge variant={listingStatus(l).variant}>{listingStatus(l).label}</Badge> },
+                {
+                  header: '',
+                  cell: (l) => (
+                    <Button variant="link" onClick={() => setManaging(l)}>
+                      Manage
+                    </Button>
+                  ),
+                },
+              ]}
+            />
+            <Pager page={page} pageSize={limit} total={total} onPage={setPage} loading={listings.isPlaceholderData} />
+          </>
         )}
       </QueryState>
       <Dialog open={managing !== null} onClose={() => setManaging(null)} title="Manage listing" variant="drawer">
@@ -77,10 +89,7 @@ function ManageListing({ listing, onDone }: { listing: Listing; onDone: () => vo
     resolver: zodResolver(listingSchema),
     defaultValues: { ...listing, renewal_due_at: listing.renewal_due_at.slice(0, 10) },
   })
-  const update = useInvalidatingMutation(
-    (input: Partial<Listing>) => api.admin.updateListing(listing.id, input),
-    [keys.listings],
-  )
+  const update = useInvalidatingMutation((input: Partial<Listing>) => api.admin.updateListing(listing.id, input), [keys.listings])
 
   return (
     <form
@@ -88,7 +97,9 @@ function ManageListing({ listing, onDone }: { listing: Listing; onDone: () => vo
       className="flex flex-col gap-4"
       noValidate
     >
-      <p className="text-muted-foreground">Edit public fields, set the renewal date, or hide the team from the directory. Listings are never deleted.</p>
+      <p className="text-muted-foreground">
+        Edit public fields, set the renewal date, or hide the team from the directory. Listings are never deleted.
+      </p>
       <Field label="Agency" required error={errors.agency_name}>
         <Input {...register('agency_name')} />
       </Field>
@@ -111,7 +122,11 @@ function ManageListing({ listing, onDone }: { listing: Listing; onDone: () => vo
         <Button type="submit" disabled={update.isPending}>
           Save
         </Button>
-        <Button variant="secondary" disabled={update.isPending} onClick={() => update.mutate({ hidden: !listing.hidden }, { onSuccess: onDone })}>
+        <Button
+          variant="secondary"
+          disabled={update.isPending}
+          onClick={() => update.mutate({ hidden: !listing.hidden }, { onSuccess: onDone })}
+        >
           {listing.hidden ? 'Show on directory' : 'Hide from directory'}
         </Button>
         <Link to={`/dashboard/applications/${listing.application_id}`} className="self-center px-2 font-semibold text-primary">

@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import StrEnum
 
-from sqlalchemy import Enum, String, Text, func, select
+from sqlalchemy import Enum, Index, String, Text, func, select
 from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 
 from app.db.base import Base, IdMixin, TimestampMixin, utcnow
@@ -20,6 +20,8 @@ class TrainingFormat(StrEnum):
 
 class Training(IdMixin, TimestampMixin, Base):
     __tablename__ = "trainings"
+    # Public lists: open (or upcoming) trainings by date.
+    __table_args__ = (Index("ix_trainings_status_starts_at", "status", "starts_at"),)
 
     slug: Mapped[str] = mapped_column(String(200), unique=True, index=True)
     title: Mapped[str] = mapped_column(String(300))

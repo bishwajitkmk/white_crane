@@ -2,8 +2,6 @@ import { lazy, Suspense, type ComponentType } from 'react'
 import { createBrowserRouter, type RouteObject } from 'react-router-dom'
 import { RequireRole } from '@/auth/RequireRole'
 import { ROLES } from '@/auth/roles'
-import { AuthLayout } from '@/components/layout/AuthLayout'
-import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { PageLoader } from '@/components/PageState'
 
@@ -37,7 +35,8 @@ const routes: RouteObject[] = [
     ],
   },
   {
-    element: <AuthLayout />,
+    // Sign-in and dashboard shells load only when visited, keeping them out of the public bundle.
+    element: page(() => import('@/components/layout/AuthLayout').then((m) => ({ default: m.AuthLayout }))),
     children: [
       { path: '/login', element: page(() => import('@/pages/auth/Login')) },
       { path: '/forgot-password', element: page(() => import('@/pages/auth/ForgotPassword')) },
@@ -50,7 +49,7 @@ const routes: RouteObject[] = [
     element: <RequireRole />,
     children: [
       {
-        element: <DashboardLayout />,
+        element: page(() => import('@/components/layout/DashboardLayout').then((m) => ({ default: m.DashboardLayout }))),
         children: [
           { index: true, element: page(() => import('@/pages/dashboard/Index')) },
           { path: 'account', element: page(() => import('@/pages/dashboard/Account')) },

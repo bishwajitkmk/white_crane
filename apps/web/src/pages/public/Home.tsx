@@ -13,7 +13,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import type { Listing, Training } from '@/api/types'
+import type { Page, PublicListing, Training } from '@/api/types'
 import logoLight from '@/assets/logo-light.png'
 import { QueryState } from '@/components/PageState'
 import { TrainingCard } from '@/components/TrainingCard'
@@ -76,7 +76,7 @@ function IconTile({ icon: Icon, className }: { icon: LucideIcon; className?: str
  * Branded panel shown in the hero until the Board uploads a hero image (Landing content). Shows live
  * numbers and the next training, so it stays accurate as content changes.
  */
-function HeroPanel({ trainings, teams }: { trainings?: Training[]; teams?: Listing[] }) {
+function HeroPanel({ trainings, teams }: { trainings?: Training[]; teams?: Page<PublicListing> }) {
   const next = trainings?.[0]
   return (
     <div className="relative h-[280px] overflow-hidden rounded-xl bg-linear-to-br from-navy to-teal lg:h-[340px]">
@@ -94,16 +94,16 @@ function HeroPanel({ trainings, teams }: { trainings?: Training[]; teams?: Listi
       </svg>
       <img src={logoLight} alt="" className="absolute top-6 left-6 h-10 w-auto opacity-90" />
 
-      {(!!trainings?.length || !!teams?.length) && (
+      {(!!trainings?.length || !!teams?.total) && (
         <div className="absolute top-6 right-6 hidden flex-col gap-2 sm:flex">
           {!!trainings?.length && (
             <span className="rounded-full bg-white/12 px-3 py-1 text-[13px] text-white backdrop-blur-sm">
               <b>{trainings.length}</b> open {trainings.length === 1 ? 'training' : 'trainings'}
             </span>
           )}
-          {!!teams?.length && (
+          {!!teams?.total && (
             <span className="rounded-full bg-white/12 px-3 py-1 text-[13px] text-white backdrop-blur-sm">
-              <b>{teams.length}</b> listed {teams.length === 1 ? 'team' : 'teams'}
+              <b>{teams.total}</b> listed {teams.total === 1 ? 'team' : 'teams'}
             </span>
           )}
         </div>
@@ -128,16 +128,16 @@ function HeroPanel({ trainings, teams }: { trainings?: Training[]; teams?: Listi
   )
 }
 
-function DirectoryPreview({ teams }: { teams?: Listing[] }) {
+function DirectoryPreview({ teams }: { teams?: Page<PublicListing> }) {
   return (
     <Card className="gap-0 p-0 shadow-sm">
       <div className="flex items-center justify-between gap-3 border-b px-5 py-4">
         <b>Listed DBT teams</b>
-        {!!teams?.length && <Badge variant="acc">{teams.length} listed</Badge>}
+        {!!teams?.total && <Badge variant="acc">{teams.total} listed</Badge>}
       </div>
-      {teams?.length ? (
+      {teams?.items.length ? (
         <ul className="flex flex-col">
-          {teams.slice(0, 3).map((t) => (
+          {teams.items.map((t) => (
             <li key={t.id} className="flex items-center gap-3 border-b px-5 py-3.5 last:border-b-0">
               <IconTile icon={MapPin} className="size-9" />
               <div className="min-w-0">
@@ -161,7 +161,7 @@ export default function Home() {
   useDocumentTitle('')
   const content = useSiteContent()
   const trainings = useOpenTrainings()
-  const directory = useDirectory('', '')
+  const directory = useDirectory({ limit: 3 }) // the preview shows three teams and the total
 
   return (
     <>

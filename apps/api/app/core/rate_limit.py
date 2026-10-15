@@ -15,6 +15,7 @@ from app.core.config import settings
 
 _hits: dict[tuple[str, str], deque[float]] = defaultdict(deque)
 _lock = Lock()
+_PRUNE_AT = 10_000  # keys; past this, forget visitors whose hits have all expired
 
 
 def reset() -> None:
@@ -42,5 +43,9 @@ def rate_limit(scope: str, limit: int, window_seconds: int):
                     headers={"Retry-After": str(retry)},
                 )
             hits.append(now)
+            if len(_hits) > _PRUNE_AT:
+                longest = 86_400  # no limit uses a longer window
+                for stale in [k for k, v in _hits.items() if v[-1] <= now - longest]:
+                    del _hits[stale]
 
     return Depends(check)

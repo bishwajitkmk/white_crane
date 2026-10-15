@@ -1,11 +1,9 @@
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
+import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '@/api/endpoints'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { subscribeSchema, type SubscribeValues } from '@/lib/schemas'
 import { cn } from '@/lib/utils'
 import { FormError, HoneypotField } from './Field'
 
@@ -16,19 +14,29 @@ interface SubscribeFormProps {
   consent?: boolean
 }
 
+/**
+ * Footer sign-up, shown on every public page. Validated with the browser's own email check rather than the
+ * form libraries, which keeps them out of the main bundle.
+ */
 export function SubscribeForm({ source, className, consent = true }: SubscribeFormProps) {
   const navigate = useNavigate()
-  const { register, handleSubmit, formState } = useForm<SubscribeValues>({
-    resolver: zodResolver(subscribeSchema),
-    defaultValues: { email: '', nickname: '' },
-  })
+  const [email, setEmail] = useState('')
+  const [nickname, setNickname] = useState('')
+  const [invalid, setInvalid] = useState(false)
   const subscribe = useMutation({
-    mutationFn: (v: SubscribeValues) => api.public.subscribe(v.email, source, v.nickname),
+    mutationFn: () => api.public.subscribe(email.trim(), source, nickname),
     onSuccess: () => navigate('/subscribed'),
   })
 
+  const submit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const ok = e.currentTarget.checkValidity()
+    setInvalid(!ok)
+    if (ok) subscribe.mutate()
+  }
+
   return (
-    <form onSubmit={handleSubmit((v) => subscribe.mutate(v))} className={cn('flex w-full max-w-md flex-col gap-2', className)} noValidate>
+    <form onSubmit={submit} className={cn('flex w-full max-w-md flex-col gap-2', className)} noValidate>
       <div className="flex flex-col gap-3 sm:flex-row">
         <label className="sr-only" htmlFor={`subscribe-${source}`}>
           Email address
@@ -38,15 +46,17 @@ export function SubscribeForm({ source, className, consent = true }: SubscribeFo
           type="email"
           placeholder="email@address"
           autoComplete="email"
-          aria-invalid={formState.errors.email ? true : undefined}
-          {...register('email')}
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          aria-invalid={invalid ? true : undefined}
         />
         <Button type="submit" disabled={subscribe.isPending} className="max-sm:w-full">
           Subscribe
         </Button>
       </div>
-      {formState.errors.email && <span className="text-xs text-destructive">{formState.errors.email.message}</span>}
-      <HoneypotField {...register('nickname')} />
+      {invalid && <span className="text-xs text-destructive">Enter a valid email address</span>}
+      <HoneypotField name="nickname" value={nickname} onChange={(e) => setNickname(e.target.value)} />
       <FormError error={subscribe.error} />
       {consent && (
         <span className="text-xs text-muted-foreground">

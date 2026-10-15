@@ -21,7 +21,15 @@ export function PersonCard({ person }: { person: BoardMember }) {
     <Card id={person.name.toLowerCase().replace(/[^a-z]+/g, '-')} className="scroll-mt-6 gap-4 p-6">
       <div className="flex items-center gap-4">
         {person.photo_url ? (
-          <img src={person.photo_url} alt={person.name} className="size-24 shrink-0 rounded-full object-cover" />
+          <img
+            src={person.photo_url}
+            alt={person.name}
+            width={96}
+            height={96}
+            loading="lazy"
+            decoding="async"
+            className="size-24 shrink-0 rounded-full object-cover"
+          />
         ) : (
           <div aria-hidden className="flex size-24 shrink-0 items-center justify-center rounded-full bg-primary/10 text-2xl font-semibold text-primary">
             {initials(person.name)}

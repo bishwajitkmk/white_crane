@@ -8,8 +8,9 @@ import { QueryState } from '@/components/PageState'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardTitle } from '@/components/ui/card'
-import { Select, Textarea } from '@/components/ui/input'
-import { keys, useApplication, useInvalidatingMutation, useListings } from '@/hooks/queries'
+import { Input, Select, Textarea } from '@/components/ui/input'
+import { keys, useApplication, useInvalidatingMutation, useListing, useListings } from '@/hooks/queries'
+import { usePagedSearch } from '@/hooks/usePagedSearch'
 import { PRACTICE_GROUPS, RESIDENTIAL_ITEMS, type AttestationItem } from '@/lib/attestation'
 import { formatDate, formatDay, formatTime } from '@/lib/format'
 import { APPLICATION_STATUS } from '@/lib/status'
@@ -157,12 +158,15 @@ function AnswerRow({ item, yes }: { item: AttestationItem; yes: boolean | undefi
 
 /** Teams re-attest every year: a renewal application renews an existing listing instead of creating one. */
 function Renewal({ application: a, decided }: { application: Application; decided: boolean }) {
-  const listings = useListings()
+  // Search the listings rather than loading them all; the linked one is fetched on its own.
+  const { search, setSearch, q, limit } = usePagedSearch([], 20)
+  const listings = useListings({ q, limit })
+  const linked = useListing(a.renews_listing_id).data
+  const options = [...(linked ? [linked] : []), ...(listings.data?.items ?? []).filter((l) => l.id !== linked?.id)]
   const link = useInvalidatingMutation(
     (listingId: string | null) => api.admin.linkRenewal(a.id, listingId),
     [keys.applications, keys.application(a.id)],
   )
-  const linked = listings.data?.find((l) => l.id === a.renews_listing_id)
 
   return (
     <Card className="gap-3 border-primary/40 p-6">
@@ -183,20 +187,25 @@ function Renewal({ application: a, decided }: { application: Application; decide
         </p>
       )}
       {!decided && (
-        <Field label="Listing this renews">
-          <Select
-            value={a.renews_listing_id ?? ''}
-            disabled={link.isPending || !listings.data}
-            onChange={(e) => link.mutate(e.target.value || null)}
-          >
-            <option value="">None: approve as a new listing</option>
-            {listings.data?.map((l) => (
-              <option key={l.id} value={l.id}>
-                {l.agency_name} ({l.location}), due {formatDate(l.renewal_due_at)}
-              </option>
-            ))}
-          </Select>
-        </Field>
+        <>
+          <Field label="Find the listing" hint="Search by agency name; the list below shows up to 20 matches.">
+            <Input placeholder="Search listings" value={search} onChange={(e) => setSearch(e.target.value)} />
+          </Field>
+          <Field label="Listing this renews">
+            <Select
+              value={a.renews_listing_id ?? ''}
+              disabled={link.isPending || !listings.data}
+              onChange={(e) => link.mutate(e.target.value || null)}
+            >
+              <option value="">None: approve as a new listing</option>
+              {options.map((l) => (
+                <option key={l.id} value={l.id}>
+                  {l.agency_name} ({l.location}), due {formatDate(l.renewal_due_at)}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        </>
       )}
       <FormError error={link.error} />
     </Card>

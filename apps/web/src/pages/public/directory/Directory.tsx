@@ -11,13 +11,21 @@ import { useDirectory } from '@/hooks/queries'
 
 const PAGE_SIZE = 9
 
+/** Page numbers to show: the first, the last, and two either side of the current one ("…" for gaps). */
+function pageWindow(current: number, pages: number): (number | '…')[] {
+  const shown = [...new Set([1, current - 2, current - 1, current, current + 1, current + 2, pages])]
+    .filter((p) => p >= 1 && p <= pages)
+    .sort((a, b) => a - b)
+  return shown.flatMap((p, i) => (i > 0 && p - shown[i - 1] > 1 ? ['…' as const, p] : [p]))
+}
+
 export default function Directory() {
   useDocumentTitle('DBT Clinical Directory')
   const [params, setParams] = useSearchParams()
   const q = params.get('q') ?? ''
   const location = params.get('location') ?? ''
-  const page = Number(params.get('page') ?? 1)
-  const listings = useDirectory(q, location)
+  const page = Math.max(1, Number(params.get('page')) || 1)
+  const listings = useDirectory({ q, location, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })
   const [draft, setDraft] = useState({ q, location })
 
   const search = (e: FormEvent) => {
@@ -64,17 +72,24 @@ export default function Directory() {
 
       <Section className="gap-4">
         <QueryState query={listings}>
-          {(list) => {
-            const pages = Math.max(1, Math.ceil(list.length / PAGE_SIZE))
-            const current = Math.min(Math.max(page, 1), pages)
-            const visible = list.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE)
+          {({ items: visible, total }) => {
+            const pages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+            const current = Math.min(page, pages)
             return (
               <>
                 <span className="text-muted-foreground" aria-live="polite">
-                  {list.length} approved {list.length === 1 ? 'team' : 'teams'}
+                  {total} approved {total === 1 ? 'team' : 'teams'}
                 </span>
-                {list.length === 0 ? (
+                {total === 0 ? (
                   <EmptyState>No teams match your search.</EmptyState>
+                ) : visible.length === 0 ? (
+                  // An old link to a page past the end, e.g. after teams were removed.
+                  <EmptyState>
+                    This page is past the end of the list.{' '}
+                    <Button variant="link" onClick={() => goTo(pages)}>
+                      Go to the last page
+                    </Button>
+                  </EmptyState>
                 ) : (
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {visible.map((l) => (
@@ -102,11 +117,23 @@ export default function Directory() {
                     <Button variant="link" disabled={current === 1} onClick={() => goTo(current - 1)}>
                       Prev
                     </Button>
-                    {Array.from({ length: pages }, (_, i) => i + 1).map((p) => (
-                      <Button key={p} variant="link" aria-current={p === current ? 'page' : undefined} className={p === current ? 'underline' : ''} onClick={() => goTo(p)}>
-                        {p}
-                      </Button>
-                    ))}
+                    {pageWindow(current, pages).map((p, i) =>
+                      p === '…' ? (
+                        <span key={`gap-${i}`} aria-hidden className="self-center text-muted-foreground">
+                          …
+                        </span>
+                      ) : (
+                        <Button
+                          key={p}
+                          variant="link"
+                          aria-current={p === current ? 'page' : undefined}
+                          className={p === current ? 'underline' : ''}
+                          onClick={() => goTo(p)}
+                        >
+                          {p}
+                        </Button>
+                      ),
+                    )}
                     <Button variant="link" disabled={current === pages} onClick={() => goTo(current + 1)}>
                       Next
                     </Button>
