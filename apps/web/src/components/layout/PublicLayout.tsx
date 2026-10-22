@@ -74,7 +74,11 @@ function Nav() {
   )
 }
 
+/** Pages with their own sign-up section, where the footer form would sit right under a second copy. */
+const OWN_SUBSCRIBE = new Set(['/resources', '/trainings/upcoming'])
+
 function Footer() {
+  const { pathname } = useLocation()
   return (
     <footer className="bg-surface text-[13px]">
       <div className="mx-auto flex max-w-[1200px] flex-col gap-6 px-4 py-6 sm:px-6 md:py-10">
@@ -89,10 +93,12 @@ function Footer() {
               </Link>
             </span>
           </div>
-          <div className="flex w-full max-w-sm flex-col gap-2">
-            <b>Sign up for updates</b>
-            <SubscribeForm source="Footer" />
-          </div>
+          {!OWN_SUBSCRIBE.has(pathname.replace(/\/$/, '')) && (
+            <div className="flex w-full max-w-sm flex-col gap-2">
+              <b>Sign up for updates</b>
+              <SubscribeForm source="Footer" />
+            </div>
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-x-4 text-xs text-muted-foreground [&>a]:py-2 lg:[&>a]:py-0">
           <span>&copy; {new Date().getFullYear()} White Crane Training Collective.</span>

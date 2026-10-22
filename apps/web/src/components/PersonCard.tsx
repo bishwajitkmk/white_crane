@@ -28,7 +28,7 @@ export function PersonCard({ person }: { person: BoardMember }) {
             height={96}
             loading="lazy"
             decoding="async"
-            className="size-24 shrink-0 rounded-full object-cover"
+            className="size-24 shrink-0 rounded-full bg-primary/10 object-cover"
           />
         ) : (
           <div aria-hidden className="flex size-24 shrink-0 items-center justify-center rounded-full bg-primary/10 text-2xl font-semibold text-primary">
