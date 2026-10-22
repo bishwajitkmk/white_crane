@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block body %}
+<p>New message from the website contact form. Reply to this email to answer {{ name }} directly.</p>
+<p>
+  <strong>Topic:</strong> {{ topic }}<br />
+  <strong>From:</strong> {{ name }} &lt;{{ email }}&gt;<br />
+  {% if organization %}<strong>Organization:</strong> {{ organization }}<br />{% endif %}
+</p>
+<div style="white-space:pre-wrap;padding:16px;background:#f0f4f5;border-radius:6px">{{ message }}</div>
+{% endblock %}

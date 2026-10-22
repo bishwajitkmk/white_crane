@@ -6,6 +6,7 @@ import type {
   ApplicationStatus,
   ApplicationSummary,
   BoardMember,
+  ContactInput,
   DashboardSummary,
   DecisionAction,
   Listing,
@@ -53,6 +54,7 @@ const httpApi = {
     resources: () => get<Resource[]>('/public/resources'),
     subscribe: (email: string, source: string, nickname = '') =>
       post<void>('/public/subscribe', { email, source, nickname }),
+    contact: (input: ContactInput) => post<void>('/public/contact', input),
   },
 
   auth: {

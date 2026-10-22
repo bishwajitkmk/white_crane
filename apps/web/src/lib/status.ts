@@ -1,4 +1,4 @@
-import type { ApplicationStatus, Listing, ResourceCategory, TrainingFormat, TrainingStatus } from '@/api/types'
+import type { ApplicationStatus, ContactTopic, Listing, ResourceCategory, TrainingFormat, TrainingStatus } from '@/api/types'
 import type { BadgeVariant } from '@/components/ui/badge'
 import { daysUntil } from './format'
 
@@ -17,6 +17,13 @@ export const TRAINING_STATUS: Record<TrainingStatus, { label: string; variant: B
 export const TRAINING_FORMAT: Record<TrainingFormat, string> = {
   online: 'Online',
   in_person: 'In person',
+}
+
+export const CONTACT_TOPIC: Record<ContactTopic, string> = {
+  consultation: 'Consultation for teams',
+  training: 'Training',
+  directory: 'DBT Clinical Directory',
+  general: 'General question',
 }
 
 export const RESOURCE_CATEGORY: Record<ResourceCategory, string> = {

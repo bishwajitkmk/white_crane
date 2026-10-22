@@ -263,6 +263,8 @@ export const mockApi: Api = {
       }
       return delay(undefined)
     },
+    // Messages are only emailed by the real API, never stored, so there is nothing to keep here.
+    contact: () => delay(undefined),
   },
 
   auth: {

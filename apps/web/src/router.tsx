@@ -31,6 +31,7 @@ const routes: RouteObject[] = [
       { path: '/directory/apply/submitted', element: page(() => import('@/pages/public/directory/ApplicationSubmitted')) },
       { path: '/resources', element: page(() => import('@/pages/public/Resources')) },
       { path: '/subscribed', element: page(() => import('@/pages/public/Subscribed')) },
+      { path: '/contact', element: page(() => import('@/pages/public/Contact')) },
       { path: '*', element: page(() => import('@/pages/NotFound')) },
     ],
   },

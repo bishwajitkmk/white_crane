@@ -105,6 +105,7 @@ GET  /public/content                 GET  /public/board-members
 GET  /public/trainings               GET  /public/trainings/upcoming      GET /public/trainings/{slug}
 GET  /public/directory?q=&location=  POST /public/applications
 GET  /public/resources               POST /public/subscribe               GET /public/subscribe/confirm/{token}
+POST /public/contact                 emails CONTACT_EMAIL, Reply-To the visitor, nothing stored
 
 POST /auth/login | refresh | logout | forgot | reset | accept-invite
 GET  /auth/me                        GET  /auth/invite/{token}
@@ -190,6 +191,7 @@ Mailpit inbox: http://localhost:8025
 - `COOKIE_SECURE=true`. `COOKIE_SAMESITE=lax` when the site and API share a domain (`whitecrane.org` + `api.whitecrane.org`); `none` only if they are on different domains (e.g. `*.vercel.app` + `*.up.railway.app`).
 - `FRONTEND_URL` / `API_URL` set to the public URLs; `CORS_ORIGINS` for any extra origins (preview deploys).
 - `EMAIL_PROVIDER=resend` or `postmark` with its key; `S3_*` for R2.
+- `CONTACT_EMAIL`: the Board inbox that receives the website contact form.
 
 `apps/web/.env`
 
@@ -240,6 +242,7 @@ Each wireframe screen's markup lives in `S['Screen name']` inside the `<script>`
 | Trainings / Training detail / Upcoming trainings                  | `pages/public/trainings/*`                        |
 | Directory / Apply to directory / Application submitted            | `pages/public/directory/*`                        |
 | Resources / Subscribed                                            | `pages/public/Resources`, `Subscribed`            |
+| Contact                                                           | `pages/public/Contact`                            |
 | Login / Forgot / Reset / Accept invite                            | `pages/auth/*`                                    |
 | Dashboard home                                                    | `pages/dashboard/Index`                           |
 | Landing content / Board members                                   | `pages/dashboard/landing/*`                       |

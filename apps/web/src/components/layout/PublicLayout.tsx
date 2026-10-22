@@ -84,9 +84,9 @@ function Footer() {
             <b>White Crane Training Collective</b>
             <span className="text-muted-foreground">
               Training and community for DBT teams.{' '}
-              <a href="mailto:info@whitecrane.org" className="font-semibold text-primary">
-                info@whitecrane.org
-              </a>
+              <Link to="/contact" className="font-semibold text-primary">
+                Contact us
+              </Link>
             </span>
           </div>
           <div className="flex w-full max-w-sm flex-col gap-2">
@@ -100,6 +100,7 @@ function Footer() {
           <Link to="/trainers">Trainers</Link>
           <Link to="/directory">Directory</Link>
           <Link to="/resources">Resources</Link>
+          <Link to="/contact">Contact</Link>
           <Link to="/login">Staff sign in</Link>
         </div>
       </div>

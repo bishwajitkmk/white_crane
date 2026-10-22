@@ -79,6 +79,18 @@ export interface RegistrationInput {
   nickname: string
 }
 
+export type ContactTopic = 'consultation' | 'training' | 'directory' | 'general'
+
+export interface ContactInput {
+  name: string
+  email: string
+  organization: string
+  topic: ContactTopic
+  message: string
+  /** Honeypot, see HoneypotField. */
+  nickname: string
+}
+
 export interface TrainingRegistration extends Omit<RegistrationInput, 'nickname'> {
   id: string
   training_id: string

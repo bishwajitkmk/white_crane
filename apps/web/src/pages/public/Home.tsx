@@ -322,17 +322,14 @@ export default function Home() {
           <div className="flex max-w-xl flex-col gap-2">
             <h2 className="text-[22px] text-white md:text-[26px]">Questions about training or the directory?</h2>
             <p className="text-sidebar-foreground">
-              We're happy to help teams and clinicians find the right next step. Email us at{' '}
-              <a href="mailto:info@whitecrane.org" className="font-semibold text-white underline underline-offset-2">
-                info@whitecrane.org
-              </a>
-              .
+              We're happy to help teams and clinicians find the right next step. Send us a message and a member of
+              the Board will get back to you.
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <a href="mailto:info@whitecrane.org" className={buttonVariants({ variant: 'secondary' })}>
-              <Mail aria-hidden className="mr-2 size-4" /> Email us
-            </a>
+            <Link to="/contact" className={buttonVariants({ variant: 'secondary' })}>
+              <Mail aria-hidden className="mr-2 size-4" /> Contact us
+            </Link>
             <Link to="/trainings" className={buttonVariants({ className: 'border-white/30' })}>
               Browse trainings
             </Link>

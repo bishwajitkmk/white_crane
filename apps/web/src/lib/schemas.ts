@@ -133,6 +133,16 @@ export const registrationSchema = z.object({
 })
 export type RegistrationValues = z.infer<typeof registrationSchema>
 
+export const contactSchema = z.object({
+  name: requiredText('Name'),
+  email,
+  organization: z.string().trim(),
+  topic: z.enum(['consultation', 'training', 'directory', 'general']),
+  message: requiredText('Message').max(5000, 'Keep this under 5000 characters'),
+  nickname,
+})
+export type ContactValues = z.infer<typeof contactSchema>
+
 export const landingContentSchema = z.object({
   hero_headline: requiredText('Headline'),
   hero_subheading: z.string(),

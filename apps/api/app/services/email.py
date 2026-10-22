@@ -24,6 +24,7 @@ SUBJECTS = {
     "subscribe_confirm": "Confirm your White Crane subscription",
     "invite": "You are invited to the White Crane dashboard",
     "password_reset": "Reset your White Crane password",
+    "contact_message": "Website message",
 }
 
 
@@ -31,9 +32,12 @@ def render(template: str, **context) -> str:
     return _env.get_template(f"{template}.html").render(frontend_url=settings.frontend_url, **context)
 
 
-def send(template: str, to: str, **context) -> None:
-    """Render and deliver. Call through FastAPI BackgroundTasks so requests never wait on the provider."""
-    subject = SUBJECTS[template]
+def send(template: str, to: str, *, subject: str | None = None, reply_to: str | None = None, **context) -> None:
+    """Render and deliver. Call through FastAPI BackgroundTasks so requests never wait on the provider.
+
+    subject overrides SUBJECTS[template]; reply_to makes "Reply" go to that address instead of email_from.
+    """
+    subject = subject or SUBJECTS[template]
     html = render(template, subject=subject, **context)
     try:
         match settings.email_provider:
@@ -41,17 +45,25 @@ def send(template: str, to: str, **context) -> None:
                 import resend
 
                 resend.api_key = settings.resend_api_key
-                resend.Emails.send({"from": settings.email_from, "to": [to], "subject": subject, "html": html})
+                params = {"from": settings.email_from, "to": [to], "subject": subject, "html": html}
+                if reply_to:
+                    params["reply_to"] = reply_to
+                resend.Emails.send(params)
             case "postmark":
+                body = {"From": settings.email_from, "To": to, "Subject": subject, "HtmlBody": html}
+                if reply_to:
+                    body["ReplyTo"] = reply_to
                 httpx.post(
                     "https://api.postmarkapp.com/email",
                     headers={"X-Postmark-Server-Token": settings.postmark_token, "Accept": "application/json"},
-                    json={"From": settings.email_from, "To": to, "Subject": subject, "HtmlBody": html},
+                    json=body,
                     timeout=10,
                 ).raise_for_status()
             case "mailpit":
                 msg = EmailMessage()
                 msg["From"], msg["To"], msg["Subject"] = settings.email_from, to, subject
+                if reply_to:
+                    msg["Reply-To"] = reply_to
                 msg.set_content(html, subtype="html")
                 with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=10) as smtp:
                     smtp.send_message(msg)

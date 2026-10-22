@@ -26,6 +26,8 @@ class Settings(BaseSettings):
 
     email_provider: Literal["resend", "postmark", "mailpit", "console"] = "mailpit"
     email_from: str = "info@whitecrane.org"
+    # Inbox that receives the website contact form (POST /public/contact).
+    contact_email: str = "info@whitecrane.org"
     resend_api_key: str = ""
     postmark_token: str = ""
     smtp_host: str = "localhost"

@@ -5,25 +5,22 @@ import { PersonCard } from '@/components/PersonCard'
 import { RichText } from '@/components/RichText'
 import { PageTitle, Section, SectionTitle } from '@/components/layout/Section'
 import { ButtonLink } from '@/components/ui/button'
-import { buttonVariants } from '@/components/ui/button-variants'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { usePublicBoardMembers, useSiteContent } from '@/hooks/queries'
 import { leadSentence, paragraphs, textBlocks } from '@/lib/format'
-
-const CONTACT = 'info@whitecrane.org'
 
 /** The three calls to action, shown near the top and again at the bottom of the page. */
 function Actions() {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
       <ButtonLink to="/trainings">Explore Training</ButtonLink>
-      <a href={`mailto:${CONTACT}?subject=Consultation%20for%20teams`} className={buttonVariants({ variant: 'secondary' })}>
+      <ButtonLink to="/contact?topic=consultation" variant="secondary">
         Consultation for Teams
-      </a>
-      <a href={`mailto:${CONTACT}`} className={buttonVariants({ variant: 'secondary' })}>
+      </ButtonLink>
+      <ButtonLink to="/contact" variant="secondary">
         <Mail aria-hidden className="size-4" /> Contact White Crane
-      </a>
+      </ButtonLink>
     </div>
   )
 }
