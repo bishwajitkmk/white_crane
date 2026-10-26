@@ -3,7 +3,8 @@ import { Link, useParams } from 'react-router-dom'
 import { api } from '@/api/endpoints'
 import { RegistrationForm } from '@/components/forms/RegistrationForm'
 import { ErrorState, PageLoader } from '@/components/PageState'
-import { Lede, PageTitle, Section } from '@/components/layout/Section'
+import { HeroBreadcrumb, PageHero } from '@/components/layout/PageHero'
+import { Section } from '@/components/layout/Section'
 import { Badge } from '@/components/ui/badge'
 import { ButtonLink } from '@/components/ui/button'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
@@ -46,39 +47,44 @@ export default function TrainingRegister() {
 
   const external = t.registration_url
   return (
-    <Section>
-      <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5">
-        <nav aria-label="Breadcrumb" className="text-[13px] text-muted-foreground">
-          <Link to="/trainings" className="hover:text-primary">
-            Trainings
-          </Link>
-          &nbsp;/&nbsp;
-          <Link to={`/trainings/${t.slug}`} className="hover:text-primary">
-            {t.title}
-          </Link>
-          &nbsp;/&nbsp; Register
-        </nav>
-        <PageTitle>Register: {t.title}</PageTitle>
-        <Lede>
-          {t.starts_at ? `${formatDate(t.starts_at)}, ${formatTimeRange(t.starts_at, t.ends_at)}` : t.expected_label || 'Date to be announced'}.{' '}
-          {TRAINING_FORMAT[t.format]}.
-        </Lede>
-        {t.accepting_registrations ? (
-          <RegistrationForm onSubmit={(input) => registration.mutate(input)} pending={registration.isPending} error={registration.error} />
-        ) : external ? (
-          <p>
-            This training takes registrations on another site.{' '}
-            <a href={external} target="_blank" rel="noreferrer" className="font-semibold text-primary hover:underline">
-              Open the registration page
-            </a>
-            .
-          </p>
-        ) : (
-          <div>
-            <Badge variant="acc">{t.is_full ? 'Fully booked' : 'Registration closed'}</Badge>
-          </div>
-        )}
-      </div>
-    </Section>
+    <>
+      <PageHero
+        top={
+          <HeroBreadcrumb>
+            <Link to="/trainings">Trainings</Link>
+            <span aria-hidden>/</span>
+            <Link to={`/trainings/${t.slug}`}>{t.title}</Link>
+            <span aria-hidden>/</span>
+            <span className="text-white/90">Register</span>
+          </HeroBreadcrumb>
+        }
+        title={`Register: ${t.title}`}
+        lede={
+          <>
+            {t.starts_at ? `${formatDate(t.starts_at)}, ${formatTimeRange(t.starts_at, t.ends_at)}` : t.expected_label || 'Date to be announced'}.{' '}
+            {TRAINING_FORMAT[t.format]}.
+          </>
+        }
+      />
+      <Section>
+        <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5">
+          {t.accepting_registrations ? (
+            <RegistrationForm onSubmit={(input) => registration.mutate(input)} pending={registration.isPending} error={registration.error} />
+          ) : external ? (
+            <p>
+              This training takes registrations on another site.{' '}
+              <a href={external} target="_blank" rel="noreferrer" className="font-semibold text-primary hover:underline">
+                Open the registration page
+              </a>
+              .
+            </p>
+          ) : (
+            <div>
+              <Badge variant="acc">{t.is_full ? 'Fully booked' : 'Registration closed'}</Badge>
+            </div>
+          )}
+        </div>
+      </Section>
+    </>
   )
 }

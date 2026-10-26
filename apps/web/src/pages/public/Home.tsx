@@ -23,10 +23,11 @@ import logoLight from '@/assets/logo-light.png'
 import { QueryState } from '@/components/PageState'
 import { Reveal } from '@/components/Reveal'
 import { TrainingCard } from '@/components/TrainingCard'
+import { useHeroBand } from '@/components/layout/hero-band'
 import { Lede, PageTitle, Section, SectionTitle } from '@/components/layout/Section'
 import { Badge } from '@/components/ui/badge'
 import { ButtonLink } from '@/components/ui/button'
-import { buttonVariants } from '@/components/ui/button-variants'
+import { ON_DARK, buttonVariants } from '@/components/ui/button-variants'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useDirectory, useOpenTrainings, useSiteContent } from '@/hooks/queries'
@@ -122,8 +123,6 @@ function Parallax({ depth, className, children }: { depth: number; className?: s
   )
 }
 
-const ON_DARK = 'border-white/30 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20'
-
 /** Next open trainings, one at a time, with dots to jump between them. Pauses while hovered. */
 function TrainingCarousel({ trainings, className }: { trainings: Training[]; className?: string }) {
   const [hover, setHover] = useState(false)
@@ -173,11 +172,13 @@ function TrainingCarousel({ trainings, className }: { trainings: Training[]; cla
  * A hero image uploaded by the Board replaces the scene.
  */
 function Hero({ c, trainings, teams }: { c: SiteContent; trainings?: Training[]; teams?: Page<PublicListing> }) {
+  useHeroBand()
   const ref = useRef<HTMLElement>(null)
 
   const onMove = (e: PointerEvent<HTMLElement>) => {
     const el = ref.current
-    if (!el || prefersReducedMotion()) return
+    // Mouse only: on touch screens this would fire while scrolling and repaint the whole scene.
+    if (!el || e.pointerType !== 'mouse' || prefersReducedMotion()) return
     const box = el.getBoundingClientRect()
     el.style.setProperty('--px', (((e.clientX - box.left) / box.width) * 2 - 1).toFixed(3))
     el.style.setProperty('--py', (((e.clientY - box.top) / box.height) * 2 - 1).toFixed(3))
@@ -196,11 +197,11 @@ function Hero({ c, trainings, teams }: { c: SiteContent; trainings?: Training[];
     >
       {c.hero_image_url ? (
         <>
-          <img src={c.hero_image_url} alt="" className="absolute inset-0 h-full w-full object-cover blur-[2px]" />
+          <img src={c.hero_image_url} alt="" className="absolute inset-0 h-full w-full object-cover md:blur-[2px]" />
           <div aria-hidden className="absolute inset-0 bg-navy/75" />
         </>
       ) : (
-        <div aria-hidden className="pointer-events-none absolute inset-0 blur-[2px]">
+        <div aria-hidden className="pointer-events-none absolute inset-0 md:blur-[2px]">
           <svg viewBox="0 0 1440 700" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full">
             <g fill="none" stroke="var(--mist)" strokeOpacity="0.2" strokeWidth="1.5" className="drift">
               <path d="M0 580 C 260 510, 520 660, 780 580 S 1260 500, 1440 560" />
@@ -247,7 +248,7 @@ function Hero({ c, trainings, teams }: { c: SiteContent; trainings?: Training[];
 
       <div className="relative mx-auto flex max-w-[1200px] flex-col items-center gap-10 px-4 pt-32 pb-16 sm:px-6 md:pt-40 md:pb-20 lg:min-h-[720px] lg:justify-center">
         <div className="stagger flex max-w-[720px] flex-col items-center gap-5 text-center">
-          <span className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-sky uppercase backdrop-blur-sm">
+          <span className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-sky uppercase md:backdrop-blur-sm">
             <span className="relative flex size-2">
               <span className="absolute inset-0 animate-ping rounded-full bg-mist" />
               <span className="relative size-2 rounded-full bg-mist" />
@@ -316,7 +317,7 @@ const WAVE_ROWS = [
 /** Faint flowing waves that fade in and start moving only while the parent `group` is hovered. */
 function HoverWaves() {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 opacity-0 blur-[3px] transition-opacity duration-700 group-hover:opacity-100">
+    <div aria-hidden className="pointer-events-none absolute inset-0 opacity-0 transition-opacity max-md:hidden md:blur-[3px] duration-700 group-hover:opacity-100">
       {WAVE_ROWS.map((row) => (
         <svg
           key={row.top}
@@ -445,7 +446,7 @@ function MissionValues({ mission, values }: { mission: string; values: string[] 
               </div>
               <Link
                 to="/about"
-                className="group/link flex shrink-0 items-center gap-1.5 self-start rounded-full border border-white/25 bg-white/10 px-4 py-2 font-semibold backdrop-blur-sm transition-colors hover:bg-white/20 md:self-end"
+                className="group/link flex shrink-0 items-center gap-1.5 self-start rounded-full border border-white/25 bg-white/10 px-4 py-2 font-semibold md:backdrop-blur-sm transition-colors hover:bg-white/20 md:self-end"
               >
                 More about White Crane <ArrowRight aria-hidden className="size-4 transition-transform group-hover/link:translate-x-1" />
               </Link>
@@ -511,7 +512,7 @@ export default function Home() {
 
             <section className="relative overflow-hidden">
               <div aria-hidden className="dot-grid absolute inset-0 [mask-image:radial-gradient(ellipse_at_top_right,black,transparent_70%)]" />
-              <div aria-hidden className="drift absolute -top-24 -left-24 size-72 rounded-full bg-sky/25 blur-3xl" />
+              <div aria-hidden className="drift absolute -top-24 -left-24 size-72 rounded-full bg-sky/25 blur-3xl max-md:hidden" />
               <div className="relative mx-auto flex max-w-[1200px] flex-col gap-8 px-4 py-8 sm:px-6 md:py-16">
                 <div className="grid gap-4 lg:grid-cols-2 lg:items-end">
                   <div className="flex flex-col gap-2">
@@ -532,7 +533,7 @@ export default function Home() {
                         />
                         <span
                           aria-hidden
-                          className="pointer-events-none absolute -right-12 -bottom-12 size-40 rounded-full bg-sky/30 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
+                          className="pointer-events-none absolute -right-12 -bottom-12 size-40 rounded-full bg-sky/30 opacity-0 blur-2xl max-md:hidden transition-opacity duration-500 group-hover:opacity-100"
                         />
                         <span
                           aria-hidden

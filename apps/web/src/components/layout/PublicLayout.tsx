@@ -1,10 +1,13 @@
 import { ArrowRight, Mail, Menu, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import autoliniumLogo from '@/assets/autolinium-logo.png'
 import { useSession, type SignOutState } from '@/auth/session'
 import { SubscribeForm } from '@/components/forms/SubscribeForm'
 import { ButtonLink } from '@/components/ui/button'
+import { ON_DARK } from '@/components/ui/button-variants'
 import { cn } from '@/lib/utils'
+import { HeroBandContext } from './hero-band'
 import { Logo } from './Logo'
 
 const LINKS = [
@@ -26,9 +29,6 @@ function AccountLink({ className, onClick }: { className?: string; onClick?: () 
   )
 }
 
-/** Frosted button style for the header when it sits over the dark Home hero. */
-const ON_DARK = 'border-white/30 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20'
-
 /** Slide-in panel holding every page link, plus sign-in and Apply. Closes on Escape, backdrop click or navigation. */
 function MenuPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   useEffect(() => {
@@ -48,7 +48,7 @@ function MenuPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
       <div
         aria-hidden
         onClick={onClose}
-        className={cn('absolute inset-0 bg-navy/50 backdrop-blur-sm transition-opacity duration-300', open ? 'opacity-100' : 'opacity-0')}
+        className={cn('absolute inset-0 bg-navy/70 transition-opacity md:bg-navy/50 md:backdrop-blur-sm duration-300', open ? 'opacity-100' : 'opacity-0')}
       />
       <nav
         id="site-menu"
@@ -108,25 +108,19 @@ function MenuPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
 }
 
 /**
- * Logo on the left; sign-in, Apply and the menu button on the right. On Home the header is transparent
- * and sits over the dark hero; elsewhere it is a light bar.
+ * Logo on the left; Apply and the menu button on the right. Transparent and white, sitting on the dark hero
+ * band that opens every public page.
  */
 function Nav() {
-  const { pathname } = useLocation()
-  const overHero = pathname === '/'
   const [open, setOpen] = useState(false)
   const close = useCallback(() => setOpen(false), [])
 
   return (
-    <header className={cn(overHero ? 'absolute inset-x-0 top-0 z-30 text-white' : 'border-b bg-background')}>
+    <header className="absolute inset-x-0 top-0 z-30 text-white">
       <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-6 px-4 py-4 sm:px-6 lg:py-5">
-        <Logo dark={overHero} />
+        <Logo dark />
         <div className="flex items-center gap-3 sm:gap-5">
-          <ButtonLink
-            to="/directory/apply"
-            variant={overHero ? 'secondary' : 'default'}
-            className={cn('hidden sm:inline-flex', overHero && ON_DARK)}
-          >
+          <ButtonLink to="/directory/apply" variant="secondary" className={cn('hidden sm:inline-flex', ON_DARK)}>
             Apply to Directory
           </ButtonLink>
           <button
@@ -135,7 +129,7 @@ function Nav() {
             aria-expanded={open}
             aria-controls="site-menu"
             onClick={() => setOpen(true)}
-            className={cn('group -mr-2 flex size-10 cursor-pointer items-center justify-center transition-colors', overHero ? 'text-white hover:text-sky' : 'hover:text-primary')}
+            className="group -mr-2 flex size-10 cursor-pointer items-center justify-center text-white transition-colors hover:text-sky"
           >
             <Menu className="size-6 transition-transform duration-300 group-hover:scale-x-125" />
           </button>
@@ -172,14 +166,31 @@ function Footer() {
             </div>
           )}
         </div>
-        <div className="flex flex-wrap items-center gap-x-4 text-xs text-muted-foreground [&>a]:py-2 lg:[&>a]:py-0">
-          <span>&copy; {new Date().getFullYear()} White Crane Training Collective.</span>
-          <Link to="/trainings">Trainings</Link>
-          <Link to="/trainers">Trainers</Link>
-          <Link to="/directory">Directory</Link>
-          <Link to="/resources">Resources</Link>
-          <Link to="/contact">Contact</Link>
-          <Link to="/login">Staff sign in</Link>
+        <div className="flex flex-col gap-4 border-t pt-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-wrap items-center gap-x-4 text-xs text-muted-foreground [&>a]:py-2 lg:[&>a]:py-0">
+            <span>&copy; {new Date().getFullYear()} White Crane Training Collective.</span>
+            <Link to="/trainings">Trainings</Link>
+            <Link to="/trainers">Trainers</Link>
+            <Link to="/directory">Directory</Link>
+            <Link to="/resources">Resources</Link>
+            <Link to="/contact">Contact</Link>
+            <Link to="/login">Staff sign in</Link>
+          </div>
+          <a
+            href="https://www.autolinium.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex shrink-0 items-center gap-2.5 self-start text-xs text-muted-foreground transition-colors hover:text-foreground md:self-auto"
+          >
+            Developed by
+            <img
+              src={autoliniumLogo}
+              alt="Autolinium"
+              width={53}
+              height={48}
+              className="h-10 w-auto transition-transform duration-300 group-hover:scale-105"
+            />
+          </a>
         </div>
       </div>
     </footer>
@@ -202,13 +213,18 @@ function useFinishSignOut() {
 
 export function PublicLayout() {
   useFinishSignOut()
+  const [hasHero, setHasHero] = useState(false)
   return (
-    <div className="flex min-h-dvh flex-col">
-      <Nav />
-      <main className="flex-1">
-        <Outlet />
-      </main>
-      <Footer />
-    </div>
+    <HeroBandContext value={setHasHero}>
+      <div className="relative flex min-h-dvh flex-col">
+        <Nav />
+        <main className="flex-1">
+          {/* Navy strip behind the header while the page shows no hero of its own (loading, errors). */}
+          {!hasHero && <div aria-hidden className="h-[76px] bg-navy lg:h-[84px]" />}
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
+    </HeroBandContext>
   )
 }

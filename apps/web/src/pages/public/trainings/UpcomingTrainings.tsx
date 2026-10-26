@@ -1,7 +1,8 @@
 import { EmptyState, QueryState } from '@/components/PageState'
 import { UpcomingTrainingCard } from '@/components/TrainingCard'
 import { SubscribeForm } from '@/components/forms/SubscribeForm'
-import { Lede, PageTitle, Section } from '@/components/layout/Section'
+import { PageHero } from '@/components/layout/PageHero'
+import { Section } from '@/components/layout/Section'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useUpcomingTrainings } from '@/hooks/queries'
 
@@ -11,9 +12,12 @@ export default function UpcomingTrainings() {
 
   return (
     <>
+      <PageHero
+        eyebrow="Coming soon"
+        title="Upcoming Trainings"
+        lede="Planned trainings not yet open for registration. Sign up for updates to be notified."
+      />
       <Section className="gap-4">
-        <PageTitle>Upcoming Trainings</PageTitle>
-        <Lede>Planned trainings not yet open for registration. Sign up for updates to be notified.</Lede>
         <QueryState query={trainings}>
           {(list) =>
             list.length === 0 ? (

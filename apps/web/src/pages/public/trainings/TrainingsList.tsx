@@ -1,8 +1,11 @@
+import { ArrowRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { EmptyState, QueryState } from '@/components/PageState'
 import { TrainingRow } from '@/components/TrainingCard'
-import { PageTitle, Section } from '@/components/layout/Section'
+import { PageHero } from '@/components/layout/PageHero'
+import { Section } from '@/components/layout/Section'
+import { ButtonLink } from '@/components/ui/button'
+import { ON_DARK } from '@/components/ui/button-variants'
 import { Input, Select } from '@/components/ui/input'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useOpenTrainings } from '@/hooks/queries'
@@ -29,18 +32,21 @@ export default function TrainingsList() {
 
   return (
     <>
-      <Section className="gap-4">
-        <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
-          <PageTitle>Trainings</PageTitle>
-          <div className="flex flex-wrap gap-x-6 gap-y-2">
-            <Link to="/trainings/upcoming" className="font-semibold text-primary">
-              See upcoming (not yet open)
-            </Link>
-            <Link to="/trainers" className="font-semibold text-primary">
-              Meet our trainers
-            </Link>
-          </div>
+      <PageHero
+        eyebrow="Learn with us"
+        title="Trainings"
+        lede="Workshops and intensives for clinicians and teams, online and in person."
+      >
+        <div className="flex flex-wrap gap-3">
+          <ButtonLink to="/trainings/upcoming" variant="secondary" size="sm" className={`group ${ON_DARK}`}>
+            See upcoming (not yet open) <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-1" />
+          </ButtonLink>
+          <ButtonLink to="/trainers" variant="secondary" size="sm" className={`group ${ON_DARK}`}>
+            Meet our trainers <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-1" />
+          </ButtonLink>
         </div>
+      </PageHero>
+      <Section className="gap-4">
         <div className="flex flex-col gap-3 md:flex-row">
           <Input
             aria-label="Search trainings"

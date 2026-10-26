@@ -2,7 +2,8 @@ import { useMutation } from '@tanstack/react-query'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '@/api/endpoints'
 import { ApplicationForm } from '@/components/forms/ApplicationForm'
-import { Lede, PageTitle, Section } from '@/components/layout/Section'
+import { PageHero } from '@/components/layout/PageHero'
+import { Section } from '@/components/layout/Section'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 
 export default function Apply() {
@@ -16,15 +17,17 @@ export default function Apply() {
   })
 
   return (
-    <Section>
-      <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5">
-        <PageTitle>Apply to the DBT Clinical Directory</PageTitle>
-        <Lede>
-          Applications are reviewed by the Directorate. You will receive an email when a decision is made or if more
-          information is needed.
-        </Lede>
-        <ApplicationForm renewal={params.get('renewal') === '1'} onSubmit={(input) => apply.mutate(input)} pending={apply.isPending} error={apply.error} />
-      </div>
-    </Section>
+    <>
+      <PageHero
+        eyebrow="DBT Clinical Directory"
+        title="Apply to the Directory"
+        lede="Applications are reviewed by the Directorate. You will receive an email when a decision is made or if more information is needed."
+      />
+      <Section>
+        <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5">
+          <ApplicationForm renewal={params.get('renewal') === '1'} onSubmit={(input) => apply.mutate(input)} pending={apply.isPending} error={apply.error} />
+        </div>
+      </Section>
+    </>
   )
 }

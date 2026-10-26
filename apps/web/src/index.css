@@ -292,3 +292,27 @@
     transform: none;
   }
 }
+
+/*
+  Phones: the looping background motion (orbits, rings, drifting shapes, floating pills, waves) keeps the
+  GPU busy and makes scrolling stutter on mid-range devices, so it is held still below 768px. One-off
+  entrance animations stay.
+*/
+@media (max-width: 767px) {
+  .drift,
+  .orbit,
+  .orbit-reverse,
+  .pulse-ring circle,
+  .float,
+  .wave-row {
+    animation: none;
+  }
+}
+
+/* Touch screens: a tap leaves :hover stuck on, so cards don't lift there. */
+@media (hover: none) {
+  .lift:hover,
+  .lift:focus-within {
+    transform: none;
+  }
+}

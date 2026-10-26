@@ -20,8 +20,11 @@ import { QueryState } from '@/components/PageState'
 import { PersonCard } from '@/components/PersonCard'
 import { Reveal } from '@/components/Reveal'
 import { RichText } from '@/components/RichText'
+import { Rings } from '@/components/layout/PageHero'
 import { PageTitle, Section, SectionTitle } from '@/components/layout/Section'
+import { useHeroBand } from '@/components/layout/hero-band'
 import { ButtonLink } from '@/components/ui/button'
+import { ON_DARK } from '@/components/ui/button-variants'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { usePublicBoardMembers, useSiteContent } from '@/hooks/queries'
 import { leadSentence, paragraphs, textBlocks } from '@/lib/format'
@@ -33,7 +36,6 @@ function Eyebrow({ children, className }: { children: string; className?: string
   return <span className={cn('text-xs font-semibold tracking-[0.12em] text-primary uppercase', className)}>{children}</span>
 }
 
-const ON_DARK = 'border-white/30 bg-white/10 text-white hover:bg-white/20'
 
 /** The three calls to action, shown in the header band and again at the bottom of the page (both dark). */
 function Actions() {
@@ -52,24 +54,6 @@ function Actions() {
   )
 }
 
-/** Concentric rings and waves, the same motif as the Home hero panel. */
-function Rings({ className }: { className?: string }) {
-  return (
-    <svg aria-hidden viewBox="0 0 480 340" preserveAspectRatio="xMidYMid slice" className={cn('absolute inset-0 h-full w-full', className)}>
-      <g fill="none" stroke="var(--sky)" strokeOpacity="0.22" className="pulse-ring">
-        <circle cx="430" cy="40" r="60" />
-        <circle cx="430" cy="40" r="110" />
-        <circle cx="430" cy="40" r="160" />
-        <circle cx="430" cy="40" r="210" />
-      </g>
-      <g fill="none" stroke="var(--mist)" strokeOpacity="0.2" strokeWidth="1.5" className="drift">
-        <path d="M0 290 C 90 250, 170 330, 260 285 S 420 240, 480 270" />
-        <path d="M0 315 C 100 275, 180 355, 270 310 S 420 265, 480 295" />
-      </g>
-    </svg>
-  )
-}
-
 /** Three short takeaways of the intro, so the page can be skimmed before the full text. */
 const GLANCE: { icon: LucideIcon; title: string; text: string }[] = [
   { icon: FlaskConical, title: 'Evidence-based', text: "Grounded in Dr. Marsha Linehan's DBT model and current research." },
@@ -78,12 +62,13 @@ const GLANCE: { icon: LucideIcon; title: string; text: string }[] = [
 ]
 
 function IntroHeader({ c }: { c: SiteContent }) {
+  useHeroBand()
   const [lead, ...more] = paragraphs(c.about_intro)
   return (
     <>
       <section className="relative overflow-hidden bg-linear-to-br from-navy via-navy to-teal text-white">
         <Rings />
-        <div className="relative mx-auto grid max-w-[1200px] items-center gap-10 px-4 pt-10 pb-24 sm:px-6 md:pt-16 md:pb-32 lg:grid-cols-[3fr_2fr] lg:gap-14">
+        <div className="relative mx-auto grid max-w-[1200px] items-center gap-10 px-4 pt-28 pb-24 sm:px-6 md:pt-36 md:pb-32 lg:grid-cols-[3fr_2fr] lg:gap-14">
           <div className="flex flex-col gap-5">
             <Eyebrow className="text-sky">About us</Eyebrow>
             <PageTitle className="text-white">About White Crane</PageTitle>
@@ -91,7 +76,7 @@ function IntroHeader({ c }: { c: SiteContent }) {
             <Actions />
           </div>
           {c.mission && (
-            <aside className="relative flex flex-col gap-3 rounded-xl border border-white/15 bg-white/10 p-6 backdrop-blur-sm md:p-8">
+            <aside className="relative flex flex-col gap-3 rounded-xl border border-white/15 bg-white/10 p-6 md:backdrop-blur-sm md:p-8">
               <span className="flex size-10 items-center justify-center rounded-full bg-sky/20 text-sky">
                 <Quote aria-hidden className="size-5" />
               </span>

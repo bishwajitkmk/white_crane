@@ -24,3 +24,6 @@ export const buttonVariants = cva(
 )
 
 export type ButtonVariantProps = VariantProps<typeof buttonVariants>
+
+/** Frosted look for a `secondary` button sitting on the dark navy bands (header, heroes). */
+export const ON_DARK = 'border-white/30 bg-white/10 text-white md:backdrop-blur-sm hover:bg-white/20'

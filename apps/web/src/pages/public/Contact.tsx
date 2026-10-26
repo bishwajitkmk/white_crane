@@ -3,7 +3,8 @@ import { useSearchParams } from 'react-router-dom'
 import { api } from '@/api/endpoints'
 import type { ContactTopic } from '@/api/types'
 import { ContactForm } from '@/components/forms/ContactForm'
-import { Lede, PageTitle, Section } from '@/components/layout/Section'
+import { PageHero } from '@/components/layout/PageHero'
+import { Section } from '@/components/layout/Section'
 import { ButtonLink } from '@/components/ui/button'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { CONTACT_TOPIC } from '@/lib/status'
@@ -40,15 +41,17 @@ export default function Contact() {
   }
 
   return (
-    <Section>
-      <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5">
-        <PageTitle>Contact White Crane</PageTitle>
-        <Lede>
-          Questions about training, consultation for your team, or the DBT Clinical Directory? Send us a message and
-          we'll get back to you.
-        </Lede>
-        <ContactForm topic={topic} onSubmit={(input) => message.mutate(input)} pending={message.isPending} error={message.error} />
-      </div>
-    </Section>
+    <>
+      <PageHero
+        eyebrow="Get in touch"
+        title="Contact White Crane"
+        lede="Questions about training, consultation for your team, or the DBT Clinical Directory? Send us a message and we'll get back to you."
+      />
+      <Section>
+        <div className="mx-auto flex w-full max-w-[760px] flex-col gap-5">
+          <ContactForm topic={topic} onSubmit={(input) => message.mutate(input)} pending={message.isPending} error={message.error} />
+        </div>
+      </Section>
+    </>
   )
 }

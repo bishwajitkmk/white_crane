@@ -3,9 +3,11 @@ import { useState, type FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { EmptyState, QueryState } from '@/components/PageState'
 import { Reveal } from '@/components/Reveal'
-import { Lede, PageTitle, Section } from '@/components/layout/Section'
+import { PageHero } from '@/components/layout/PageHero'
+import { Section } from '@/components/layout/Section'
 import { Badge } from '@/components/ui/badge'
 import { Button, ButtonLink } from '@/components/ui/button'
+import { ON_DARK } from '@/components/ui/button-variants'
 import { Card, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
@@ -43,17 +45,12 @@ export default function Directory() {
 
   return (
     <>
-      <Section alt className="gap-4">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-          <div className="flex flex-col gap-2">
-            <PageTitle>DBT Clinical Directory</PageTitle>
-            <Lede>Teams approved by the Directorate as meeting DBT fidelity standards.</Lede>
-          </div>
-          <ButtonLink to="/directory/apply" variant="secondary">
-            Apply as a Team
-          </ButtonLink>
-        </div>
-        <form role="search" onSubmit={search} className="flex flex-col gap-3 md:flex-row">
+      <PageHero
+        eyebrow="For clients and referrers"
+        title="DBT Clinical Directory"
+        lede="Teams approved by the Directorate as meeting DBT fidelity standards."
+      >
+        <form role="search" onSubmit={search} className="mt-2 flex flex-col gap-3 md:flex-row">
           <Input
             aria-label="Search by agency name"
             placeholder="Search by agency name"
@@ -68,9 +65,14 @@ export default function Directory() {
             onChange={(e) => setDraft({ ...draft, location: e.target.value })}
             className="md:w-60"
           />
-          <Button type="submit">Search</Button>
+          <Button type="submit" variant="secondary">
+            Search
+          </Button>
+          <ButtonLink to="/directory/apply" variant="secondary" className={`md:ml-auto ${ON_DARK}`}>
+            Apply as a Team
+          </ButtonLink>
         </form>
-      </Section>
+      </PageHero>
 
       <Section className="gap-4">
         <QueryState query={listings}>

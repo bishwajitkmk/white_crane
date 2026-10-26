@@ -3,7 +3,8 @@ import { useState } from 'react'
 import type { ResourceCategory } from '@/api/types'
 import { EmptyState, QueryState } from '@/components/PageState'
 import { SubscribeForm } from '@/components/forms/SubscribeForm'
-import { Lede, PageTitle, Section } from '@/components/layout/Section'
+import { PageHero } from '@/components/layout/PageHero'
+import { Section } from '@/components/layout/Section'
 import { buttonVariants } from '@/components/ui/button-variants'
 import { Tabs } from '@/components/ui/tabs'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
@@ -24,12 +25,9 @@ export default function Resources() {
 
   return (
     <>
+      <PageHero eyebrow="For DBT teams" title="Resources" lede="Links, information and forms curated by White Crane." />
       <Section className="gap-4">
-        <PageTitle>Resources</PageTitle>
-        <Lede>Links, information and forms curated by White Crane.</Lede>
         <Tabs value={filter} onChange={setFilter} options={FILTERS} />
-      </Section>
-      <Section className="gap-4 pt-0 md:pt-0">
         <QueryState query={resources}>
           {(list) => {
             const visible = list.filter((r) => filter === 'all' || r.category === filter)
