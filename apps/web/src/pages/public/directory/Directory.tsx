@@ -1,6 +1,8 @@
+import { Globe, MapPin } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { EmptyState, QueryState } from '@/components/PageState'
+import { Reveal } from '@/components/Reveal'
 import { Lede, PageTitle, Section } from '@/components/layout/Section'
 import { Badge } from '@/components/ui/badge'
 import { Button, ButtonLink } from '@/components/ui/button'
@@ -92,23 +94,32 @@ export default function Directory() {
                   </EmptyState>
                 ) : (
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {visible.map((l) => (
-                      <Card key={l.id}>
-                        <CardTitle>{l.agency_name}</CardTitle>
-                        <span className="text-muted-foreground">{l.location}</span>
-                        <span className="flex flex-wrap gap-x-2 font-semibold text-primary">
-                          {l.website && (
-                            <a href={l.website} target="_blank" rel="noreferrer">
-                              {l.website.replace(/^https?:\/\//, '')}
-                            </a>
-                          )}
-                          {l.website && l.public_contact && <span aria-hidden>|</span>}
-                          <span>{l.public_contact}</span>
-                        </span>
-                        <div>
-                          <Badge variant="ok">Approved {new Date(l.published_at).getFullYear()}</Badge>
-                        </div>
-                      </Card>
+                    {visible.map((l, i) => (
+                      <Reveal key={l.id} index={i % 3} className="flex">
+                        <Card className="group lift flex-1 gap-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <span
+                              aria-hidden
+                              className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-all duration-300 group-hover:-rotate-6 group-hover:bg-primary group-hover:text-primary-foreground"
+                            >
+                              <MapPin className="size-5" />
+                            </span>
+                            <Badge variant="ok">Approved {new Date(l.published_at).getFullYear()}</Badge>
+                          </div>
+                          <CardTitle className="transition-colors group-hover:text-primary">{l.agency_name}</CardTitle>
+                          <span className="text-muted-foreground">{l.location}</span>
+                          <span className="mt-auto flex flex-wrap items-center gap-x-2 border-t pt-3 font-semibold text-primary">
+                            {l.website && (
+                              <a href={l.website} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:underline">
+                                <Globe aria-hidden className="size-4" />
+                                {l.website.replace(/^https?:\/\//, '')}
+                              </a>
+                            )}
+                            {l.website && l.public_contact && <span aria-hidden>|</span>}
+                            <span>{l.public_contact}</span>
+                          </span>
+                        </Card>
+                      </Reveal>
                     ))}
                   </div>
                 )}

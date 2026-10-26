@@ -1,5 +1,5 @@
-import { Menu, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { ArrowRight, Mail, Menu, X } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useSession, type SignOutState } from '@/auth/session'
 import { SubscribeForm } from '@/components/forms/SubscribeForm'
@@ -19,57 +19,129 @@ const LINKS = [
 /** "Sign in" for visitors, "Dashboard" once signed in (staff browsing the public site). */
 function AccountLink({ className, onClick }: { className?: string; onClick?: () => void }) {
   const { user, isLoading } = useSession()
-  if (isLoading) return null
   return (
-    <Link to={user ? '/dashboard' : '/login'} onClick={onClick} className={cn('font-semibold text-primary hover:underline', className)}>
+    <ButtonLink to={user ? '/dashboard' : '/login'} variant="secondary" onClick={onClick} className={cn(isLoading && 'invisible', className)}>
       {user ? 'Dashboard' : 'Sign in'}
-    </Link>
+    </ButtonLink>
   )
 }
 
-function Nav() {
-  const [open, setOpen] = useState(false)
-  const linkClass = ({ isActive }: { isActive: boolean }) =>
-    cn('hover:text-primary', isActive ? 'font-semibold text-primary' : 'text-foreground')
+/** Frosted button style for the header when it sits over the dark Home hero. */
+const ON_DARK = 'border-white/30 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20'
+
+/** Slide-in panel holding every page link, plus sign-in and Apply. Closes on Escape, backdrop click or navigation. */
+function MenuPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    const overflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = overflow
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open, onClose])
 
   return (
-    <header className="border-b">
-      <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-6 px-4 py-3.5 sm:px-6 lg:py-5">
-        <Logo />
-        <nav aria-label="Main" className="hidden items-center gap-7 lg:flex">
-          {LINKS.map((l) => (
-            <NavLink key={l.to} to={l.to} end={l.end} className={linkClass}>
-              {l.label}
-            </NavLink>
-          ))}
-        </nav>
-        <div className="hidden items-center gap-5 lg:flex">
-          <AccountLink />
-          <ButtonLink to="/directory/apply">Apply to Directory</ButtonLink>
+    <div className={cn('fixed inset-0 z-50', !open && 'pointer-events-none')} inert={!open}>
+      <div
+        aria-hidden
+        onClick={onClose}
+        className={cn('absolute inset-0 bg-navy/50 backdrop-blur-sm transition-opacity duration-300', open ? 'opacity-100' : 'opacity-0')}
+      />
+      <nav
+        id="site-menu"
+        aria-label="Main"
+        className={cn(
+          'absolute inset-y-0 right-0 flex w-full max-w-sm flex-col overflow-y-auto bg-linear-to-b from-navy to-teal p-6 text-white shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)]',
+          open ? 'translate-x-0' : 'translate-x-full',
+        )}
+      >
+        <div className="flex items-center justify-between">
+          <Logo dark className="h-10" />
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close menu"
+            className="flex size-10 cursor-pointer items-center justify-center rounded-full border border-white/25 bg-white/10 transition-transform duration-300 hover:rotate-90 hover:bg-white/20"
+          >
+            <X className="size-5" />
+          </button>
         </div>
-        <button
-          type="button"
-          className="-mr-2 flex min-h-11 items-center gap-1.5 px-2 font-bold lg:hidden"
-          aria-expanded={open}
-          aria-controls="mobile-nav"
-          onClick={() => setOpen((o) => !o)}
-        >
-          {open ? <X className="size-5" /> : <Menu className="size-5" />} Menu
-        </button>
-      </div>
-      {open && (
-        <nav id="mobile-nav" aria-label="Main" className="flex flex-col gap-1 border-t px-4 py-3 sm:px-6 lg:hidden">
-          {LINKS.map((l) => (
-            <NavLink key={l.to} to={l.to} end={l.end} className={(s) => cn(linkClass(s), 'py-2')} onClick={() => setOpen(false)}>
-              {l.label}
-            </NavLink>
+
+        <ul className="mt-8 flex flex-col">
+          {LINKS.map((l, i) => (
+            <li
+              key={l.to}
+              className={cn('transition-all duration-500', open ? 'translate-x-0 opacity-100' : 'translate-x-6 opacity-0')}
+              style={{ transitionDelay: open ? `${100 + i * 50}ms` : '0ms' }}
+            >
+              <NavLink
+                to={l.to}
+                end={l.end}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  cn(
+                    'group flex items-center gap-3 border-b border-white/10 py-3 text-base font-semibold transition-colors',
+                    isActive ? 'text-sky' : 'text-white hover:text-sky',
+                  )
+                }
+              >
+                <span className="w-5 text-[11px] font-semibold text-white/40">{String(i + 1).padStart(2, '0')}</span>
+                <span className="flex-1">{l.label}</span>
+                <ArrowRight aria-hidden className="size-4 -translate-x-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
+              </NavLink>
+            </li>
           ))}
-          <AccountLink className="py-2" onClick={() => setOpen(false)} />
-          <ButtonLink to="/directory/apply" block className="mt-2" onClick={() => setOpen(false)}>
+        </ul>
+
+        <div className="mt-auto grid grid-cols-2 gap-3 pt-10">
+          <AccountLink onClick={onClose} />
+          <ButtonLink to="/contact" variant="secondary" onClick={onClose} className={ON_DARK}>
+            <Mail aria-hidden className="size-4" /> Contact us
+          </ButtonLink>
+        </div>
+      </nav>
+    </div>
+  )
+}
+
+/**
+ * Logo on the left; sign-in, Apply and the menu button on the right. On Home the header is transparent
+ * and sits over the dark hero; elsewhere it is a light bar.
+ */
+function Nav() {
+  const { pathname } = useLocation()
+  const overHero = pathname === '/'
+  const [open, setOpen] = useState(false)
+  const close = useCallback(() => setOpen(false), [])
+
+  return (
+    <header className={cn(overHero ? 'absolute inset-x-0 top-0 z-30 text-white' : 'border-b bg-background')}>
+      <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-6 px-4 py-4 sm:px-6 lg:py-5">
+        <Logo dark={overHero} />
+        <div className="flex items-center gap-3 sm:gap-5">
+          <ButtonLink
+            to="/directory/apply"
+            variant={overHero ? 'secondary' : 'default'}
+            className={cn('hidden sm:inline-flex', overHero && ON_DARK)}
+          >
             Apply to Directory
           </ButtonLink>
-        </nav>
-      )}
+          <button
+            type="button"
+            aria-label="Open menu"
+            aria-expanded={open}
+            aria-controls="site-menu"
+            onClick={() => setOpen(true)}
+            className={cn('group -mr-2 flex size-10 cursor-pointer items-center justify-center transition-colors', overHero ? 'text-white hover:text-sky' : 'hover:text-primary')}
+          >
+            <Menu className="size-6 transition-transform duration-300 group-hover:scale-x-125" />
+          </button>
+        </div>
+      </div>
+      <MenuPanel open={open} onClose={close} />
     </header>
   )
 }

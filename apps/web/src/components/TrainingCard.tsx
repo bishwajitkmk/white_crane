@@ -33,10 +33,10 @@ export function RegisterLink({ training, block = false, variant = 'default' }: {
 export function TrainingCard({ training }: { training: Training }) {
   const day = training.starts_at ? formatShortDay(training.starts_at) : null
   return (
-    <Card className="gap-4 transition-shadow hover:shadow-md">
+    <Card className="group lift flex-1 gap-4">
       <div className="flex items-start gap-4">
         {day && (
-          <div className="w-14 shrink-0 rounded-md bg-primary/10 py-1.5 text-center text-primary">
+          <div className="w-14 shrink-0 rounded-md bg-primary/10 py-1.5 text-center text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
             <small className="block text-[11px] font-semibold tracking-wide">{day.month}</small>
             <b className="block text-2xl leading-tight">{day.day}</b>
           </div>
@@ -70,15 +70,15 @@ export function TrainingCard({ training }: { training: Training }) {
 export function TrainingRow({ training }: { training: Training }) {
   const day = training.starts_at ? formatShortDay(training.starts_at) : null
   return (
-    <article className="flex flex-col gap-4 rounded-lg border p-5 sm:flex-row sm:items-start sm:gap-6">
+    <article className="group lift flex flex-col gap-4 rounded-lg border bg-background p-5 sm:flex-row sm:items-start sm:gap-6">
       {day && (
-        <div className="w-[90px] shrink-0 rounded-md bg-surface p-2 text-center">
-          <small className="text-xs font-semibold text-muted-foreground">{day.month}</small>
+        <div className="w-[90px] shrink-0 rounded-md bg-surface p-2 text-center transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+          <small className="text-xs font-semibold text-muted-foreground transition-colors duration-300 group-hover:text-primary-foreground/80">{day.month}</small>
           <b className="block text-[28px] leading-tight">{day.day}</b>
         </div>
       )}
       <div className="flex flex-1 flex-col gap-1.5">
-        <h3 className="text-xl font-semibold">{training.title}</h3>
+        <h3 className="text-xl font-semibold transition-colors group-hover:text-primary">{training.title}</h3>
         <p className="text-muted-foreground">
           {formatTimeRange(training.starts_at, training.ends_at)}. {training.trainers}. {TRAINING_FORMAT[training.format]}.
         </p>
@@ -96,7 +96,7 @@ export function TrainingRow({ training }: { training: Training }) {
 
 export function UpcomingTrainingCard({ training }: { training: Training }) {
   return (
-    <Card>
+    <Card className="lift border-t-4 border-t-sky">
       <CardTitle>{training.title}</CardTitle>
       <CardDescription>
         Expected: {training.expected_label || 'To be announced'}. {training.description}
