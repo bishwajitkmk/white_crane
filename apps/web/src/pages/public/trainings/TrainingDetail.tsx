@@ -30,7 +30,7 @@ export default function TrainingDetail() {
           <HeroBreadcrumb>
             <Link to="/trainings">Trainings</Link>
             <span aria-hidden>/</span>
-            <span className="text-white/90">{t.title}</span>
+            <span className="text-foreground">{t.title}</span>
           </HeroBreadcrumb>
         }
         title={t.title}

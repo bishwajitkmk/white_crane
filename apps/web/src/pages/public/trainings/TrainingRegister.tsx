@@ -55,7 +55,7 @@ export default function TrainingRegister() {
             <span aria-hidden>/</span>
             <Link to={`/trainings/${t.slug}`}>{t.title}</Link>
             <span aria-hidden>/</span>
-            <span className="text-white/90">Register</span>
+            <span className="text-foreground">Register</span>
           </HeroBreadcrumb>
         }
         title={`Register: ${t.title}`}

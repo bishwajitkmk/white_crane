@@ -19,7 +19,7 @@ import {
 import { createElement, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type { Page, PublicListing, SiteContent, Training } from '@/api/types'
-import logoLight from '@/assets/logo-light.png'
+import logo from '@/assets/logo.png'
 import { QueryState } from '@/components/PageState'
 import { Reveal } from '@/components/Reveal'
 import { TrainingCard } from '@/components/TrainingCard'
@@ -27,7 +27,7 @@ import { useHeroBand } from '@/components/layout/hero-band'
 import { Lede, PageTitle, Section, SectionTitle } from '@/components/layout/Section'
 import { Badge } from '@/components/ui/badge'
 import { ButtonLink } from '@/components/ui/button'
-import { ON_DARK, buttonVariants } from '@/components/ui/button-variants'
+import { buttonVariants } from '@/components/ui/button-variants'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useDirectory, useOpenTrainings, useSiteContent } from '@/hooks/queries'
@@ -157,7 +157,7 @@ function TrainingCarousel({ trainings, className }: { trainings: Training[]; cla
               aria-label={`Show ${t.title}`}
               aria-current={i === current}
               onClick={() => setCurrent(i)}
-              className={cn('h-1.5 cursor-pointer rounded-full transition-all duration-300', i === current ? 'w-6 bg-white' : 'w-1.5 bg-white/40 hover:bg-white/70')}
+              className={cn('h-1.5 cursor-pointer rounded-full transition-all duration-300', i === current ? 'w-6 bg-primary' : 'w-1.5 bg-primary/25 hover:bg-primary/50')}
             />
           ))}
         </div>
@@ -193,36 +193,36 @@ function Hero({ c, trainings, teams }: { c: SiteContent; trainings?: Training[];
       ref={ref}
       onPointerMove={onMove}
       onPointerLeave={onLeave}
-      className="relative overflow-hidden bg-linear-to-br from-navy via-navy to-teal text-white"
+      className="airy relative overflow-hidden"
     >
       {c.hero_image_url ? (
         <>
           <img src={c.hero_image_url} alt="" className="absolute inset-0 h-full w-full object-cover md:blur-[2px]" />
-          <div aria-hidden className="absolute inset-0 bg-navy/75" />
+          <div aria-hidden className="absolute inset-0 bg-white/75" />
         </>
       ) : (
         <div aria-hidden className="pointer-events-none absolute inset-0 md:blur-[2px]">
           <svg viewBox="0 0 1440 700" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full">
-            <g fill="none" stroke="var(--mist)" strokeOpacity="0.2" strokeWidth="1.5" className="drift">
+            <g fill="none" stroke="var(--sky)" strokeOpacity="0.6" strokeWidth="1.5" className="drift">
               <path d="M0 580 C 260 510, 520 660, 780 580 S 1260 500, 1440 560" />
               <path d="M0 625 C 280 555, 540 705, 800 625 S 1270 545, 1440 605" />
             </g>
           </svg>
           <Parallax depth={12} className="absolute inset-0">
-            <div className="absolute top-1/2 left-1/2 size-0 opacity-60">
-              <div className="orbit absolute -top-[190px] -left-[190px] size-[380px] rounded-full border border-dashed border-sky/35">
-                <span className="absolute -top-1 left-1/2 size-2.5 -translate-x-1/2 rounded-full bg-sky shadow-[0_0_14px_var(--sky)]" />
+            <div className="absolute top-1/2 left-1/2 size-0 opacity-70">
+              <div className="orbit absolute -top-[190px] -left-[190px] size-[380px] rounded-full border border-dashed border-teal/35">
+                <span className="absolute -top-1 left-1/2 size-2.5 -translate-x-1/2 rounded-full bg-teal shadow-[0_0_14px_var(--sky)]" />
               </div>
-              <div className="orbit-reverse absolute -top-[280px] -left-[280px] size-[560px] rounded-full border border-sky/20">
-                <span className="absolute top-1/2 -right-1 size-2 -translate-y-1/2 rounded-full bg-mist" />
+              <div className="orbit-reverse absolute -top-[280px] -left-[280px] size-[560px] rounded-full border border-teal/20">
+                <span className="absolute top-1/2 -right-1 size-2 -translate-y-1/2 rounded-full bg-sage" />
               </div>
               <div className="pulse-ring absolute -top-[380px] -left-[380px] size-[760px]">
-                <svg viewBox="0 0 760 760" className="size-full" fill="none" stroke="var(--sky)">
+                <svg viewBox="0 0 760 760" className="size-full" fill="none" stroke="var(--teal)">
                   <circle cx="380" cy="380" r="375" />
                 </svg>
               </div>
-              <div className="absolute -top-28 -left-28 flex size-56 items-center justify-center rounded-full border border-white/15 bg-white/5 shadow-[0_0_120px_-10px_var(--sky)]">
-                <img src={logoLight} alt="" className="w-36 opacity-50" />
+              <div className="absolute -top-28 -left-28 flex size-56 items-center justify-center rounded-full border border-teal/15 bg-white/60 shadow-[0_0_120px_-10px_var(--sky)]">
+                <img src={logo} alt="" className="w-36 opacity-40" />
               </div>
             </div>
           </Parallax>
@@ -230,10 +230,10 @@ function Hero({ c, trainings, teams }: { c: SiteContent; trainings?: Training[];
             {SKILLS.map((skill) => (
               <Parallax key={skill.label} depth={24} className={cn('absolute hidden lg:block', skill.className)}>
                 <span
-                  className="float flex items-center gap-2 rounded-full border border-white/15 bg-white/10 py-1.5 pr-3.5 pl-1.5 text-[13px] font-semibold whitespace-nowrap text-white/90"
+                  className="float flex items-center gap-2 rounded-full border border-teal/20 bg-white/80 py-1.5 pr-3.5 pl-1.5 text-[13px] font-semibold whitespace-nowrap text-foreground shadow-sm"
                   style={{ ['--d' as string]: skill.delay }}
                 >
-                  <span className="flex size-6 items-center justify-center rounded-full bg-sky/25 text-sky">
+                  <span className="flex size-6 items-center justify-center rounded-full bg-sky/40 text-primary">
                     <skill.icon className="size-3.5" />
                   </span>
                   {skill.label}
@@ -243,38 +243,38 @@ function Hero({ c, trainings, teams }: { c: SiteContent; trainings?: Training[];
           </div>
         </div>
       )}
-      {/* A soft dark pool behind the text keeps it readable over the scene. */}
-      <div aria-hidden className="absolute inset-0 bg-[radial-gradient(ellipse_45%_50%_at_center,rgb(16_49_71/0.7),transparent)]" />
+      {/* A soft white pool behind the text keeps it readable over the scene. */}
+      <div aria-hidden className="absolute inset-0 bg-[radial-gradient(ellipse_45%_50%_at_center,rgb(255_255_255/0.8),transparent)]" />
 
       <div className="relative mx-auto flex max-w-[1200px] flex-col items-center gap-10 px-4 pt-32 pb-16 sm:px-6 md:pt-40 md:pb-20 lg:min-h-[720px] lg:justify-center">
         <div className="stagger flex max-w-[720px] flex-col items-center gap-5 text-center">
-          <span className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-sky uppercase md:backdrop-blur-sm">
+          <span className="flex items-center gap-2 rounded-full border border-teal/25 bg-white/70 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-primary uppercase md:backdrop-blur-sm">
             <span className="relative flex size-2">
-              <span className="absolute inset-0 animate-ping rounded-full bg-mist" />
-              <span className="relative size-2 rounded-full bg-mist" />
+              <span className="absolute inset-0 animate-ping rounded-full bg-sage" />
+              <span className="relative size-2 rounded-full bg-sage" />
             </span>
             DBT training &amp; clinical directory
           </span>
-          <PageTitle className="text-white md:text-[52px]">{c.hero_headline}</PageTitle>
-          <Lede className="text-sidebar-foreground md:text-lg">{c.hero_subheading}</Lede>
+          <PageTitle className="md:text-[52px]">{c.hero_headline}</PageTitle>
+          <Lede className="md:text-lg">{c.hero_subheading}</Lede>
           <RotatingAudience />
           <div className="mt-2 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
-            <ButtonLink to="/trainings" variant="secondary" className="group border-white shadow-lg shadow-navy/40">
-              {c.hero_cta_label} <ArrowRight aria-hidden className="size-4 text-primary transition-transform group-hover:translate-x-1" />
+            <ButtonLink to="/trainings" className="group shadow-lg shadow-navy/25">
+              {c.hero_cta_label} <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-1" />
             </ButtonLink>
-            <ButtonLink to="/directory" variant="secondary" className={cn('group', ON_DARK)}>
-              <MapPin aria-hidden className="size-4 text-sky transition-transform group-hover:-translate-y-0.5" /> Find a DBT Team
+            <ButtonLink to="/directory" variant="secondary" className="group">
+              <MapPin aria-hidden className="size-4 text-teal transition-transform group-hover:-translate-y-0.5" /> Find a DBT Team
             </ButtonLink>
           </div>
-          <ul className="mt-1 flex flex-col items-center gap-2 text-[13px] text-sidebar-foreground sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-5">
+          <ul className="mt-1 flex flex-col items-center gap-2 text-[13px] text-muted-foreground sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-5">
             {HERO_POINTS.map((point) => (
               <li key={point} className="flex items-center gap-1.5">
-                <Check aria-hidden className="size-4 text-mist" /> {point}
+                <Check aria-hidden className="size-4 text-sage" /> {point}
               </li>
             ))}
             {!!teams?.total && (
               <li className="flex items-center gap-1.5">
-                <Check aria-hidden className="size-4 text-mist" /> <b className="text-white">{teams.total}</b> listed {teams.total === 1 ? 'team' : 'teams'}
+                <Check aria-hidden className="size-4 text-sage" /> <b className="text-foreground">{teams.total}</b> listed {teams.total === 1 ? 'team' : 'teams'}
               </li>
             )}
           </ul>
@@ -290,9 +290,9 @@ function Hero({ c, trainings, teams }: { c: SiteContent; trainings?: Training[];
 function RotatingAudience() {
   const [i] = useRotation(AUDIENCES.length, 2600)
   return (
-    <p className="text-base text-sidebar-foreground">
+    <p className="text-base text-muted-foreground">
       Built for{' '}
-      <span key={i} className="swap-in inline-block font-semibold text-white underline decoration-sky decoration-2 underline-offset-4">
+      <span key={i} className="swap-in inline-block font-semibold text-foreground underline decoration-sky decoration-2 underline-offset-4">
         {AUDIENCES[i]}
       </span>
     </p>

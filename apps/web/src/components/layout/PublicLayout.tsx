@@ -54,8 +54,9 @@ function MenuPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
         id="site-menu"
         aria-label="Main"
         className={cn(
-          'absolute inset-y-0 right-0 flex w-full max-w-sm flex-col overflow-y-auto bg-linear-to-b from-navy to-teal p-6 text-white shadow-2xl transition-transform duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)]',
-          open ? 'translate-x-0' : 'translate-x-full',
+          'absolute inset-y-0 right-0 flex w-full max-w-sm flex-col overflow-y-auto bg-linear-to-b from-navy to-teal p-6 text-white transition-transform duration-500 ease-[cubic-bezier(0.2,0.7,0.2,1)]',
+          // Shadow only while open: parked off-screen it would bleed in along the right edge of the pale hero.
+          open ? 'translate-x-0 shadow-2xl' : 'translate-x-full',
         )}
       >
         <div className="flex items-center justify-between">
@@ -108,19 +109,19 @@ function MenuPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
 }
 
 /**
- * Logo on the left; Apply and the menu button on the right. Transparent and white, sitting on the dark hero
- * band that opens every public page.
+ * Logo on the left; Apply and the menu button on the right. Transparent with navy text, sitting on the pale
+ * hero band that opens every public page.
  */
 function Nav() {
   const [open, setOpen] = useState(false)
   const close = useCallback(() => setOpen(false), [])
 
   return (
-    <header className="absolute inset-x-0 top-0 z-30 text-white">
+    <header className="absolute inset-x-0 top-0 z-30">
       <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-6 px-4 py-4 sm:px-6 lg:py-5">
-        <Logo dark />
+        <Logo />
         <div className="flex items-center gap-3 sm:gap-5">
-          <ButtonLink to="/directory/apply" variant="secondary" className={cn('hidden sm:inline-flex', ON_DARK)}>
+          <ButtonLink to="/directory/apply" variant="secondary" className="hidden sm:inline-flex">
             Apply to Directory
           </ButtonLink>
           <button
@@ -129,7 +130,7 @@ function Nav() {
             aria-expanded={open}
             aria-controls="site-menu"
             onClick={() => setOpen(true)}
-            className="group -mr-2 flex size-10 cursor-pointer items-center justify-center text-white transition-colors hover:text-sky"
+            className="group -mr-2 flex size-10 cursor-pointer items-center justify-center text-foreground transition-colors hover:text-teal"
           >
             <Menu className="size-6 transition-transform duration-300 group-hover:scale-x-125" />
           </button>
@@ -219,8 +220,8 @@ export function PublicLayout() {
       <div className="relative flex min-h-dvh flex-col">
         <Nav />
         <main className="flex-1">
-          {/* Navy strip behind the header while the page shows no hero of its own (loading, errors). */}
-          {!hasHero && <div aria-hidden className="h-[76px] bg-navy lg:h-[84px]" />}
+          {/* Strip behind the header while the page shows no hero of its own (loading, errors). */}
+          {!hasHero && <div aria-hidden className="airy h-[76px] lg:h-[84px]" />}
           <Outlet />
         </main>
         <Footer />

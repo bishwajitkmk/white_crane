@@ -49,8 +49,8 @@ export const MOCK_PEOPLE: BoardMember[] = [
     "kind": "board",
     "name": "Katrina Nguyen",
     "role": "Treasurer",
-    "bio": "",
-    "photo_url": null,
+    "bio": "Katrina J. Nguyen brings more than twenty years of experience in higher education administration and business coaching to White Crane's board. She holds an MBA (summa cum laude) and a B.S. in Psychology (magna cum laude) from Southern Nazarene University. She worked there for nearly two decades, first in records and payroll and later as Lead Academic Advisor, where she supervised staff and supported re-accreditation. She later helped run a grant-funded program for adult learners. She has taught as an adjunct professor since 2009. Since 2020, she has coached highly sensitive entrepreneurs and leaders in business planning, marketing, and nervous system regulation. Katrina brings strengths in organization, business systems, and steady follow-through to her role as Treasurer.",
+    "photo_url": "/team/katrina-nguyen.jpg",
     "position": 3
   },
   {

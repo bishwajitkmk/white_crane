@@ -7,7 +7,6 @@ import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/layout/Section'
 import { Badge } from '@/components/ui/badge'
 import { Button, ButtonLink } from '@/components/ui/button'
-import { ON_DARK } from '@/components/ui/button-variants'
 import { Card, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
@@ -68,7 +67,7 @@ export default function Directory() {
           <Button type="submit" variant="secondary">
             Search
           </Button>
-          <ButtonLink to="/directory/apply" variant="secondary" className={`md:ml-auto ${ON_DARK}`}>
+          <ButtonLink to="/directory/apply" variant="secondary" className="md:ml-auto">
             Apply as a Team
           </ButtonLink>
         </form>

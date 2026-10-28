@@ -37,17 +37,17 @@ function Eyebrow({ children, className }: { children: string; className?: string
 }
 
 
-/** The three calls to action, shown in the header band and again at the bottom of the page (both dark). */
-function Actions() {
+/** The three calls to action, shown in the pale header band and again on the navy band at the bottom. */
+function Actions({ onDark = false }: { onDark?: boolean }) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-      <ButtonLink to="/trainings" variant="secondary">
+      <ButtonLink to="/trainings" variant={onDark ? 'secondary' : 'default'}>
         Explore Training
       </ButtonLink>
-      <ButtonLink to="/contact?topic=consultation" variant="secondary" className={ON_DARK}>
+      <ButtonLink to="/contact?topic=consultation" variant="secondary" className={cn(onDark && ON_DARK)}>
         Consultation for Teams
       </ButtonLink>
-      <ButtonLink to="/contact" variant="secondary" className={ON_DARK}>
+      <ButtonLink to="/contact" variant="secondary" className={cn(onDark && ON_DARK)}>
         <Mail aria-hidden className="size-4" /> Contact White Crane
       </ButtonLink>
     </div>
@@ -66,23 +66,23 @@ function IntroHeader({ c }: { c: SiteContent }) {
   const [lead, ...more] = paragraphs(c.about_intro)
   return (
     <>
-      <section className="relative overflow-hidden bg-linear-to-br from-navy via-navy to-teal text-white">
+      <section className="airy relative overflow-hidden">
         <Rings />
         <div className="relative mx-auto grid max-w-[1200px] items-center gap-10 px-4 pt-28 pb-24 sm:px-6 md:pt-36 md:pb-32 lg:grid-cols-[3fr_2fr] lg:gap-14">
           <div className="flex flex-col gap-5">
-            <Eyebrow className="text-sky">About us</Eyebrow>
-            <PageTitle className="text-white">About White Crane</PageTitle>
-            {lead && <p className="max-w-[620px] text-lg leading-relaxed text-sidebar-foreground">{lead}</p>}
+            <Eyebrow>About us</Eyebrow>
+            <PageTitle>About White Crane</PageTitle>
+            {lead && <p className="max-w-[620px] text-lg leading-relaxed text-muted-foreground">{lead}</p>}
             <Actions />
           </div>
           {c.mission && (
-            <aside className="relative flex flex-col gap-3 rounded-xl border border-white/15 bg-white/10 p-6 md:backdrop-blur-sm md:p-8">
-              <span className="flex size-10 items-center justify-center rounded-full bg-sky/20 text-sky">
+            <aside className="relative flex flex-col gap-3 rounded-xl border bg-white/80 p-6 shadow-lg shadow-navy/5 md:backdrop-blur-sm md:p-8">
+              <span className="flex size-10 items-center justify-center rounded-full bg-sky/40 text-primary">
                 <Quote aria-hidden className="size-5" />
               </span>
-              <h2 className="text-[13px] font-semibold tracking-wider text-sky uppercase">Our Mission</h2>
+              <h2 className="text-[13px] font-semibold tracking-wider text-primary uppercase">Our Mission</h2>
               {paragraphs(c.mission).map((p, i) => (
-                <p key={i} className={i === 0 ? 'text-lg leading-snug font-semibold md:text-xl' : 'text-sidebar-foreground'}>
+                <p key={i} className={i === 0 ? 'text-lg leading-snug font-semibold md:text-xl' : 'text-muted-foreground'}>
                   {p}
                 </p>
               ))}
@@ -91,7 +91,7 @@ function IntroHeader({ c }: { c: SiteContent }) {
         </div>
       </section>
 
-      {/* Takeaway cards overlap the dark band, then the rest of the intro reads below them. */}
+      {/* Takeaway cards overlap the header band, then the rest of the intro reads below them. */}
       <div className="relative mx-auto -mt-14 flex max-w-[1200px] flex-col gap-10 px-4 pb-8 sm:px-6 md:-mt-20 md:pb-14">
         <div className="grid gap-4 md:grid-cols-3">
           {GLANCE.map((g, i) => (
@@ -318,7 +318,7 @@ export default function About() {
             <h2 className="text-[22px] text-white md:text-[26px]">Learn With White Crane</h2>
             {content.data?.about_closing && <p className="text-sidebar-foreground">{content.data.about_closing}</p>}
           </div>
-          <Actions />
+          <Actions onDark />
         </div>
       </section>
     </>

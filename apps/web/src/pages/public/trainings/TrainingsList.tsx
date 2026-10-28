@@ -5,7 +5,6 @@ import { TrainingRow } from '@/components/TrainingCard'
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/layout/Section'
 import { ButtonLink } from '@/components/ui/button'
-import { ON_DARK } from '@/components/ui/button-variants'
 import { Input, Select } from '@/components/ui/input'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useOpenTrainings } from '@/hooks/queries'
@@ -38,10 +37,10 @@ export default function TrainingsList() {
         lede="Workshops and intensives for clinicians and teams, online and in person."
       >
         <div className="flex flex-wrap gap-3">
-          <ButtonLink to="/trainings/upcoming" variant="secondary" size="sm" className={`group ${ON_DARK}`}>
+          <ButtonLink to="/trainings/upcoming" variant="secondary" size="sm" className="group">
             See upcoming (not yet open) <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-1" />
           </ButtonLink>
-          <ButtonLink to="/trainers" variant="secondary" size="sm" className={`group ${ON_DARK}`}>
+          <ButtonLink to="/trainers" variant="secondary" size="sm" className="group">
             Meet our trainers <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-1" />
           </ButtonLink>
         </div>

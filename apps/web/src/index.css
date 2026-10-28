@@ -1,32 +1,33 @@
 @import "tailwindcss";
 
 /*
-  Design tokens. Brand palette is "Option 2 – Forest Blue" from docs/assets/color-scheme.pdf:
-  navy #103147, teal #27667c, sky #9cc1d1, sage #789563, mist #bac9b9.
-  The remaining tokens are tints/shades of those five; status colours stay neutral.
+  Design tokens. Brand palette is "Option 5 – Airy Blue-Green" from docs/assets/color-scheme.pdf:
+  navy #274a5f, steel blue #658fa8 (kept as --teal), sky #a5c5d6, sage #7f9b6a, mist #dce0e1.
+  The remaining tokens are tints/shades of those five; status colours stay neutral. Buttons and links use
+  navy, since white text on the steel blue is too faint to read.
 */
 :root {
-  --navy: #103147;
-  --teal: #27667c;
-  --sky: #9cc1d1;
-  --sage: #789563;
-  --mist: #bac9b9;
+  --navy: #274a5f;
+  --teal: #658fa8;
+  --sky: #a5c5d6;
+  --sage: #7f9b6a;
+  --mist: #dce0e1;
 
   --background: #ffffff;
   --foreground: var(--navy);
-  --surface: #f0f4f5;
-  --placeholder: #dde8ec;
-  --muted-foreground: #5a6e7a;
-  --border: #cfdadd;
-  --primary: var(--teal);
+  --surface: #f1f5f7;
+  --placeholder: #e2ebf0;
+  --muted-foreground: #5b6f7b;
+  --border: #d5dfe4;
+  --primary: var(--navy);
   --primary-foreground: #ffffff;
   --success: #218c54;
   --warning: #d98c1a;
   --destructive: #bf3333;
   --sidebar: var(--navy);
-  --sidebar-foreground: #dce7eb;
-  --sidebar-muted: #8fb0bf;
-  --sidebar-accent: #21485f;
+  --sidebar-foreground: #e1eaef;
+  --sidebar-muted: #a5c5d6;
+  --sidebar-accent: #345a71;
   --radius: 6px;
   --font-body: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
@@ -164,7 +165,7 @@
   .lift:focus-within {
     transform: translateY(-4px);
     border-color: color-mix(in srgb, var(--teal) 40%, var(--border));
-    box-shadow: 0 18px 36px -18px rgb(16 49 71 / 0.35);
+    box-shadow: 0 18px 36px -18px rgb(39 74 95 / 0.35);
   }
 
   /* Revealed by <Reveal>; --i staggers siblings. */
@@ -256,6 +257,11 @@
     transform: translate(calc(var(--sx, 0px) * (1 - var(--pi))), calc(var(--sy, 0px) * (1 - var(--pi))))
       rotate(calc(var(--r, 0deg) * (1 - var(--pi)))) scale(calc(0.92 + 0.08 * var(--pi)));
     transition: transform 0.2s linear;
+  }
+
+  /* Pale sky wash behind the site header and every page hero, after the light palette's mock-up. */
+  .airy {
+    background: linear-gradient(160deg, #ffffff 0%, var(--surface) 45%, color-mix(in srgb, var(--sky) 45%, #ffffff) 100%);
   }
 
   /* Faint dot grid behind feature sections, so wide bands don't read as empty. */
