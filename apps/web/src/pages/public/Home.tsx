@@ -19,15 +19,14 @@ import {
 import { createElement, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import type { Page, PublicListing, SiteContent, Training } from '@/api/types'
-import logo from '@/assets/logo.png'
 import { QueryState } from '@/components/PageState'
 import { Reveal } from '@/components/Reveal'
 import { TrainingCard } from '@/components/TrainingCard'
 import { useHeroBand } from '@/components/layout/hero-band'
-import { Lede, PageTitle, Section, SectionTitle } from '@/components/layout/Section'
+import { Eyebrow, Lede, PageTitle, Section, SectionTitle } from '@/components/layout/Section'
 import { Badge } from '@/components/ui/badge'
 import { ButtonLink } from '@/components/ui/button'
-import { buttonVariants } from '@/components/ui/button-variants'
+import { ON_DARK, buttonVariants } from '@/components/ui/button-variants'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useDirectory, useOpenTrainings, useSiteContent } from '@/hooks/queries'
@@ -71,16 +70,11 @@ const LISTING_STEPS: { icon: LucideIcon; title: string; text: string }[] = [
   { icon: Users, title: 'Listed for a year', text: 'Approved teams appear in the public directory and renew annually.' },
 ]
 
-/** Small uppercase label above a heading. */
-function Eyebrow({ children }: { children: string }) {
-  return <span className="text-xs font-semibold tracking-[0.12em] text-primary uppercase">{children}</span>
-}
-
 function IconTile({ icon: Icon, className }: { icon: LucideIcon; className?: string }) {
   return (
     <span
       aria-hidden
-      className={`flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-all duration-300 ${className ?? ''}`}
+      className={`flex size-11 shrink-0 items-center justify-center rounded-xl bg-sky/25 text-primary ring-1 ring-primary/5 ring-inset transition-all duration-300 ${className ?? ''}`}
     >
       <Icon className="size-5" />
     </span>
@@ -103,12 +97,15 @@ function useRotation(count: number, ms: number, paused = false) {
 /** Who the training is for, cycled in the hero (from "Who we serve"). */
 const AUDIENCES = ['clinicians', 'treatment teams', 'behavioral health programs', 'community agencies']
 
-/** The four DBT skills modules, floating either side of the hero text (desktop only). */
+/**
+ * The four DBT skills modules, floating either side of the hero text (wide screens only). They sit level
+ * with the eyebrow and the buttons, the narrow rows of the centred text, so they never cross the headline.
+ */
 const SKILLS: { icon: LucideIcon; label: string; className: string; delay: string }[] = [
-  { icon: Flower2, label: 'Mindfulness', className: 'top-[22%] left-[4%]', delay: '0s' },
-  { icon: Handshake, label: 'Interpersonal effectiveness', className: 'top-[26%] right-[2%]', delay: '1.5s' },
-  { icon: Waves, label: 'Emotion regulation', className: 'top-[64%] left-[1%]', delay: '3s' },
-  { icon: Anchor, label: 'Distress tolerance', className: 'top-[68%] right-[5%]', delay: '4.5s' },
+  { icon: Flower2, label: 'Mindfulness', className: 'top-[19%] left-[6%]', delay: '0s' },
+  { icon: Handshake, label: 'Interpersonal effectiveness', className: 'top-[21%] right-[3%]', delay: '1.5s' },
+  { icon: Waves, label: 'Emotion regulation', className: 'top-[59%] left-[2%]', delay: '3s' },
+  { icon: Anchor, label: 'Distress tolerance', className: 'top-[61%] right-[6%]', delay: '4.5s' },
 ]
 
 /** Moves with the pointer by `depth` px at most, for a light parallax. */
@@ -136,13 +133,13 @@ function TrainingCarousel({ trainings, className }: { trainings: Training[]; cla
       <Link
         key={next.id}
         to={`/trainings/${next.slug}`}
-        className="group swap-in flex items-center gap-3 rounded-xl bg-background p-4 text-foreground shadow-xl transition-transform duration-300 hover:-translate-y-1"
+        className="group swap-in flex items-center gap-3.5 rounded-2xl border border-white bg-white/90 p-4 text-foreground shadow-lifted backdrop-blur-md transition-transform duration-300 hover:-translate-y-1"
       >
         <IconTile icon={CalendarDays} className="group-hover:bg-primary group-hover:text-primary-foreground" />
         <div className="min-w-0 flex-1">
-          <span className="text-xs font-semibold text-muted-foreground">{current === 0 ? 'Next training' : 'Coming up'}</span>
+          <span className="text-[13px] font-semibold text-accent">{current === 0 ? 'Next training' : 'Coming up'}</span>
           <b className="block truncate">{next.title}</b>
-          <span className="text-[13px] text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             {formatDate(next.starts_at)} · {TRAINING_FORMAT[next.format]}
           </span>
         </div>
@@ -193,15 +190,16 @@ function Hero({ c, trainings, teams }: { c: SiteContent; trainings?: Training[];
       ref={ref}
       onPointerMove={onMove}
       onPointerLeave={onLeave}
-      className="airy relative overflow-hidden"
+      className="mesh relative overflow-hidden"
     >
+      <div aria-hidden className="mesh-grid absolute inset-0 [mask-image:radial-gradient(ellipse_75%_65%_at_50%_0%,black,transparent)]" />
       {c.hero_image_url ? (
         <>
           <img src={c.hero_image_url} alt="" className="absolute inset-0 h-full w-full object-cover md:blur-[2px]" />
           <div aria-hidden className="absolute inset-0 bg-white/75" />
         </>
       ) : (
-        <div aria-hidden className="pointer-events-none absolute inset-0 md:blur-[2px]">
+        <div aria-hidden className="pointer-events-none absolute inset-0">
           <svg viewBox="0 0 1440 700" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full">
             <g fill="none" stroke="var(--sky)" strokeOpacity="0.6" strokeWidth="1.5" className="drift">
               <path d="M0 580 C 260 510, 520 660, 780 580 S 1260 500, 1440 560" />
@@ -209,7 +207,7 @@ function Hero({ c, trainings, teams }: { c: SiteContent; trainings?: Training[];
             </g>
           </svg>
           <Parallax depth={12} className="absolute inset-0">
-            <div className="absolute top-1/2 left-1/2 size-0 opacity-70">
+            <div className="absolute top-1/2 left-1/2 size-0 opacity-60">
               <div className="orbit absolute -top-[190px] -left-[190px] size-[380px] rounded-full border border-dashed border-teal/35">
                 <span className="absolute -top-1 left-1/2 size-2.5 -translate-x-1/2 rounded-full bg-teal shadow-[0_0_14px_var(--sky)]" />
               </div>
@@ -221,16 +219,14 @@ function Hero({ c, trainings, teams }: { c: SiteContent; trainings?: Training[];
                   <circle cx="380" cy="380" r="375" />
                 </svg>
               </div>
-              <div className="absolute -top-28 -left-28 flex size-56 items-center justify-center rounded-full border border-teal/15 bg-white/60 shadow-[0_0_120px_-10px_var(--sky)]">
-                <img src={logo} alt="" className="w-36 opacity-40" />
-              </div>
+              <div className="absolute -top-28 -left-28 size-56 rounded-full border border-teal/15 bg-white/60 shadow-[0_0_120px_-10px_var(--sky)]" />
             </div>
           </Parallax>
           <div className="relative mx-auto h-full max-w-[1200px]">
             {SKILLS.map((skill) => (
-              <Parallax key={skill.label} depth={24} className={cn('absolute hidden lg:block', skill.className)}>
+              <Parallax key={skill.label} depth={24} className={cn('absolute hidden xl:block', skill.className)}>
                 <span
-                  className="float flex items-center gap-2 rounded-full border border-teal/20 bg-white/80 py-1.5 pr-3.5 pl-1.5 text-[13px] font-semibold whitespace-nowrap text-foreground shadow-sm"
+                  className="float flex items-center gap-2 rounded-full border border-white bg-white/85 py-1.5 pr-4 pl-1.5 text-sm font-semibold whitespace-nowrap text-foreground shadow-soft"
                   style={{ ['--d' as string]: skill.delay }}
                 >
                   <span className="flex size-6 items-center justify-center rounded-full bg-sky/40 text-primary">
@@ -243,30 +239,32 @@ function Hero({ c, trainings, teams }: { c: SiteContent; trainings?: Training[];
           </div>
         </div>
       )}
+      {/* Fades the scene into the white section below, so the hero has no hard bottom edge. */}
+      <div aria-hidden className="absolute inset-x-0 bottom-0 h-40 bg-linear-to-b from-transparent to-white" />
       {/* A soft white pool behind the text keeps it readable over the scene. */}
       <div aria-hidden className="absolute inset-0 bg-[radial-gradient(ellipse_45%_50%_at_center,rgb(255_255_255/0.8),transparent)]" />
 
-      <div className="relative mx-auto flex max-w-[1200px] flex-col items-center gap-10 px-4 pt-32 pb-16 sm:px-6 md:pt-40 md:pb-20 lg:min-h-[720px] lg:justify-center">
-        <div className="stagger flex max-w-[720px] flex-col items-center gap-5 text-center">
-          <span className="flex items-center gap-2 rounded-full border border-teal/25 bg-white/70 px-3 py-1 text-xs font-semibold tracking-[0.08em] text-primary uppercase md:backdrop-blur-sm">
+      <div className="relative mx-auto flex max-w-[1200px] flex-col items-center gap-10 px-4 pt-36 pb-20 sm:px-6 md:pt-44 md:pb-24 lg:min-h-[800px] lg:justify-center">
+        <div className="stagger flex max-w-[940px] flex-col items-center gap-6 text-center">
+          <span className="flex items-center gap-2.5 rounded-full border border-white bg-white/80 px-4 py-1.5 font-label text-[15px] font-semibold tracking-[0.14em] text-accent uppercase shadow-soft md:backdrop-blur-sm">
             <span className="relative flex size-2">
               <span className="absolute inset-0 animate-ping rounded-full bg-sage" />
               <span className="relative size-2 rounded-full bg-sage" />
             </span>
             DBT training &amp; clinical directory
           </span>
-          <PageTitle className="md:text-[52px]">{c.hero_headline}</PageTitle>
-          <Lede className="md:text-lg">{c.hero_subheading}</Lede>
+          <PageTitle className="text-[44px] sm:text-[58px] lg:text-[68px]">{c.hero_headline}</PageTitle>
+          <Lede className="max-w-[680px] md:text-xl">{c.hero_subheading}</Lede>
           <RotatingAudience />
           <div className="mt-2 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
-            <ButtonLink to="/trainings" className="group shadow-lg shadow-navy/25">
+            <ButtonLink to="/trainings" className="group h-12 px-7 text-base">
               {c.hero_cta_label} <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-1" />
             </ButtonLink>
-            <ButtonLink to="/directory" variant="secondary" className="group">
+            <ButtonLink to="/directory" variant="secondary" className="group h-12 px-7 text-base">
               <MapPin aria-hidden className="size-4 text-teal transition-transform group-hover:-translate-y-0.5" /> Find a DBT Team
             </ButtonLink>
           </div>
-          <ul className="mt-1 flex flex-col items-center gap-2 text-[13px] text-muted-foreground sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-5">
+          <ul className="mt-2 flex flex-col items-center gap-2.5 text-[15px] text-muted-foreground sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-6">
             {HERO_POINTS.map((point) => (
               <li key={point} className="flex items-center gap-1.5">
                 <Check aria-hidden className="size-4 text-sage" /> {point}
@@ -290,9 +288,9 @@ function Hero({ c, trainings, teams }: { c: SiteContent; trainings?: Training[];
 function RotatingAudience() {
   const [i] = useRotation(AUDIENCES.length, 2600)
   return (
-    <p className="text-base text-muted-foreground">
+    <p className="text-lg text-muted-foreground">
       Built for{' '}
-      <span key={i} className="swap-in inline-block font-semibold text-foreground underline decoration-sky decoration-2 underline-offset-4">
+      <span key={i} className="swap-in inline-block font-semibold text-foreground underline decoration-sky decoration-[3px] underline-offset-[6px]">
         {AUDIENCES[i]}
       </span>
     </p>
@@ -333,120 +331,60 @@ function HoverWaves() {
   )
 }
 
-/** Tilt of each value card while stacked, so the pile looks hand-placed. */
-const STACK_TILT = [-6, 4, -2, 6, -4, 2]
-
 /**
- * Value cards that start as a stacked pile in the middle of the grid and fan out to their places as the
- * section scrolls into view. Driven by CSS variables: --sx/--sy (offset to the pile) per card and --p
- * (scroll progress) on the grid. Without JS, on small screens or with reduced motion, they simply sit in the grid.
+ * The values as one white panel split by hairlines, two or three across. Each value fades up once as it
+ * scrolls in; on hover its cell tints and the icon fills navy.
  */
-function ValueStack({ values }: { values: string[] }) {
-  const gridRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const grid = gridRef.current
-    if (!grid || prefersReducedMotion()) return
-    const wide = matchMedia('(min-width: 768px)')
-    const cards = Array.from(grid.children) as HTMLElement[]
-
-    const measure = () => {
-      if (!wide.matches) {
-        grid.style.setProperty('--p', '1')
-        return
-      }
-      const cx = grid.offsetWidth / 2
-      const cy = grid.offsetHeight / 2
-      cards.forEach((card, i) => {
-        card.style.setProperty('--sx', `${cx - (card.offsetLeft + card.offsetWidth / 2) + (i - 2.5) * 6}px`)
-        card.style.setProperty('--sy', `${cy - (card.offsetTop + card.offsetHeight / 2) + i * 3}px`)
-      })
-      update()
-    }
-    const update = () => {
-      if (!wide.matches) return
-      const top = grid.getBoundingClientRect().top
-      const vh = window.innerHeight
-      // Pile while the grid top is in the lower 40% of the screen, fully spread once it reaches the top 10%.
-      const progress = Math.min(1, Math.max(0, (vh * 0.6 - top) / (vh * 0.5)))
-      grid.style.setProperty('--p', progress.toFixed(3))
-    }
-
-    let frame = 0
-    const onScroll = () => {
-      cancelAnimationFrame(frame)
-      frame = requestAnimationFrame(update)
-    }
-    const resize = new ResizeObserver(measure)
-    resize.observe(grid)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => {
-      cancelAnimationFrame(frame)
-      resize.disconnect()
-      window.removeEventListener('scroll', onScroll)
-    }
-  }, [values.length])
-
+function ValueGrid({ values }: { values: string[] }) {
   return (
-    <div ref={gridRef} className="relative grid gap-5 md:grid-cols-2 lg:grid-cols-3" style={{ ['--p' as string]: 1 }}>
+    <ul className="grid gap-px overflow-hidden rounded-3xl border bg-border shadow-soft sm:grid-cols-2">
       {values.map((line, i) => {
         const { lead, rest } = leadSentence(line)
         return (
-          <div
-            key={line}
-            className="value-card flex"
-            style={{ ['--i' as string]: i, ['--r' as string]: `${STACK_TILT[i % STACK_TILT.length]}deg`, zIndex: values.length - i }}
-          >
-            <article className="group relative flex flex-1 flex-col gap-4 overflow-hidden rounded-2xl border bg-background p-6 shadow-sm transition-[translate,box-shadow] duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-navy/15 md:p-7">
-              {/* A navy circle grows out of the icon on hover and floods the card. */}
-              <span
-                aria-hidden
-                className="absolute top-6 left-6 size-12 scale-0 rounded-full bg-linear-to-br from-teal to-navy transition-transform duration-700 ease-out group-hover:scale-[16] md:top-7 md:left-7"
-              />
-              <div className="relative flex items-start justify-between">
-                <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary transition-all duration-500 group-hover:rotate-[-8deg] group-hover:bg-white/15 group-hover:text-sky">
-                  {createElement(valueIcon(lead), { 'aria-hidden': true, className: 'size-6' })}
-                </span>
-                <span aria-hidden className="text-3xl font-bold text-primary/10 transition-colors duration-500 group-hover:text-white/20">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
+          <li key={line} className="flex bg-background">
+            <Reveal index={i % 2} className="group flex flex-1 gap-4 p-6 transition-colors duration-300 hover:bg-surface md:p-8">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-sky/25 text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+                {createElement(valueIcon(lead), { 'aria-hidden': true, className: 'size-5' })}
+              </span>
+              <div className="flex flex-col gap-1.5">
+                {lead && <h4 className="text-lg font-semibold">{lead}</h4>}
+                <p className="text-muted-foreground">{rest}</p>
               </div>
-              {lead && <h3 className="relative text-lg font-semibold transition-colors duration-500 group-hover:text-white">{lead}</h3>}
-              <p className="relative text-muted-foreground transition-colors duration-500 group-hover:text-sidebar-foreground">{rest}</p>
-            </article>
-          </div>
+            </Reveal>
+          </li>
         )
       })}
-    </div>
+    </ul>
   )
 }
 
 /** Mission statement band, then the values as cards that fan out from a stack on scroll. */
 function MissionValues({ mission, values }: { mission: string; values: string[] }) {
   return (
-    <section className="relative overflow-hidden bg-surface">
-      <div aria-hidden className="dot-grid absolute inset-0 [mask-image:radial-gradient(ellipse_at_bottom_left,black,transparent_65%)]" />
-      <div className="relative mx-auto flex max-w-[1200px] flex-col gap-8 px-4 py-8 sm:px-6 md:py-16">
-        <div className="flex flex-col gap-2">
+    <section className="relative overflow-hidden border-y border-border/60 bg-surface">
+      <div aria-hidden className="mesh-grid absolute inset-0 [mask-image:radial-gradient(ellipse_60%_70%_at_0%_100%,black,transparent)]" />
+      <div aria-hidden className="absolute -right-40 -bottom-40 size-[480px] rounded-full bg-sky/25 blur-3xl" />
+      <div className="relative mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-14 sm:px-6 md:py-24">
+        <div className="flex flex-col gap-4">
           <Eyebrow>Who we are</Eyebrow>
           <SectionTitle>Mission and Values</SectionTitle>
         </div>
 
         <Reveal>
-          <div className="group relative overflow-hidden rounded-2xl bg-linear-to-br from-navy via-navy to-teal p-6 text-white md:p-10">
+          <div className="group relative overflow-hidden rounded-3xl bg-linear-to-br from-ink via-navy to-teal p-7 text-white shadow-lifted md:p-12">
             <HoverWaves />
             <span aria-hidden className="drift absolute -top-24 -right-24 size-72 rounded-full border border-sky/25" />
             <span aria-hidden className="drift absolute -top-10 -right-10 size-44 rounded-full border border-sky/20" style={{ animationDelay: '-7s' }} />
             <div className="relative flex flex-col gap-5 md:flex-row md:items-end md:justify-between md:gap-10">
               <div className="flex max-w-3xl flex-col gap-4">
-                <span className="flex items-center gap-2 text-[13px] font-semibold tracking-wider text-sky uppercase">
+                <span className="flex items-center gap-2 font-label text-[15px] font-semibold tracking-[0.16em] text-sky uppercase">
                   <Quote aria-hidden className="size-4" /> Our Mission
                 </span>
-                <p className="text-xl leading-snug font-semibold md:text-2xl">{mission}</p>
+                <p className="text-[22px] leading-snug font-medium tracking-[-0.015em] text-balance md:text-[30px]">{mission}</p>
               </div>
               <Link
                 to="/about"
-                className="group/link flex shrink-0 items-center gap-1.5 self-start rounded-full border border-white/25 bg-white/10 px-4 py-2 font-semibold md:backdrop-blur-sm transition-colors hover:bg-white/20 md:self-end"
+                className="group/link flex shrink-0 items-center gap-1.5 self-start rounded-full border border-white/25 bg-white/10 px-5 py-2.5 font-semibold md:backdrop-blur-sm transition-colors hover:bg-white/20 md:self-end"
               >
                 More about White Crane <ArrowRight aria-hidden className="size-4 transition-transform group-hover/link:translate-x-1" />
               </Link>
@@ -455,12 +393,14 @@ function MissionValues({ mission, values }: { mission: string; values: string[] 
         </Reveal>
 
         {values.length > 0 && (
-          <div className="flex flex-col gap-5 pt-4">
-            <div className="flex flex-col gap-1">
-              <h3 className="text-xl font-semibold">What guides us</h3>
-              <p className="text-muted-foreground">The commitments behind every training, consultation and listing.</p>
+          <div className="grid gap-8 pt-4 lg:grid-cols-[300px_1fr] lg:gap-14">
+            <div className="flex flex-col gap-3 lg:sticky lg:top-32 lg:self-start">
+              <h3 className="text-[28px] font-semibold md:text-[32px]">What guides us</h3>
+              <p className="text-lg leading-relaxed text-muted-foreground">
+                The commitments behind every training, consultation and listing.
+              </p>
             </div>
-            <ValueStack values={values} />
+            <ValueGrid values={values} />
           </div>
         )}
       </div>
@@ -470,19 +410,19 @@ function MissionValues({ mission, values }: { mission: string; values: string[] 
 
 function DirectoryPreview({ teams }: { teams?: Page<PublicListing> }) {
   return (
-    <Card className="lift gap-0 overflow-hidden p-0 shadow-sm">
-      <div className="flex items-center justify-between gap-3 border-b px-5 py-4">
-        <b>Listed DBT teams</b>
+    <Card className="lift gap-0 overflow-hidden p-0 shadow-lifted">
+      <div className="flex items-center justify-between gap-3 border-b px-6 py-5">
+        <b className="text-lg font-semibold">Listed DBT teams</b>
         {!!teams?.total && <Badge variant="acc">{teams.total} listed</Badge>}
       </div>
       {teams?.items.length ? (
         <ul className="flex flex-col">
           {teams.items.map((t) => (
-            <li key={t.id} className="group flex items-center gap-3 border-b px-5 py-3.5 transition-colors last:border-b-0 hover:bg-surface">
+            <li key={t.id} className="group flex items-center gap-3 border-b px-6 py-4 transition-colors last:border-b-0 hover:bg-surface">
               <IconTile icon={MapPin} className="size-9 group-hover:bg-primary group-hover:text-primary-foreground" />
               <div className="min-w-0">
                 <b className="block truncate">{t.agency_name}</b>
-                <span className="text-[13px] text-muted-foreground">{t.location}</span>
+                <span className="text-sm text-muted-foreground">{t.location}</span>
               </div>
             </li>
           ))}
@@ -490,7 +430,7 @@ function DirectoryPreview({ teams }: { teams?: Page<PublicListing> }) {
       ) : (
         <p className="px-5 py-8 text-center text-muted-foreground">Approved teams will appear here.</p>
       )}
-      <Link to="/directory" className="group flex items-center justify-center gap-1.5 border-t px-5 py-3.5 text-[13px] font-semibold text-primary hover:bg-surface">
+      <Link to="/directory" className="group flex items-center justify-center gap-1.5 border-t px-6 py-4 font-semibold text-primary hover:bg-surface">
         Search the directory <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
       </Link>
     </Card>
@@ -511,11 +451,12 @@ export default function Home() {
             <Hero c={c} trainings={trainings.data} teams={directory.data} />
 
             <section className="relative overflow-hidden">
-              <div aria-hidden className="dot-grid absolute inset-0 [mask-image:radial-gradient(ellipse_at_top_right,black,transparent_70%)]" />
-              <div aria-hidden className="drift absolute -top-24 -left-24 size-72 rounded-full bg-sky/25 blur-3xl max-md:hidden" />
-              <div className="relative mx-auto flex max-w-[1200px] flex-col gap-8 px-4 py-8 sm:px-6 md:py-16">
+              <div aria-hidden className="mesh-grid absolute inset-0 [mask-image:radial-gradient(ellipse_55%_60%_at_100%_0%,black,transparent)]" />
+              <div aria-hidden className="drift absolute -top-32 -left-32 size-[420px] rounded-full bg-sky/20 blur-3xl max-md:hidden" />
+              <div aria-hidden className="absolute -right-32 bottom-0 size-80 rounded-full bg-sage/10 blur-3xl" />
+              <div className="relative mx-auto flex max-w-[1200px] flex-col gap-12 px-4 py-14 sm:px-6 md:py-24">
                 <div className="grid gap-4 lg:grid-cols-2 lg:items-end">
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-4">
                     <Eyebrow>What we do</Eyebrow>
                     <SectionTitle>Supporting DBT practice, from training to referral</SectionTitle>
                   </div>
@@ -526,7 +467,7 @@ export default function Home() {
                 <div className="grid gap-6 md:grid-cols-3">
                   {PILLARS.map((p, i) => (
                     <Reveal key={p.title} index={i} className="flex">
-                      <Card className="group lift relative flex-1 gap-4 overflow-hidden p-6 md:p-7">
+                      <Card className="group lift relative flex-1 gap-4 overflow-hidden p-7 md:p-8">
                         <span
                           aria-hidden
                           className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-linear-to-r from-teal to-sky transition-transform duration-500 group-hover:scale-x-100"
@@ -542,9 +483,9 @@ export default function Home() {
                           {String(i + 1).padStart(2, '0')}
                         </span>
                         <IconTile icon={p.icon} className="size-12 group-hover:-rotate-6 group-hover:bg-primary group-hover:text-primary-foreground" />
-                        <CardTitle className="text-lg">{p.title}</CardTitle>
+                        <CardTitle className="text-xl">{p.title}</CardTitle>
                         <CardDescription>{p.text}</CardDescription>
-                        <ul className="flex flex-col gap-1.5 text-[13px]">
+                        <ul className="flex flex-col gap-2 text-[15px]">
                           {p.points.map((point) => (
                             <li key={point} className="flex items-center gap-2">
                               <Check aria-hidden className="size-4 shrink-0 text-sage" /> {point}
@@ -554,7 +495,7 @@ export default function Home() {
                         {/* The link's ::after covers the card, so the whole card is clickable. */}
                         <Link
                           to={p.to}
-                          className="mt-auto flex items-center gap-1.5 border-t pt-4 text-[13px] font-semibold text-primary after:absolute after:inset-0"
+                          className="mt-auto flex items-center gap-1.5 border-t pt-5 font-semibold text-primary after:absolute after:inset-0"
                         >
                           {p.cta} <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
                         </Link>
@@ -572,7 +513,7 @@ export default function Home() {
 
       <Section>
         <div className="flex items-end justify-between gap-4">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-4">
             <Eyebrow>Learn with us</Eyebrow>
             <SectionTitle>Upcoming Trainings</SectionTitle>
           </div>
@@ -610,15 +551,15 @@ export default function Home() {
       <Section alt>
         <div className="grid items-center gap-10 lg:grid-cols-[1fr_420px] lg:gap-14">
           <div className="flex flex-col gap-5">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-4">
               <Eyebrow>For clients and referrers</Eyebrow>
               <SectionTitle>DBT Clinical Directory</SectionTitle>
               <Lede>Find an approved DBT team near you, or apply to have your team listed.</Lede>
             </div>
-            <ol className="flex flex-col gap-4">
+            <ol className="flex flex-col gap-5">
               {LISTING_STEPS.map((step, i) => (
                 <li key={step.title} className="group flex items-start gap-3.5">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-[13px] font-semibold text-primary-foreground ring-4 ring-primary/0 transition-all duration-300 group-hover:scale-110 group-hover:ring-primary/15">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground ring-4 ring-primary/0 transition-all duration-300 group-hover:scale-110 group-hover:ring-primary/15">
                     {i + 1}
                   </span>
                   <div>
@@ -641,22 +582,26 @@ export default function Home() {
         </div>
       </Section>
 
-      <section className="bg-navy text-white">
-        <div className="mx-auto flex max-w-[1200px] flex-col gap-6 px-4 py-10 sm:px-6 md:flex-row md:items-center md:justify-between md:py-14">
-          <div className="flex max-w-xl flex-col gap-2">
-            <h2 className="text-[22px] text-white md:text-[26px]">Questions about training or the directory?</h2>
-            <p className="text-sidebar-foreground">
-              We're happy to help teams and clinicians find the right next step. Send us a message and a member of
-              the Board will get back to you.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link to="/contact" className={buttonVariants({ variant: 'secondary' })}>
-              <Mail aria-hidden className="mr-2 size-4" /> Contact us
-            </Link>
-            <Link to="/trainings" className={buttonVariants({ className: 'border-white/30' })}>
-              Browse trainings
-            </Link>
+      <section className="px-4 pb-14 sm:px-6 md:pb-24">
+        <div className="relative mx-auto max-w-[1200px] overflow-hidden rounded-3xl bg-linear-to-br from-ink via-navy to-teal text-white shadow-lifted">
+          <div aria-hidden className="absolute -top-32 -right-24 size-96 rounded-full bg-sky/30 blur-3xl" />
+          <div aria-hidden className="absolute -bottom-40 -left-20 size-80 rounded-full bg-sage/25 blur-3xl" />
+          <div className="relative flex flex-col gap-8 px-7 py-12 md:flex-row md:items-center md:justify-between md:px-14 md:py-16">
+            <div className="flex max-w-xl flex-col gap-3">
+              <h2 className="text-[30px] text-white md:text-[40px]">Questions about training or the directory?</h2>
+              <p className="text-lg text-white/80">
+                We're happy to help teams and clinicians find the right next step. Send us a message and a member of
+                the Board will get back to you.
+              </p>
+            </div>
+            <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+              <Link to="/contact" className={buttonVariants({ variant: 'secondary', className: 'h-12 border-white px-7 text-base' })}>
+                <Mail aria-hidden className="size-4" /> Contact us
+              </Link>
+              <Link to="/trainings" className={buttonVariants({ variant: 'secondary', className: cn(ON_DARK, 'h-12 px-7 text-base') })}>
+                Browse trainings
+              </Link>
+            </div>
           </div>
         </div>
       </section>

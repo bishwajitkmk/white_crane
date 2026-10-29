@@ -27,7 +27,7 @@ export default function Trainers() {
         <SectionTitle>Meet the Trainers</SectionTitle>
         <QueryState query={trainers}>
           {(list) => (
-            <div className="grid items-start gap-6 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2">
               {list.map((t) => (
                 <PersonCard key={t.id} person={t} />
               ))}

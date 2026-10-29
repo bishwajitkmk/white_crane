@@ -36,9 +36,9 @@ export function TrainingCard({ training }: { training: Training }) {
     <Card className="group lift flex-1 gap-4">
       <div className="flex items-start gap-4">
         {day && (
-          <div className="w-14 shrink-0 rounded-md bg-primary/10 py-1.5 text-center text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
-            <small className="block text-[11px] font-semibold tracking-wide">{day.month}</small>
-            <b className="block text-2xl leading-tight">{day.day}</b>
+          <div className="w-16 shrink-0 rounded-xl bg-sky/25 py-2 text-center text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+            <small className="block font-label text-sm font-semibold tracking-[0.12em] uppercase">{day.month}</small>
+            <b className="block text-[28px] leading-tight font-semibold">{day.day}</b>
           </div>
         )}
         <div className="flex min-w-0 flex-col gap-1.5">
@@ -56,8 +56,8 @@ export function TrainingCard({ training }: { training: Training }) {
         {formatDate(training.starts_at)}, {formatTimeRange(training.starts_at, training.ends_at)}
         {training.trainers && <span className="block">With {training.trainers}</span>}
       </CardDescription>
-      <div className="mt-auto flex items-center justify-between gap-3 border-t pt-3">
-        <Link to={`/trainings/${training.slug}`} className="text-[13px] font-semibold text-primary hover:underline">
+      <div className="mt-auto flex items-center justify-between gap-3 border-t pt-4">
+        <Link to={`/trainings/${training.slug}`} className="font-semibold text-primary hover:underline">
           View details
         </Link>
         <RegisterLink training={training} variant="secondary" />
@@ -70,11 +70,11 @@ export function TrainingCard({ training }: { training: Training }) {
 export function TrainingRow({ training }: { training: Training }) {
   const day = training.starts_at ? formatShortDay(training.starts_at) : null
   return (
-    <article className="group lift flex flex-col gap-4 rounded-lg border bg-background p-5 sm:flex-row sm:items-start sm:gap-6">
+    <article className="group lift flex flex-col gap-5 rounded-2xl border bg-background p-6 shadow-soft sm:flex-row sm:items-start sm:gap-7 md:p-7">
       {day && (
-        <div className="w-[90px] shrink-0 rounded-md bg-surface p-2 text-center transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
-          <small className="text-xs font-semibold text-muted-foreground transition-colors duration-300 group-hover:text-primary-foreground/80">{day.month}</small>
-          <b className="block text-[28px] leading-tight">{day.day}</b>
+        <div className="w-[92px] shrink-0 rounded-xl bg-sky/25 p-2.5 text-center text-primary transition-colors duration-300 group-hover:bg-primary group-hover:text-primary-foreground">
+          <small className="font-label text-sm font-semibold tracking-[0.12em] uppercase transition-colors duration-300 group-hover:text-primary-foreground/80">{day.month}</small>
+          <b className="block text-[32px] leading-tight font-semibold">{day.day}</b>
         </div>
       )}
       <div className="flex flex-1 flex-col gap-1.5">
@@ -86,7 +86,7 @@ export function TrainingRow({ training }: { training: Training }) {
       </div>
       <div className="flex shrink-0 flex-col items-stretch gap-2 text-center sm:w-[180px]">
         <RegisterLink training={training} />
-        <Link to={`/trainings/${training.slug}`} className="text-[13px] font-semibold text-primary">
+        <Link to={`/trainings/${training.slug}`} className="font-semibold text-primary hover:underline">
           View details
         </Link>
       </div>

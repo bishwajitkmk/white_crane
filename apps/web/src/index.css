@@ -5,6 +5,10 @@
   navy #274a5f, steel blue #658fa8 (kept as --teal), sky #a5c5d6, sage #7f9b6a, mist #dce0e1.
   The remaining tokens are tints/shades of those five; status colours stay neutral. Buttons and links use
   navy, since white text on the steel blue is too faint to read.
+
+  Text sits on --ink (a deeper navy) rather than the brand navy, and --accent is a darker steel blue for
+  small coloured text, so both clear WCAG AA on white. Surfaces are near-neutral, not blue-grey, so the
+  whites stay crisp.
 */
 :root {
   --navy: #274a5f;
@@ -12,13 +16,15 @@
   --sky: #a5c5d6;
   --sage: #7f9b6a;
   --mist: #dce0e1;
+  --ink: #0f2a3b;
+  --accent: #2d6385;
 
   --background: #ffffff;
-  --foreground: var(--navy);
-  --surface: #f1f5f7;
-  --placeholder: #e2ebf0;
-  --muted-foreground: #5b6f7b;
-  --border: #d5dfe4;
+  --foreground: var(--ink);
+  --surface: #f6f8fa;
+  --placeholder: #edf2f5;
+  --muted-foreground: #4a5d69;
+  --border: #e1e8ec;
   --primary: var(--navy);
   --primary-foreground: #ffffff;
   --success: #218c54;
@@ -28,8 +34,9 @@
   --sidebar-foreground: #e1eaef;
   --sidebar-muted: #a5c5d6;
   --sidebar-accent: #345a71;
-  --radius: 6px;
-  --font-body: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius: 8px;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-eyebrow: "Barlow Condensed", "IBM Plex Sans", sans-serif;
 }
 
 @theme inline {
@@ -38,6 +45,8 @@
   --color-sky: var(--sky);
   --color-sage: var(--sage);
   --color-mist: var(--mist);
+  --color-ink: var(--ink);
+  --color-accent: var(--accent);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
@@ -59,6 +68,10 @@
   --radius-lg: calc(var(--radius) + 2px);
   --radius-xl: calc(var(--radius) + 4px);
   --font-sans: var(--font-body);
+  --font-label: var(--font-eyebrow);
+  /* Layered, navy-tinted shadows: a tight contact shadow plus a soft spread. */
+  --shadow-soft: 0 1px 2px rgb(15 42 59 / 0.04), 0 4px 16px -6px rgb(15 42 59 / 0.08);
+  --shadow-lifted: 0 2px 4px rgb(15 42 59 / 0.04), 0 24px 48px -20px rgb(15 42 59 / 0.22);
 }
 
 @layer base {
@@ -72,15 +85,31 @@
     background: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-size: 14px;
-    line-height: 1.45;
+    font-size: 15px;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   h1,
   h2,
   h3,
   h4 {
-    font-weight: 700;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+  h1 {
+    letter-spacing: -0.03em;
+    line-height: 1.06;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--sky) 55%, transparent);
+    color: var(--ink);
   }
 }
 
@@ -147,6 +176,25 @@
   }
 }
 
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes mesh-drift {
+  to {
+    transform: translate(6%, -4%) scale(1.08);
+  }
+}
+
 @keyframes wave-flow {
   to {
     transform: translateX(-50%);
@@ -164,8 +212,8 @@
   .lift:hover,
   .lift:focus-within {
     transform: translateY(-4px);
-    border-color: color-mix(in srgb, var(--teal) 40%, var(--border));
-    box-shadow: 0 18px 36px -18px rgb(39 74 95 / 0.35);
+    border-color: color-mix(in srgb, var(--teal) 35%, var(--border));
+    box-shadow: var(--shadow-lifted);
   }
 
   /* Revealed by <Reveal>; --i staggers siblings. */
@@ -248,20 +296,79 @@
     animation-play-state: running;
   }
 
+
   /*
-    Value cards fan out from a pile as the grid scrolls in. --p (0..1) is set on the grid by script;
-    each card lags a little behind the previous one via --i. --sx/--sy point at the pile's centre.
+    Behind the site header and every page hero: pure white with two soft glows (sky top right, sage
+    bottom left) that fade to transparent, so the colour stays clean instead of greying the white.
   */
-  .value-card {
-    --pi: clamp(0, calc(var(--p, 1) * 1.6 - var(--i, 0) * 0.12), 1);
-    transform: translate(calc(var(--sx, 0px) * (1 - var(--pi))), calc(var(--sy, 0px) * (1 - var(--pi))))
-      rotate(calc(var(--r, 0deg) * (1 - var(--pi)))) scale(calc(0.92 + 0.08 * var(--pi)));
-    transition: transform 0.2s linear;
+  .airy {
+    background:
+      radial-gradient(60% 75% at 100% 0%, color-mix(in srgb, var(--sky) 42%, transparent), transparent 70%),
+      radial-gradient(45% 60% at 0% 100%, color-mix(in srgb, var(--sage) 13%, transparent), transparent 70%),
+      radial-gradient(40% 50% at 15% 10%, color-mix(in srgb, var(--sky) 16%, transparent), transparent 70%),
+      #ffffff;
   }
 
-  /* Pale sky wash behind the site header and every page hero, after the light palette's mock-up. */
-  .airy {
-    background: linear-gradient(160deg, #ffffff 0%, var(--surface) 45%, color-mix(in srgb, var(--sky) 45%, #ffffff) 100%);
+  /*
+    Mesh gradient: overlapping soft fields of the brand colours on white. The ::before layer carries a
+    second set of fields that drifts very slowly, so the colour breathes without anything visibly moving.
+    The element needs `relative overflow-hidden`; its children paint above the layer.
+  */
+  .mesh {
+    background:
+      radial-gradient(42% 55% at 88% 8%, color-mix(in srgb, var(--sky) 45%, transparent), transparent 72%),
+      radial-gradient(38% 50% at 6% 18%, color-mix(in srgb, var(--sky) 22%, transparent), transparent 70%),
+      radial-gradient(40% 45% at 18% 92%, color-mix(in srgb, var(--sage) 16%, transparent), transparent 72%),
+      radial-gradient(36% 42% at 78% 88%, color-mix(in srgb, var(--teal) 14%, transparent), transparent 72%),
+      #ffffff;
+  }
+  .mesh::before {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    pointer-events: none;
+    background:
+      radial-gradient(28% 32% at 30% 30%, color-mix(in srgb, var(--sky) 30%, transparent), transparent 70%),
+      radial-gradient(24% 30% at 70% 62%, color-mix(in srgb, var(--sage) 12%, transparent), transparent 70%);
+    animation: mesh-drift 36s ease-in-out infinite alternate;
+  }
+
+  /* Bio pop-up: rises and fades in over a fading backdrop. */
+  .bio-dialog[open] {
+    animation: dialog-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .bio-dialog[open]::backdrop {
+    animation: backdrop-in 0.35s ease;
+  }
+
+  /* Hairline grid in ink, faded out by a mask set where it is used. */
+  .mesh-grid {
+    background-image:
+      linear-gradient(to right, rgb(15 42 59 / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(15 42 59 / 0.05) 1px, transparent 1px);
+    background-size: 64px 64px;
+    background-position: center top;
+  }
+
+  /* Small uppercase label above a heading, led by a short brand-coloured rule. */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-family: var(--font-eyebrow);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .eyebrow::before {
+    content: "";
+    width: 1.75rem;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--teal), var(--sage));
   }
 
   /* Faint dot grid behind feature sections, so wide bands don't read as empty. */
@@ -283,11 +390,11 @@
   .orbit,
   .orbit-reverse,
   .swap-in,
-  .wave-row {
+  .wave-row,
+  .mesh::before,
+  .bio-dialog[open],
+  .bio-dialog[open]::backdrop {
     animation: none;
-  }
-  .value-card {
-    transform: none;
   }
   .progress {
     animation: none;
@@ -310,7 +417,8 @@
   .orbit-reverse,
   .pulse-ring circle,
   .float,
-  .wave-row {
+  .wave-row,
+  .mesh::before {
     animation: none;
   }
 }

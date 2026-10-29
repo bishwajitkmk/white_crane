@@ -119,7 +119,7 @@ export function ApplicationForm({ renewal = false, onSubmit, pending, error }: A
       <Card className="gap-4 p-6">
         <SectionHeading title="1. Program and team information" />
         <fieldset className="flex flex-col gap-2" aria-invalid={errors.application_type ? true : undefined}>
-          <legend className="mb-1.5 text-[13px] font-semibold">
+          <legend className="mb-1.5 text-sm font-semibold">
             This application is for<span className="text-destructive"> *</span>
           </legend>
           <div className="flex flex-col gap-2 sm:flex-row sm:gap-6">
@@ -175,7 +175,7 @@ export function ApplicationForm({ renewal = false, onSubmit, pending, error }: A
         </FieldRow>
 
         <fieldset className="flex flex-col gap-2" aria-invalid={errors.services ? true : undefined}>
-          <legend className="mb-1.5 text-[13px] font-semibold">
+          <legend className="mb-1.5 text-sm font-semibold">
             DBT service(s) provided<span className="text-destructive"> *</span>
           </legend>
           <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2">
@@ -208,7 +208,7 @@ export function ApplicationForm({ renewal = false, onSubmit, pending, error }: A
             return (
               <li key={member.id} className="flex flex-col gap-3 rounded-md border p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-[13px] font-semibold text-muted-foreground">Team member {i + 1}</span>
+                  <span className="text-sm font-semibold text-muted-foreground">Team member {i + 1}</span>
                   {team.fields.length > 1 && (
                     <Button type="button" variant="ghost" size="icon" onClick={() => team.remove(i)} aria-label={`Remove team member ${i + 1}`}>
                       <Trash2 className="size-4" />
@@ -262,7 +262,7 @@ export function ApplicationForm({ renewal = false, onSubmit, pending, error }: A
         />
         {PRACTICE_GROUPS.map((group) => (
           <section key={group.title} className="flex flex-col">
-            <h3 className="border-b pb-2 text-[13px] font-semibold tracking-wide text-muted-foreground uppercase">{group.title}</h3>
+            <h3 className="border-b pb-2 text-sm font-semibold tracking-wide text-muted-foreground uppercase">{group.title}</h3>
             <div className="flex flex-col divide-y">{group.items.map(question)}</div>
           </section>
         ))}
@@ -291,7 +291,7 @@ export function ApplicationForm({ renewal = false, onSubmit, pending, error }: A
             <Input {...register('attestation_signed_title')} autoComplete="organization-title" />
           </Field>
         </FieldRow>
-        <p className="text-[13px] text-muted-foreground">Date: {formatDate(new Date().toISOString())}, recorded when you submit.</p>
+        <p className="text-sm text-muted-foreground">Date: {formatDate(new Date().toISOString())}, recorded when you submit.</p>
         <Field label="Any other information you wish to provide" error={errors.additional_info}>
           <Textarea rows={3} {...register('additional_info')} />
         </Field>
@@ -300,7 +300,7 @@ export function ApplicationForm({ renewal = false, onSubmit, pending, error }: A
       <HoneypotField {...register('nickname')} />
       <FormError error={error} />
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <span className="text-[13px] text-muted-foreground">Fields marked * must be completed.</span>
+        <span className="text-sm text-muted-foreground">Fields marked * must be completed.</span>
         <Button type="submit" disabled={pending}>
           {pending ? 'Submitting...' : 'Submit application'}
         </Button>
@@ -314,7 +314,7 @@ function SectionHeading({ title, description, aside }: { title: string; descript
     <div className="flex flex-col gap-1">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-xl font-semibold">{title}</h2>
-        {aside && <span className="text-[13px] text-muted-foreground">{aside}</span>}
+        {aside && <span className="text-sm text-muted-foreground">{aside}</span>}
       </div>
       {description && <p className="text-muted-foreground">{description}</p>}
     </div>

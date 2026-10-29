@@ -19,6 +19,9 @@ const LINKS = [
   { to: '/resources', label: 'Resources' },
 ]
 
+/** Inline header links on wide screens; the logo already goes home, and Contact moves up from the menu. */
+const BAR_LINKS = [...LINKS.slice(1), { to: '/contact', label: 'Contact' }]
+
 /** "Sign in" for visitors, "Dashboard" once signed in (staff browsing the public site). */
 function AccountLink({ className, onClick }: { className?: string; onClick?: () => void }) {
   const { user, isLoading } = useSession()
@@ -98,7 +101,10 @@ function MenuPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
         </ul>
 
         <div className="mt-auto grid grid-cols-2 gap-3 pt-10">
-          <AccountLink onClick={onClose} />
+          <ButtonLink to="/directory/apply" onClick={onClose} className="col-span-2 border-white bg-white text-ink hover:border-sky hover:bg-sky">
+            Apply to Directory <ArrowRight aria-hidden className="size-4" />
+          </ButtonLink>
+          <AccountLink onClick={onClose} className={ON_DARK} />
           <ButtonLink to="/contact" variant="secondary" onClick={onClose} className={ON_DARK}>
             <Mail aria-hidden className="size-4" /> Contact us
           </ButtonLink>
@@ -108,20 +114,57 @@ function MenuPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   )
 }
 
+/** True once the page has scrolled past `offset` px. */
+function useScrolled(offset = 8) {
+  const [scrolled, setScrolled] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > offset)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [offset])
+  return scrolled
+}
+
 /**
- * Logo on the left; Apply and the menu button on the right. Transparent with navy text, sitting on the pale
- * hero band that opens every public page.
+ * Floating frosted bar pinned to the top: logo, page links (wide screens), Apply and the menu button.
+ * It picks up a deeper shadow once the page scrolls under it.
  */
 function Nav() {
   const [open, setOpen] = useState(false)
   const close = useCallback(() => setOpen(false), [])
+  const scrolled = useScrolled()
 
   return (
-    <header className="absolute inset-x-0 top-0 z-30">
-      <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-6 px-4 py-4 sm:px-6 lg:py-5">
-        <Logo />
-        <div className="flex items-center gap-3 sm:gap-5">
-          <ButtonLink to="/directory/apply" variant="secondary" className="hidden sm:inline-flex">
+    <header className="fixed inset-x-0 top-0 z-30 px-3 pt-3 sm:px-4 sm:pt-4">
+      <div
+        className={cn(
+          'mx-auto flex max-w-[1200px] items-center justify-between gap-4 rounded-full border bg-white/80 py-2 pr-2 pl-4 backdrop-blur-xl transition-shadow duration-300 sm:pl-6',
+          scrolled ? 'border-border shadow-[0_12px_32px_-14px_rgb(15_42_59/0.25)]' : 'border-white/80 shadow-soft',
+        )}
+      >
+        <Logo className="h-9 sm:h-10" />
+        <nav aria-label="Main" className="hidden xl:block">
+          <ul className="flex items-center gap-1">
+            {BAR_LINKS.map((l) => (
+              <li key={l.to}>
+                <NavLink
+                  to={l.to}
+                  className={({ isActive }) =>
+                    cn(
+                      'rounded-full px-3.5 py-2 text-[15px] font-medium transition-colors',
+                      isActive ? 'bg-sky/25 text-ink' : 'text-muted-foreground hover:bg-surface hover:text-ink',
+                    )
+                  }
+                >
+                  {l.label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div className="flex items-center gap-2">
+          <ButtonLink to="/directory/apply" className="hidden h-10 sm:inline-flex">
             Apply to Directory
           </ButtonLink>
           <button
@@ -130,9 +173,9 @@ function Nav() {
             aria-expanded={open}
             aria-controls="site-menu"
             onClick={() => setOpen(true)}
-            className="group -mr-2 flex size-10 cursor-pointer items-center justify-center text-foreground transition-colors hover:text-teal"
+            className="group flex size-10 cursor-pointer items-center justify-center rounded-full text-ink transition-colors hover:bg-surface xl:hidden"
           >
-            <Menu className="size-6 transition-transform duration-300 group-hover:scale-x-125" />
+            <Menu className="size-5 transition-transform duration-300 group-hover:scale-x-125" />
           </button>
         </div>
       </div>
@@ -144,44 +187,51 @@ function Nav() {
 /** Pages with their own sign-up section, where the footer form would sit right under a second copy. */
 const OWN_SUBSCRIBE = new Set(['/resources', '/trainings/upcoming'])
 
+const FOOTER_LINKS = [...LINKS.slice(1), { to: '/contact', label: 'Contact' }, { to: '/login', label: 'Staff sign in' }]
+
 function Footer() {
   const { pathname } = useLocation()
+  const subscribe = !OWN_SUBSCRIBE.has(pathname.replace(/\/$/, ''))
   return (
-    <footer className="bg-surface text-[13px]">
-      <div className="mx-auto flex max-w-[1200px] flex-col gap-6 px-4 py-6 sm:px-6 md:py-10">
-        <div className="flex flex-col justify-between gap-8 md:flex-row md:items-start">
-          <div className="flex max-w-xs flex-col gap-2">
+    <footer className="border-t bg-surface">
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-10 px-4 pt-14 pb-8 sm:px-6 md:pt-20">
+        <div className={cn('grid gap-10 md:grid-cols-2', subscribe && 'lg:grid-cols-[1.2fr_0.8fr_1.2fr]')}>
+          <div className="flex max-w-sm flex-col gap-4">
             <Logo />
-            <b>White Crane Training Collective</b>
-            <span className="text-muted-foreground">
-              Training and community for DBT teams.{' '}
-              <Link to="/contact" className="font-semibold text-primary">
-                Contact us
-              </Link>
-            </span>
+            <p className="text-muted-foreground">
+              Training and community for DBT teams, and a directory of programs practicing DBT with fidelity.
+            </p>
+            <Link to="/contact" className="group flex items-center gap-1.5 self-start font-semibold text-primary">
+              Contact us <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-1" />
+            </Link>
           </div>
-          {!OWN_SUBSCRIBE.has(pathname.replace(/\/$/, '')) && (
-            <div className="flex w-full max-w-sm flex-col gap-2">
-              <b>Sign up for updates</b>
+          <nav aria-label="Footer" className="flex flex-col gap-4">
+            <span className="eyebrow">Explore</span>
+            <ul className="grid grid-cols-2 gap-x-6 gap-y-2.5">
+              {FOOTER_LINKS.map((l) => (
+                <li key={l.to}>
+                  <Link to={l.to} className="text-muted-foreground transition-colors hover:text-ink">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          {subscribe && (
+            <div className="flex w-full flex-col gap-4 md:col-span-2 lg:col-span-1">
+              <span className="eyebrow">Stay in the loop</span>
+              <p className="-mt-1 text-muted-foreground">New trainings and resources, a few times a year.</p>
               <SubscribeForm source="Footer" />
             </div>
           )}
         </div>
-        <div className="flex flex-col gap-4 border-t pt-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-wrap items-center gap-x-4 text-xs text-muted-foreground [&>a]:py-2 lg:[&>a]:py-0">
-            <span>&copy; {new Date().getFullYear()} White Crane Training Collective.</span>
-            <Link to="/trainings">Trainings</Link>
-            <Link to="/trainers">Trainers</Link>
-            <Link to="/directory">Directory</Link>
-            <Link to="/resources">Resources</Link>
-            <Link to="/contact">Contact</Link>
-            <Link to="/login">Staff sign in</Link>
-          </div>
+        <div className="flex flex-col gap-4 border-t pt-6 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
+          <span>&copy; {new Date().getFullYear()} White Crane Training Collective. All rights reserved.</span>
           <a
             href="https://www.autolinium.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex shrink-0 items-center gap-2.5 self-start text-xs text-muted-foreground transition-colors hover:text-foreground md:self-auto"
+            className="group flex shrink-0 items-center gap-2.5 self-start transition-colors hover:text-ink md:self-auto"
           >
             Developed by
             <img
@@ -189,7 +239,7 @@ function Footer() {
               alt="Autolinium"
               width={53}
               height={48}
-              className="h-10 w-auto transition-transform duration-300 group-hover:scale-105"
+              className="h-9 w-auto transition-transform duration-300 group-hover:scale-105"
             />
           </a>
         </div>
@@ -217,11 +267,11 @@ export function PublicLayout() {
   const [hasHero, setHasHero] = useState(false)
   return (
     <HeroBandContext value={setHasHero}>
-      <div className="relative flex min-h-dvh flex-col">
+      <div className="relative flex min-h-dvh flex-col text-base">
         <Nav />
         <main className="flex-1">
           {/* Strip behind the header while the page shows no hero of its own (loading, errors). */}
-          {!hasHero && <div aria-hidden className="airy h-[76px] lg:h-[84px]" />}
+          {!hasHero && <div aria-hidden className="airy h-[88px] sm:h-24" />}
           <Outlet />
         </main>
         <Footer />

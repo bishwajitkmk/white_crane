@@ -21,7 +21,7 @@ import { PersonCard } from '@/components/PersonCard'
 import { Reveal } from '@/components/Reveal'
 import { RichText } from '@/components/RichText'
 import { Rings } from '@/components/layout/PageHero'
-import { PageTitle, Section, SectionTitle } from '@/components/layout/Section'
+import { Eyebrow, PageTitle, Section, SectionTitle } from '@/components/layout/Section'
 import { useHeroBand } from '@/components/layout/hero-band'
 import { ButtonLink } from '@/components/ui/button'
 import { ON_DARK } from '@/components/ui/button-variants'
@@ -30,11 +30,6 @@ import { usePublicBoardMembers, useSiteContent } from '@/hooks/queries'
 import { leadSentence, paragraphs, textBlocks } from '@/lib/format'
 import { valueIcon } from '@/lib/value-icons'
 import { cn } from '@/lib/utils'
-
-/** Small uppercase label above a heading. */
-function Eyebrow({ children, className }: { children: string; className?: string }) {
-  return <span className={cn('text-xs font-semibold tracking-[0.12em] text-primary uppercase', className)}>{children}</span>
-}
 
 
 /** The three calls to action, shown in the pale header band and again on the navy band at the bottom. */
@@ -76,13 +71,13 @@ function IntroHeader({ c }: { c: SiteContent }) {
             <Actions />
           </div>
           {c.mission && (
-            <aside className="relative flex flex-col gap-3 rounded-xl border bg-white/80 p-6 shadow-lg shadow-navy/5 md:backdrop-blur-sm md:p-8">
+            <aside className="relative flex flex-col gap-3 rounded-3xl border border-white bg-white/85 p-7 shadow-lifted md:backdrop-blur-sm md:p-9">
               <span className="flex size-10 items-center justify-center rounded-full bg-sky/40 text-primary">
                 <Quote aria-hidden className="size-5" />
               </span>
-              <h2 className="text-[13px] font-semibold tracking-wider text-primary uppercase">Our Mission</h2>
+              <h2 className="eyebrow">Our Mission</h2>
               {paragraphs(c.mission).map((p, i) => (
-                <p key={i} className={i === 0 ? 'text-lg leading-snug font-semibold md:text-xl' : 'text-muted-foreground'}>
+                <p key={i} className={i === 0 ? 'text-xl leading-snug font-medium tracking-[-0.01em] md:text-2xl' : 'text-muted-foreground'}>
                   {p}
                 </p>
               ))}
@@ -97,12 +92,12 @@ function IntroHeader({ c }: { c: SiteContent }) {
           {GLANCE.map((g, i) => (
             <Reveal key={g.title} index={i} className="flex">
               <div className="group lift flex flex-1 items-start gap-4 rounded-xl border bg-background p-5 shadow-lg shadow-navy/5">
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-all duration-300 group-hover:-rotate-6 group-hover:bg-primary group-hover:text-primary-foreground">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-sky/25 text-primary transition-all duration-300 group-hover:-rotate-6 group-hover:bg-primary group-hover:text-primary-foreground">
                   <g.icon aria-hidden className="size-5" />
                 </span>
                 <div className="flex flex-col gap-1">
                   <b>{g.title}</b>
-                  <span className="text-[13px] text-muted-foreground">{g.text}</span>
+                  <span className="text-sm text-muted-foreground">{g.text}</span>
                 </div>
               </div>
             </Reveal>
@@ -205,13 +200,13 @@ function StoryCard({ icon: Icon, eyebrow, title, text, dark = false, index }: { 
           </span>
           <div className="flex flex-col">
             <Eyebrow className={dark ? 'text-sky' : undefined}>{eyebrow}</Eyebrow>
-            <h2 className={cn('text-[22px] md:text-[26px]', dark && 'text-white')}>{title}</h2>
+            <h2 className={cn('text-[26px] md:text-[32px]', dark && 'text-white')}>{title}</h2>
           </div>
         </div>
         {lead && (
           <p
             className={cn(
-              'relative rounded-lg p-4 text-base leading-relaxed font-semibold',
+              'relative rounded-xl p-5 text-base leading-relaxed font-semibold',
               dark ? 'bg-white/10 text-white' : 'bg-surface text-foreground',
             )}
           >
@@ -265,13 +260,13 @@ function AboutContent({ c }: { c: SiteContent }) {
       <IntroHeader c={c} />
 
       {c.what_we_do && (
-        <Section alt className="md:py-16">
+        <Section alt>
           <WhatWeDo text={c.what_we_do} />
         </Section>
       )}
 
       {(c.who_we_serve || c.how_we_work) && (
-        <Section className="md:py-16">
+        <Section>
           <div className="grid items-stretch gap-6 lg:grid-cols-2">
             {c.who_we_serve && <StoryCard icon={Users} eyebrow="Our community" title="Who We Serve" text={c.who_we_serve} index={0} />}
             {c.how_we_work && <StoryCard icon={Scale} eyebrow="Our approach" title="How We Work" text={c.how_we_work} dark index={1} />}
@@ -302,7 +297,7 @@ export default function About() {
         </div>
         <QueryState query={members}>
           {(list) => (
-            <div className="grid items-start gap-6 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2">
               {list.map((m) => (
                 <PersonCard key={m.id} person={m} />
               ))}
@@ -311,11 +306,11 @@ export default function About() {
         </QueryState>
       </Section>
 
-      <section className="relative overflow-hidden bg-navy text-white">
+      <section className="relative overflow-hidden bg-linear-to-br from-ink via-navy to-teal text-white">
         <Rings />
-        <div className="relative mx-auto flex max-w-[1200px] flex-col gap-6 px-4 py-10 sm:px-6 md:py-14">
+        <div className="relative mx-auto flex max-w-[1200px] flex-col gap-6 px-4 py-14 sm:px-6 md:py-20">
           <div className="flex max-w-2xl flex-col gap-2">
-            <h2 className="text-[22px] text-white md:text-[26px]">Learn With White Crane</h2>
+            <h2 className="text-[30px] text-white md:text-[40px]">Learn With White Crane</h2>
             {content.data?.about_closing && <p className="text-sidebar-foreground">{content.data.about_closing}</p>}
           </div>
           <Actions onDark />

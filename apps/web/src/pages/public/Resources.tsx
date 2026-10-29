@@ -35,13 +35,13 @@ export default function Resources() {
             return visible.map((r) => {
               const Icon = r.kind === 'file' ? FileText : ExternalLink
               return (
-                <article key={r.id} className="group lift flex flex-col gap-4 rounded-lg border bg-background p-5 sm:flex-row sm:items-center sm:gap-5">
+                <article key={r.id} className="group lift flex flex-col gap-4 rounded-2xl border bg-background p-6 shadow-soft sm:flex-row sm:items-center sm:gap-5">
                   <div className="flex size-12 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary transition-all duration-300 group-hover:-rotate-6 group-hover:bg-primary group-hover:text-primary-foreground">
                     <Icon className="size-5" aria-hidden />
                   </div>
                   <div className="flex flex-1 flex-col gap-1">
                     <h2 className="text-base font-semibold transition-colors group-hover:text-primary">{r.title}</h2>
-                    <span className="text-[13px] text-muted-foreground">
+                    <span className="text-sm text-muted-foreground">
                       {r.description} {RESOURCE_CATEGORY[r.category]}.{' '}
                       {r.kind === 'file' ? `PDF, ${formatBytes(r.file_size_bytes)}` : 'External link'}
                     </span>

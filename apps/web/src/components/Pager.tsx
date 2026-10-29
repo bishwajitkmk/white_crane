@@ -19,7 +19,7 @@ export function Pager({ page, pageSize, total, onPage, loading = false }: PagerP
   return (
     <nav
       aria-label="Pages"
-      className="flex flex-wrap items-center justify-between gap-3 text-[13px] text-muted-foreground"
+      className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground"
     >
       <span aria-live="polite">
         {first.toLocaleString()}–{last.toLocaleString()} of {total.toLocaleString()}

@@ -101,7 +101,7 @@ export default function Directory() {
                           <div className="flex items-start justify-between gap-3">
                             <span
                               aria-hidden
-                              className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-all duration-300 group-hover:-rotate-6 group-hover:bg-primary group-hover:text-primary-foreground"
+                              className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky/25 text-primary transition-all duration-300 group-hover:-rotate-6 group-hover:bg-primary group-hover:text-primary-foreground"
                             >
                               <MapPin className="size-5" />
                             </span>

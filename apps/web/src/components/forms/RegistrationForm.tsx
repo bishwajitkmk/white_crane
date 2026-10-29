@@ -53,7 +53,7 @@ export function RegistrationForm({ onSubmit, pending, error }: RegistrationFormP
       <HoneypotField {...register('nickname')} />
       <FormError error={error} />
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <span className="text-[13px] text-muted-foreground">
+        <span className="text-sm text-muted-foreground">
           Your details are shared only with White Crane and the trainers for this event.
         </span>
         <Button type="submit" disabled={pending}>

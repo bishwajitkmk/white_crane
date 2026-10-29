@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import { useHeroBand } from './hero-band'
-import { PageTitle } from './Section'
+import { Eyebrow, PageTitle } from './Section'
 
 /** Concentric rings and waves, the same motif as the Home hero. */
 export function Rings({ className }: { className?: string }) {
   return (
     <svg aria-hidden viewBox="0 0 480 340" preserveAspectRatio="xMidYMid slice" className={cn('absolute inset-0 h-full w-full', className)}>
-      <g fill="none" stroke="var(--teal)" strokeOpacity="0.22" className="pulse-ring">
+      <g fill="none" stroke="var(--teal)" strokeOpacity="0.18" className="pulse-ring">
         <circle cx="430" cy="40" r="60" />
         <circle cx="430" cy="40" r="110" />
         <circle cx="430" cy="40" r="160" />
@@ -24,7 +24,7 @@ export function Rings({ className }: { className?: string }) {
 /** Breadcrumb trail for the hero: links first, the current page last. */
 export function HeroBreadcrumb({ children }: { children: ReactNode }) {
   return (
-    <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-x-2 text-[13px] text-muted-foreground [&_a]:transition-colors [&_a:hover]:text-foreground">
+    <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground [&_a]:transition-colors [&_a:hover]:text-foreground">
       {children}
     </nav>
   )
@@ -56,17 +56,18 @@ export function PageHero({
   return (
     <section className="airy relative overflow-hidden">
       <Rings />
+      <div aria-hidden className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-b from-transparent to-white" />
       <div
         className={cn(
-          'stagger relative mx-auto flex max-w-[1200px] flex-col gap-4 px-4 pt-28 pb-12 sm:px-6 md:pt-36 md:pb-16',
+          'stagger relative mx-auto flex max-w-[1200px] flex-col gap-5 px-4 pt-32 pb-14 sm:px-6 md:pt-44 md:pb-20',
           center && 'items-center text-center',
           className,
         )}
       >
         {top}
-        {eyebrow && <span className="text-xs font-semibold tracking-[0.12em] text-primary uppercase">{eyebrow}</span>}
-        <PageTitle className="max-w-[820px] md:text-[44px]">{title}</PageTitle>
-        {lede && <p className="max-w-[640px] text-base text-muted-foreground md:text-lg">{lede}</p>}
+        {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
+        <PageTitle className="max-w-[860px]">{title}</PageTitle>
+        {lede && <p className="max-w-[660px] text-lg leading-relaxed text-muted-foreground md:text-xl">{lede}</p>}
         {children}
       </div>
     </section>

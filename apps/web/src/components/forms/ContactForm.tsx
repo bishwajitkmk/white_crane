@@ -63,7 +63,7 @@ export function ContactForm({ topic, onSubmit, pending, error }: ContactFormProp
       <HoneypotField {...register('nickname')} />
       <FormError error={error} />
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <span className="text-[13px] text-muted-foreground">Your message goes to the White Crane Board.</span>
+        <span className="text-sm text-muted-foreground">Your message goes to the White Crane Board.</span>
         <Button type="submit" disabled={pending}>
           {pending ? 'Sending...' : 'Send message'}
         </Button>

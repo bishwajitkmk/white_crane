@@ -44,12 +44,13 @@ export function SubscribeForm({ source, className, consent = true }: SubscribeFo
         <Input
           id={`subscribe-${source}`}
           type="email"
-          placeholder="email@address"
+          placeholder="you@example.com"
           autoComplete="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           aria-invalid={invalid ? true : undefined}
+          className="rounded-full px-5"
         />
         <Button type="submit" disabled={subscribe.isPending} className="max-sm:w-full">
           Subscribe
@@ -59,7 +60,7 @@ export function SubscribeForm({ source, className, consent = true }: SubscribeFo
       <HoneypotField name="nickname" value={nickname} onChange={(e) => setNickname(e.target.value)} />
       <FormError error={subscribe.error} />
       {consent && (
-        <span className="text-xs text-muted-foreground">
+        <span className="text-[13px] text-muted-foreground">
           By subscribing you agree to receive occasional updates from White Crane. Unsubscribe at any time.
         </span>
       )}

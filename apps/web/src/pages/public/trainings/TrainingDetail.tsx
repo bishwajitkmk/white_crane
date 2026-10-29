@@ -70,12 +70,12 @@ export default function TrainingDetail() {
             {t.registration_url ? (
               <>
                 <RegisterLink training={t} block />
-                <span className="text-xs text-muted-foreground">Opens the event registration page in a new tab.</span>
+                <span className="text-[13px] text-muted-foreground">Opens the event registration page in a new tab.</span>
               </>
             ) : t.accepting_registrations ? (
               <>
                 <RegisterLink training={t} block />
-                <span className="text-xs text-muted-foreground">Takes a minute. You will get a confirmation email.</span>
+                <span className="text-[13px] text-muted-foreground">Takes a minute. You will get a confirmation email.</span>
               </>
             ) : (
               <div>

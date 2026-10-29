@@ -3,10 +3,10 @@ import { useState, type ComponentProps } from 'react'
 import { cn } from '@/lib/utils'
 
 const base =
-  'w-full rounded-md border bg-background px-3 py-2.5 text-base text-foreground sm:text-sm placeholder:text-muted-foreground focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-ring aria-invalid:border-destructive disabled:bg-surface disabled:text-muted-foreground'
+  'w-full rounded-lg border bg-background px-3.5 py-2.5 text-base text-foreground shadow-[0_1px_2px_rgb(15_42_59/0.04)] transition-colors sm:text-[15px] placeholder:text-muted-foreground/80 hover:border-ink/20 focus-visible:border-primary focus-visible:outline-3 focus-visible:outline-offset-0 focus-visible:outline-sky/50 aria-invalid:border-destructive disabled:bg-surface disabled:text-muted-foreground'
 
 export function Input({ className, ...props }: ComponentProps<'input'>) {
-  return <input className={cn(base, 'h-10', className)} {...props} />
+  return <input className={cn(base, 'h-11', className)} {...props} />
 }
 
 /** Password field with a show/hide toggle. Takes the same props as Input (Field wires id and aria). */
@@ -34,9 +34,9 @@ export function Textarea({ className, rows = 3, ...props }: ComponentProps<'text
 }
 
 export function Select({ className, ...props }: ComponentProps<'select'>) {
-  return <select className={cn(base, 'h-10', className)} {...props} />
+  return <select className={cn(base, 'h-11', className)} {...props} />
 }
 
 export function Label({ className, ...props }: ComponentProps<'label'>) {
-  return <label className={cn('text-[13px] font-semibold', className)} {...props} />
+  return <label className={cn('text-sm font-semibold', className)} {...props} />
 }
