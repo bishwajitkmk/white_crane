@@ -16,6 +16,206 @@
     <title>White Crane Training Collective</title>
   </head>
   <body>
+    <!--
+      Boot splash. Inline so it paints from the first response, before any JS, CSS or fonts, while the
+      API wakes from a cold start. src/lib/splash.ts fades it out once the first page has its data.
+      Same palette and motif as the Home hero (orbits, waves), arranged as ripples around a still centre.
+    -->
+    <div id="splash" role="status" aria-label="Loading White Crane Training Collective">
+      <style>
+        #splash {
+          position: fixed;
+          inset: 0;
+          z-index: 2147483647;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 28px;
+          overflow: hidden;
+          background:
+            radial-gradient(50% 45% at 15% 85%, rgb(165 197 214 / 0.35), transparent 70%),
+            radial-gradient(45% 40% at 85% 15%, rgb(127 155 106 / 0.14), transparent 70%),
+            radial-gradient(40% 40% at 50% 45%, rgb(165 197 214 / 0.28), transparent 70%),
+            #fff;
+          color: #0f2a3b;
+          font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+          transition: opacity 0.55s ease, visibility 0.55s;
+        }
+        #splash.splash-out {
+          opacity: 0;
+          visibility: hidden;
+        }
+        #splash svg {
+          overflow: visible;
+        }
+        .sp-scene {
+          width: 220px;
+          height: 220px;
+        }
+        .sp-ripple {
+          fill: none;
+          stroke: #658fa8;
+          transform-origin: 130px 130px;
+          animation: sp-ripple 3.6s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+          opacity: 0;
+        }
+        .sp-ripple:nth-of-type(2) {
+          animation-delay: 1.2s;
+        }
+        .sp-ripple:nth-of-type(3) {
+          animation-delay: 2.4s;
+        }
+        .sp-orbit,
+        .sp-orbit-rev {
+          transform-origin: 130px 130px;
+          animation: sp-spin 9s linear infinite;
+        }
+        .sp-orbit-rev {
+          animation-duration: 14s;
+          animation-direction: reverse;
+        }
+        .sp-core {
+          filter: drop-shadow(0 0 22px rgb(165 197 214 / 0.9));
+        }
+        .sp-flow {
+          transform-box: fill-box;
+          animation: sp-flow 2.4s linear infinite;
+        }
+        .sp-flow-slow {
+          animation-duration: 3.6s;
+          animation-direction: reverse;
+        }
+        .sp-name {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          text-align: center;
+        }
+        .sp-name b {
+          font-family: "Barlow Condensed", "IBM Plex Sans", system-ui, sans-serif;
+          font-weight: 600;
+          font-size: 15px;
+          letter-spacing: 0.24em;
+          text-transform: uppercase;
+          color: #2d6385;
+        }
+        .sp-note {
+          position: relative;
+          height: 22px;
+          width: min(90vw, 420px);
+          font-size: 14px;
+          color: #4a5d69;
+        }
+        .sp-note span {
+          position: absolute;
+          inset: 0;
+          opacity: 0;
+          animation: sp-note 0.6s ease forwards;
+        }
+        /* Only shown when loading is slow, so a warm visit never sees them. */
+        .sp-note span:last-child {
+          animation-delay: 9s;
+        }
+        .sp-note span:first-child {
+          animation-name: sp-note, sp-note-out;
+          animation-duration: 0.6s, 0.4s;
+          animation-delay: 2.5s, 8.6s;
+          animation-fill-mode: forwards, forwards;
+        }
+        .sp-waves {
+          position: absolute;
+          left: 0;
+          bottom: 9%;
+          width: 200%;
+          height: 60px;
+          animation: sp-flow 18s linear infinite;
+        }
+        @keyframes sp-ripple {
+          0% {
+            transform: scale(0.35);
+            opacity: 0.55;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 0;
+          }
+        }
+        @keyframes sp-spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        @keyframes sp-flow {
+          to {
+            transform: translateX(-50%);
+          }
+        }
+        @keyframes sp-note {
+          to {
+            opacity: 1;
+          }
+        }
+        @keyframes sp-note-out {
+          to {
+            opacity: 0;
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          #splash *,
+          #splash {
+            animation: none !important;
+            transition: none;
+          }
+          .sp-ripple {
+            opacity: 0.25;
+          }
+          .sp-note span:first-child {
+            opacity: 1;
+          }
+        }
+      </style>
+
+      <svg class="sp-scene" viewBox="0 0 260 260" aria-hidden="true">
+        <defs>
+          <clipPath id="sp-clip"><circle cx="130" cy="130" r="38" /></clipPath>
+        </defs>
+        <circle class="sp-ripple" cx="130" cy="130" r="128" stroke-width="1.2" />
+        <circle class="sp-ripple" cx="130" cy="130" r="128" stroke-width="1.2" />
+        <circle class="sp-ripple" cx="130" cy="130" r="128" stroke-width="1.2" />
+        <g class="sp-orbit-rev">
+          <circle cx="130" cy="130" r="98" fill="none" stroke="#658fa8" stroke-opacity="0.22" />
+          <circle cx="228" cy="130" r="3.5" fill="#7f9b6a" />
+        </g>
+        <g class="sp-orbit">
+          <circle cx="130" cy="130" r="68" fill="none" stroke="#658fa8" stroke-opacity="0.45" stroke-dasharray="3 6" />
+          <circle cx="130" cy="62" r="5" fill="#658fa8" style="filter: drop-shadow(0 0 6px #a5c5d6)" />
+        </g>
+        <circle class="sp-core" cx="130" cy="130" r="38" fill="#fff" stroke="#658fa8" stroke-opacity="0.18" />
+        <g clip-path="url(#sp-clip)" fill="none" stroke-linecap="round">
+          <!-- Each path is two identical waves wide, so sliding it by half loops seamlessly. -->
+          <path class="sp-flow" d="M92 124 q 9.5 -7 19 0 t 19 0 t 19 0 t 19 0 t 19 0 t 19 0 t 19 0 t 19 0" stroke="#658fa8" stroke-width="2.4" />
+          <path class="sp-flow sp-flow-slow" d="M92 137 q 9.5 -5 19 0 t 19 0 t 19 0 t 19 0 t 19 0 t 19 0 t 19 0 t 19 0" stroke="#a5c5d6" stroke-width="2.4" />
+        </g>
+      </svg>
+
+      <div class="sp-name">
+        <b>White Crane</b>
+        <span style="font-size: 13px; letter-spacing: 0.08em; color: #4a5d69">Training Collective</span>
+      </div>
+      <p class="sp-note" style="margin: 0; text-align: center">
+        <span>Getting everything ready…</span>
+        <span>Waking things up. The first visit in a while can take up to a minute.</span>
+      </p>
+
+      <svg class="sp-waves" viewBox="0 0 2400 60" preserveAspectRatio="none" aria-hidden="true">
+        <g fill="none" stroke="#a5c5d6" stroke-width="1.5" vector-effect="non-scaling-stroke">
+          <path stroke-opacity="0.6" d="M0 30 C 200 5, 400 55, 600 30 S 1000 5, 1200 30 S 1600 55, 1800 30 S 2200 5, 2400 30" />
+          <path stroke-opacity="0.35" d="M0 44 C 200 22, 400 66, 600 44 S 1000 22, 1200 44 S 1600 66, 1800 44 S 2200 22, 2400 44" />
+        </g>
+      </svg>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

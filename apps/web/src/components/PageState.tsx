@@ -1,7 +1,9 @@
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
+import { holdSplash } from '@/lib/splash'
 import { cn } from '@/lib/utils'
 
 export function PageLoader({ className }: { className?: string }) {
+  useEffect(holdSplash, [])
   return (
     <div role="status" className={cn('flex items-center justify-center p-12 text-muted-foreground', className)}>
       Loading...

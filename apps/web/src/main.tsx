@@ -3,6 +3,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import { SessionProvider } from '@/auth/SessionProvider'
+import { SplashRelease } from '@/components/SplashRelease'
 import { router } from '@/router'
 import './index.css'
 
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')!).render(
       <SessionProvider>
         <RouterProvider router={router} />
       </SessionProvider>
+      <SplashRelease />
     </QueryClientProvider>
   </StrictMode>,
 )
