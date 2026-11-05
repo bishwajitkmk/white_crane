@@ -10,7 +10,7 @@ import { ButtonLink } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs } from '@/components/ui/tabs'
 import { useTrainings } from '@/hooks/queries'
-import { formatDate } from '@/lib/format'
+import { trainingWhen } from '@/lib/training'
 import { TRAINING_STATUS } from '@/lib/status'
 
 type Filter = 'open' | 'upcoming' | 'past'
@@ -55,7 +55,7 @@ export default function TrainingsAdmin() {
             empty="No trainings in this list."
             columns={[
               { header: 'Title', cell: (t) => <Link to={`/dashboard/trainings/${t.id}`} className="font-semibold hover:text-primary">{t.title}</Link> },
-              { header: 'Date', cell: (t) => (t.starts_at ? formatDate(t.starts_at) : t.expected_label || 'TBD') },
+              { header: 'Date', cell: (t) => (t.starts_at || t.expected_label ? trainingWhen(t) : 'TBD') },
               { header: 'Trainer', cell: (t) => t.trainers || 'TBD' },
               { header: 'Status', cell: (t) => <Badge variant={TRAINING_STATUS[t.status].variant}>{TRAINING_STATUS[t.status].label}</Badge> },
               {

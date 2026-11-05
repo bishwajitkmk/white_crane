@@ -108,6 +108,7 @@ export const trainingSchema = z
     status: z.enum(['open', 'upcoming']),
     format: z.enum(['online', 'in_person']),
     date: z.string(),
+    end_date: z.string(),
     start_time: z.string(),
     end_time: z.string(),
     expected_label: z.string().trim(),
@@ -120,6 +121,10 @@ export const trainingSchema = z
     cover_image_url: z.string().nullable(),
   })
   .refine((v) => v.status !== 'open' || v.date !== '', { path: ['date'], message: 'Open trainings need a date' })
+  .refine((v) => !v.end_date || (v.date !== '' && v.end_date >= v.date), {
+    path: ['end_date'],
+    message: 'Last day must be on or after the first day',
+  })
 export type TrainingValues = z.infer<typeof trainingSchema>
 
 export const registrationSchema = z.object({

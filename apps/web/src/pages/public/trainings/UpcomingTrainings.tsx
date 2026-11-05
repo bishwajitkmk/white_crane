@@ -1,5 +1,6 @@
 import { EmptyState, QueryState } from '@/components/PageState'
 import { UpcomingTrainingCard } from '@/components/TrainingCard'
+import { TrainingsSwitch } from '@/components/TrainingsSwitch'
 import { SubscribeForm } from '@/components/forms/SubscribeForm'
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/layout/Section'
@@ -16,7 +17,9 @@ export default function UpcomingTrainings() {
         eyebrow="Coming soon"
         title="Upcoming Trainings"
         lede="Planned trainings not yet open for registration. Sign up for updates to be notified."
-      />
+      >
+        <TrainingsSwitch />
+      </PageHero>
       <Section className="gap-4">
         <QueryState query={trainings}>
           {(list) =>

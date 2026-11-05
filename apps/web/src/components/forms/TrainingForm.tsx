@@ -63,6 +63,9 @@ export function TrainingForm({ defaultValues, breadcrumb, onSubmit, onDelete, pe
             <Field label="Date" required={status === 'open'} error={errors.date}>
               <Input type="date" {...register('date')} />
             </Field>
+            <Field label="Last day" error={errors.end_date} hint="Multi-day trainings only.">
+              <Input type="date" {...register('end_date')} />
+            </Field>
             <Field label="Start time" error={errors.start_time}>
               <Input type="time" {...register('start_time')} />
             </Field>
@@ -118,12 +121,11 @@ export function TrainingForm({ defaultValues, breadcrumb, onSubmit, onDelete, pe
             <Input type="url" placeholder="https://..." {...register('registration_url')} />
           </Field>
           <Field
-            label="Expected timing"
+            label="Dates as shown (optional)"
             error={errors.expected_label}
-            hint="Shown for upcoming trainings without a date."
-            className={cn(status === 'open' && 'hidden')}
+            hint="Replaces the date and time on the site, e.g. “Nov 18, 19, & 20, 2026”, or “Spring 2027” for an upcoming training with no date yet."
           >
-            <Input placeholder="Spring 2027" {...register('expected_label')} />
+            <Input placeholder="Nov 18, 19, & 20, 2026" {...register('expected_label')} />
           </Field>
           <Field label="Format" error={errors.format}>
             <Select {...register('format')}>

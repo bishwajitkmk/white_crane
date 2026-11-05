@@ -249,3 +249,23 @@ and Otomí embroidery helps keep her grounded.""",
     ),
     ("Jeff Brenneman", "", "", None),
 ]
+
+# 2026-2027 trainings, from "2026-2027 Trainings.docx" (White Crane Training Collaborative Trainings and
+# Registration). The schedule gives days but no times, so each runs 00:00 on its first day to 23:59 on its
+# last: it stays listed through the final day, and the site shows the dates text, never those times.
+# Spring 2027 is "Hold the Date": upcoming until the Board sends the registration links.
+# (slug, title, status, dates as shown, first day, last day, registration URL)
+TRAININGS = [
+    ("suicide-assessment-nov-2026", "Taking the Guesswork out of Suicide Assessment and Intervention", "open",
+     "Nov 18, 19, & 20, 2026", "2026-11-18", "2026-11-20", "https://cvent.me/QZQ7D5"),
+    ("dbt-skills-training-dec-2026", "DBT Skills Training", "open",
+     "Dec 15, 16, & 17, 2026", "2026-12-15", "2026-12-17", "https://cvent.me/eLPVPb"),
+    ("intro-to-dbt-jan-2027", "Introduction to DBT: Making it Work in our Communities", "upcoming",
+     "Jan 19, 20, 28, & 29, 2027", "2027-01-19", "2027-01-29", None),
+    ("dbt-basics-feb-2027", "DBT Basics: Individual DBT-Based Psychotherapy", "upcoming",
+     "Feb 17, 18, & 19, 2027", "2027-02-17", "2027-02-19", None),
+    ("suicide-assessment-mar-2027", "Taking the Guesswork out of Suicide Assessment and Intervention", "upcoming",
+     "Mar 23, 24, & 25, 2027", "2027-03-23", "2027-03-25", None),
+    ("dbt-skills-training-apr-2027", "DBT Skills Training", "upcoming",
+     "Apr 4, 5, & 6, 2027", "2027-04-04", "2027-04-06", None),
+]  # fmt: skip

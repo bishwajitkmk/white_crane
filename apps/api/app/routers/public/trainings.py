@@ -36,7 +36,12 @@ def open_trainings(db: DbSession):
 
 @router.get("/upcoming", response_model=list[TrainingOut])
 def upcoming_trainings(db: DbSession):
-    stmt = select(Training).where(Training.status == TrainingStatus.upcoming).order_by(Training.created_at)
+    # Dated ones first, soonest first; undated ("Spring 2027") after, in the order they were added.
+    stmt = (
+        select(Training)
+        .where(Training.status == TrainingStatus.upcoming)
+        .order_by(Training.starts_at.is_(None), Training.starts_at, Training.created_at)
+    )
     return db.scalars(stmt).all()
 
 

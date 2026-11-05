@@ -3,7 +3,8 @@ import type { Training } from '@/api/types'
 import { Badge } from '@/components/ui/badge'
 import { buttonVariants } from '@/components/ui/button-variants'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
-import { formatDate, formatShortDay, formatTimeRange } from '@/lib/format'
+import { formatShortDay } from '@/lib/format'
+import { trainingWhen } from '@/lib/training'
 import { TRAINING_FORMAT } from '@/lib/status'
 
 /**
@@ -53,7 +54,7 @@ export function TrainingCard({ training }: { training: Training }) {
         </div>
       </div>
       <CardDescription>
-        {formatDate(training.starts_at)}, {formatTimeRange(training.starts_at, training.ends_at)}
+        {trainingWhen(training)}
         {training.trainers && <span className="block">With {training.trainers}</span>}
       </CardDescription>
       <div className="mt-auto flex items-center justify-between gap-3 border-t pt-4">
@@ -80,7 +81,7 @@ export function TrainingRow({ training }: { training: Training }) {
       <div className="flex flex-1 flex-col gap-1.5">
         <h3 className="text-xl font-semibold transition-colors group-hover:text-primary">{training.title}</h3>
         <p className="text-muted-foreground">
-          {formatTimeRange(training.starts_at, training.ends_at)}. {training.trainers}. {TRAINING_FORMAT[training.format]}.
+          {[trainingWhen(training), training.trainers, TRAINING_FORMAT[training.format]].filter(Boolean).join('. ')}.
         </p>
         <p className="line-clamp-2 text-muted-foreground">{training.description}</p>
       </div>
@@ -99,7 +100,7 @@ export function UpcomingTrainingCard({ training }: { training: Training }) {
     <Card className="lift border-t-4 border-t-sky">
       <CardTitle>{training.title}</CardTitle>
       <CardDescription>
-        Expected: {training.expected_label || 'To be announced'}. {training.description}
+        {training.starts_at ? 'Dates' : 'Expected'}: {training.expected_label || 'To be announced'}. {training.description}
       </CardDescription>
       <div>
         <Badge variant="acc">Registration not open</Badge>

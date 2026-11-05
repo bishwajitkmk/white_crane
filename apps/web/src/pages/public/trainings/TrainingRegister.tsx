@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { ButtonLink } from '@/components/ui/button'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { usePublicTraining } from '@/hooks/queries'
-import { formatDate, formatTimeRange } from '@/lib/format'
+import { trainingWhen } from '@/lib/training'
 import { TRAINING_FORMAT } from '@/lib/status'
 import { Confirmation } from '../Confirmation'
 
@@ -61,7 +61,7 @@ export default function TrainingRegister() {
         title={`Register: ${t.title}`}
         lede={
           <>
-            {t.starts_at ? `${formatDate(t.starts_at)}, ${formatTimeRange(t.starts_at, t.ends_at)}` : t.expected_label || 'Date to be announced'}.{' '}
+            {trainingWhen(t)}.{' '}
             {TRAINING_FORMAT[t.format]}.
           </>
         }

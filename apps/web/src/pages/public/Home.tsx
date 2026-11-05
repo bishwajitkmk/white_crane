@@ -30,8 +30,9 @@ import { ON_DARK, buttonVariants } from '@/components/ui/button-variants'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { useDirectory, useOpenTrainings, useSiteContent } from '@/hooks/queries'
-import { formatDate, leadSentence, paragraphs } from '@/lib/format'
+import { leadSentence, paragraphs } from '@/lib/format'
 import { TRAINING_FORMAT } from '@/lib/status'
+import { trainingWhen } from '@/lib/training'
 import { cn } from '@/lib/utils'
 import { valueIcon } from '@/lib/value-icons'
 
@@ -140,7 +141,7 @@ function TrainingCarousel({ trainings, className }: { trainings: Training[]; cla
           <span className="text-[13px] font-semibold text-accent">{current === 0 ? 'Next training' : 'Coming up'}</span>
           <b className="block truncate">{next.title}</b>
           <span className="text-sm text-muted-foreground">
-            {formatDate(next.starts_at)} · {TRAINING_FORMAT[next.format]}
+            {trainingWhen(next)} · {TRAINING_FORMAT[next.format]}
           </span>
         </div>
         <ArrowRight aria-hidden className="size-4 shrink-0 text-primary transition-transform group-hover:translate-x-1" />

@@ -7,8 +7,9 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardDescription, CardTitle } from '@/components/ui/card'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { usePublicTraining } from '@/hooks/queries'
-import { formatDate, formatTimeRange, paragraphs } from '@/lib/format'
+import { paragraphs } from '@/lib/format'
 import { TRAINING_FORMAT } from '@/lib/status'
+import { trainingWhen } from '@/lib/training'
 
 export default function TrainingDetail() {
   const { slug = '' } = useParams()
@@ -19,9 +20,7 @@ export default function TrainingDetail() {
   if (query.isLoading) return <PageLoader />
   if (query.error || !t) return <Section><ErrorState error={query.error ?? new Error('Training not found.')} /></Section>
 
-  const when = t.starts_at
-    ? `${formatDate(t.starts_at)}, ${formatTimeRange(t.starts_at, t.ends_at)}`
-    : `Expected: ${t.expected_label || 'To be announced'}`
+  const when = t.starts_at || !t.expected_label ? trainingWhen(t) : `Expected: ${t.expected_label}`
 
   return (
     <>
@@ -36,7 +35,7 @@ export default function TrainingDetail() {
         title={t.title}
         lede={
           <>
-            {when}. {TRAINING_FORMAT[t.format]}. {t.trainers}.
+            {[when, TRAINING_FORMAT[t.format], t.trainers].filter(Boolean).join('. ')}.
           </>
         }
       />

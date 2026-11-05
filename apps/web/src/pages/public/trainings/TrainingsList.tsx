@@ -2,6 +2,7 @@ import { ArrowRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { EmptyState, QueryState } from '@/components/PageState'
 import { TrainingRow } from '@/components/TrainingCard'
+import { TrainingsSwitch } from '@/components/TrainingsSwitch'
 import { PageHero } from '@/components/layout/PageHero'
 import { Section } from '@/components/layout/Section'
 import { ButtonLink } from '@/components/ui/button'
@@ -36,10 +37,8 @@ export default function TrainingsList() {
         title="Trainings"
         lede="Workshops and intensives for clinicians and teams, online and in person."
       >
-        <div className="flex flex-wrap gap-3">
-          <ButtonLink to="/trainings/upcoming" variant="secondary" size="sm" className="group">
-            See upcoming (not yet open) <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-1" />
-          </ButtonLink>
+        <div className="flex flex-wrap items-center gap-3">
+          <TrainingsSwitch />
           <ButtonLink to="/trainers" variant="secondary" size="sm" className="group">
             Meet our trainers <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-1" />
           </ButtonLink>
@@ -72,6 +71,9 @@ export default function TrainingsList() {
             <option value="online">Online</option>
             <option value="in_person">In person</option>
           </Select>
+          <ButtonLink to="/trainings/upcoming" variant="secondary" className="group self-start md:self-auto">
+            Upcoming trainings <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-1" />
+          </ButtonLink>
         </div>
       </Section>
       <Section className="gap-4 pt-0 md:pt-0">
