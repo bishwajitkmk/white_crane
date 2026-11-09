@@ -1,4 +1,4 @@
-import { ArrowRight, Mail, Menu, X } from 'lucide-react'
+import { ArrowRight, LayoutDashboard, LogIn, Mail, Menu, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import autoliniumLogo from '@/assets/autolinium-logo.png'
@@ -29,6 +29,27 @@ function AccountLink({ className, onClick }: { className?: string; onClick?: () 
     <ButtonLink to={user ? '/dashboard' : '/login'} variant="secondary" onClick={onClick} className={cn(isLoading && 'invisible', className)}>
       {user ? 'Dashboard' : 'Sign in'}
     </ButtonLink>
+  )
+}
+
+/** Icon-only AccountLink for the header bar on wide screens; the label stays as aria-label and tooltip. */
+function AccountIconLink({ className }: { className?: string }) {
+  const { user, isLoading } = useSession()
+  const label = user ? 'Dashboard' : 'Sign in'
+  const Icon = user ? LayoutDashboard : LogIn
+  return (
+    <Link
+      to={user ? '/dashboard' : '/login'}
+      aria-label={label}
+      title={label}
+      className={cn(
+        'size-10 items-center justify-center rounded-full text-ink transition-colors hover:bg-surface',
+        isLoading && 'invisible',
+        className,
+      )}
+    >
+      <Icon aria-hidden className="size-5" />
+    </Link>
   )
 }
 
@@ -127,7 +148,7 @@ function useScrolled(offset = 8) {
 }
 
 /**
- * Floating frosted bar pinned to the top: logo, page links (wide screens), Apply and the menu button.
+ * Floating frosted bar pinned to the top: logo, page links and sign-in (wide screens), Apply and the menu button.
  * It picks up a deeper shadow once the page scrolls under it.
  */
 function Nav() {
@@ -164,6 +185,8 @@ function Nav() {
           </ul>
         </nav>
         <div className="flex items-center gap-2">
+          {/* The menu (and its sign-in) is hidden on wide screens, so sign-in sits in the bar there. */}
+          <AccountIconLink className="hidden xl:flex" />
           <ButtonLink to="/directory/apply" className="hidden h-10 sm:inline-flex">
             Apply to Directory
           </ButtonLink>
