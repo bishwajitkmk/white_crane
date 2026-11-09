@@ -11,6 +11,7 @@ class ResourceCategory(StrEnum):
     reading = "reading"
     links = "links"
     for_teams = "for_teams"
+    suicide = "suicide"
 
 
 class ResourceKind(StrEnum):

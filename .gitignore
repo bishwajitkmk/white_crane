@@ -37,3 +37,6 @@ logs
 apps/api/uploads/
 *.db
 .neon
+
+# client documents (kept local only)
+docs/

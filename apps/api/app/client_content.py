@@ -269,3 +269,54 @@ TRAININGS = [
     ("dbt-skills-training-apr-2027", "DBT Skills Training", "upcoming",
      "Apr 4, 5, & 6, 2027", "2027-04-04", "2027-04-06", None),
 ]  # fmt: skip
+
+# Resources page, from "Resources List.docx" (November 2026). Documents are served by the web app from
+# apps/web/public/downloads; the list's bare domains (Behaviortech.org etc.) are given https://.
+# Still awaited: the Orientation Workbook, which arrived only as an Apple Pages file.
+# (title, description, category, url)
+RESOURCES = [
+    # Links to documents
+    ("Fidelity Measure (Program Self-Study)", "A self-evaluation of how closely a DBT program follows the model.",
+     "for_teams", "/downloads/dbt-program-fidelity-self-evaluation.pdf"),
+    ("Example Treatment Manual", "An exemplar DBT program manual to adapt for your own program.",
+     "for_teams", "/downloads/dbt-program-manual-exemplar.pdf"),
+    ("Individual Psychotherapy Progress Note Template", "Progress note for individual DBT sessions.",
+     "forms", "/downloads/dbt-individual-therapy-note-template.docx"),
+    ("Skills Training Progress Note Template", "Fillable note for DBT skills training sessions.",
+     "forms", "/downloads/dbt-skills-training-session-note.pdf"),
+    ("Coaching Note Template", "Fillable note for between-session coaching contacts.",
+     "forms", "/downloads/dbt-coaching-contact-note.pdf"),
+    ("Diary Card", "White Crane's DBT diary card.",
+     "forms", "/downloads/white-crane-dbt-diary-card.docx"),
+    ("Consultation Team Minutes", "Fillable minutes for DBT consultation team meetings.",
+     "for_teams", "/downloads/dbt-consultation-team-minutes.pdf"),
+    ("Observer Checklists", "Checklist for the observer role on a DBT consultation team.",
+     "for_teams", "/downloads/consultation-team-observer-checklist.docx"),
+    # Links to other websites
+    ("Additional Training and Consultation Services", "Behavioral Tech (Behaviortech.org).",
+     "links", "https://behaviortech.org/"),
+    ("National DBT Certification", "DBT-Linehan Board of Certification (DBT-LBC.org).",
+     "links", "https://dbt-lbc.org/"),
+    ("ISITDBT", "", "links", "https://isitdbt.net/"),
+    ("National BPD Alliance", "", "links", "https://bpdalliance.org/"),
+    ("Empty Cloud Sangha (Zen/Mindfulness)", "", "links", "https://emptycloudsangha.org/"),
+    ("DBT RU Skills Videos", "DBT skills videos on YouTube.", "links", "https://www.youtube.com/c/DBTRU/videos"),
+    ("What is DBT?", "Article.", "reading", "https://pmc.ncbi.nlm.nih.gov/articles/PMC2963469/"),
+    ("Psychwire", "Free resources from Marsha Linehan.", "links", "https://psychwire.com/free-resources/linehan"),
+    # Added at the client's request (November 2026)
+    ("World DBT Association", "", "links", "https://wdbta.org/wdbta-mission/"),
+    ("DBT North American and Caribbean Region (DBTNACRA)", "", "links", "https://www.dbtnacra.com/"),
+    ("The Health Resiliency Institute", "", "links", "https://healthresiliencyinstitute.org/"),
+    # Suicide / self-harm
+    ("CDC Fast Facts", "Suicide statistics.", "suicide", "https://www.cdc.gov/nchs/fastats/suicide.htm"),
+    ("Safety Planning", "Video on YouTube.", "suicide", "https://www.youtube.com/watch?v=f4dYmWxAK_Q"),
+    ("World Health Organization", "Suicide rates.", "suicide",
+     "https://www.who.int/data/gho/data/themes/mental-health/suicide-rates"),
+    ("American Foundation for Suicide Prevention", "Suicide statistics.", "suicide",
+     "https://afsp.org/suicide-statistics/"),
+    ("The Trevor Project", "", "suicide", "https://www.thetrevorproject.org/"),
+    ("The Suicide Prevention Resource Center", "Suicide data.", "suicide",
+     "https://sprc.org/about-suicide/suicide-data/"),
+    ("National Institute of Mental Health", "Suicide statistics.", "suicide",
+     "https://www.nimh.nih.gov/health/statistics/suicide"),
+]  # fmt: skip

@@ -177,7 +177,7 @@ export const resourceSchema = z
   .object({
     title: requiredText('Title'),
     description: z.string(),
-    category: z.enum(['forms', 'reading', 'links', 'for_teams']),
+    category: z.enum(['forms', 'reading', 'links', 'for_teams', 'suicide']),
     kind: z.enum(['file', 'link']),
     url: z.string().trim(),
   })

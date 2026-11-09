@@ -31,6 +31,7 @@ export const RESOURCE_CATEGORY: Record<ResourceCategory, string> = {
   reading: 'Reading',
   links: 'Links',
   for_teams: 'For teams',
+  suicide: 'Suicide & self-harm',
 }
 
 /** Listings hide automatically once renewal_due_at passes; they are never deleted. */

@@ -187,7 +187,7 @@ export interface ListingStats {
 
 export type ListingInput = Pick<Listing, 'agency_name' | 'location' | 'website' | 'public_contact' | 'renewal_due_at' | 'hidden'>
 
-export type ResourceCategory = 'forms' | 'reading' | 'links' | 'for_teams'
+export type ResourceCategory = 'forms' | 'reading' | 'links' | 'for_teams' | 'suicide'
 
 export interface Resource {
   id: string

@@ -18,6 +18,15 @@ const FILTERS: { value: Filter; label: string }[] = [
   ...Object.entries(RESOURCE_CATEGORY).map(([value, label]) => ({ value: value as ResourceCategory, label })),
 ]
 
+const FILE_TYPES: Record<string, string> = { pdf: 'PDF', doc: 'Word', docx: 'Word', xls: 'Excel', xlsx: 'Excel' }
+
+/** "Word, 28 KB": the type from the file's extension (uploads keep theirs), then the size when known. */
+function fileLabel(url: string, bytes: number | null) {
+  const ext = url.split(/[?#]/)[0].split('.').pop()?.toLowerCase() ?? ''
+  const type = FILE_TYPES[ext] ?? (ext.length <= 4 ? ext.toUpperCase() : 'File')
+  return [type, formatBytes(bytes)].filter(Boolean).join(', ')
+}
+
 export default function Resources() {
   useDocumentTitle('Resources')
   const resources = usePublicResources()
@@ -43,7 +52,7 @@ export default function Resources() {
                     <h2 className="text-base font-semibold transition-colors group-hover:text-primary">{r.title}</h2>
                     <span className="text-sm text-muted-foreground">
                       {r.description} {RESOURCE_CATEGORY[r.category]}.{' '}
-                      {r.kind === 'file' ? `PDF, ${formatBytes(r.file_size_bytes)}` : 'External link'}
+                      {r.kind === 'file' ? fileLabel(r.url, r.file_size_bytes) : 'External link'}
                     </span>
                   </div>
                   <a
